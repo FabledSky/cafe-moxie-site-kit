@@ -36,6 +36,7 @@ final class Cafe_Moxie_Site_Kit {
 			'show_archive_filters'   => 1,
 			'featured_tools_count'   => 3,
 			'archive_items_per_page' => 9,
+			'refresh_mode'           => 'safe',
 
 			'logo_width'       => 320,
 			'header_height'    => 82,
@@ -75,6 +76,22 @@ final class Cafe_Moxie_Site_Kit {
 			'home_secondary_url'   => '/about/',
 			'about_primary_cta'    => 'See the Tool Counter',
 			'about_primary_url'    => '/edge-tools/',
+
+			'layout_behavior'      => 'balanced',
+			'page_section_density' => 'comfortable',
+			'template_surface'     => 'panel',
+			'card_grid_density'    => 'comfortable',
+			'mobile_layout_mode'   => 'stacked',
+			'archive_columns'      => 3,
+			'tablet_columns'       => 2,
+			'mobile_heading_scale' => 1.0,
+
+			'show_home_story'      => 1,
+			'show_home_trust'      => 1,
+			'show_home_featured'   => 1,
+			'show_home_closing'    => 1,
+			'show_about_values'    => 1,
+			'show_about_calibrate' => 1,
 		);
 	}
 
@@ -126,6 +143,12 @@ final class Cafe_Moxie_Site_Kit {
 			'load_google_fonts',
 			'enable_motion',
 			'show_archive_filters',
+			'show_home_story',
+			'show_home_trust',
+			'show_home_featured',
+			'show_home_closing',
+			'show_about_values',
+			'show_about_calibrate',
 		);
 		$color_keys = array(
 			'color_ink',
@@ -151,6 +174,8 @@ final class Cafe_Moxie_Site_Kit {
 
 		$out['featured_tools_count']   = max( 1, min( 12, intval( $input['featured_tools_count'] ?? $d['featured_tools_count'] ) ) );
 		$out['archive_items_per_page'] = max( 3, min( 24, intval( $input['archive_items_per_page'] ?? $d['archive_items_per_page'] ) ) );
+		$out['archive_columns']        = max( 1, min( 4, intval( $input['archive_columns'] ?? $d['archive_columns'] ) ) );
+		$out['tablet_columns']         = max( 1, min( 3, intval( $input['tablet_columns'] ?? $d['tablet_columns'] ) ) );
 		$out['logo_width']             = max( 120, min( 640, intval( $input['logo_width'] ?? $d['logo_width'] ) ) );
 		$out['header_height']          = max( 60, min( 160, intval( $input['header_height'] ?? $d['header_height'] ) ) );
 		$out['section_max_width']      = max( 960, min( 1600, intval( $input['section_max_width'] ?? $d['section_max_width'] ) ) );
@@ -158,6 +183,7 @@ final class Cafe_Moxie_Site_Kit {
 		$out['glow_intensity']         = max( 0.2, min( 2.5, floatval( $input['glow_intensity'] ?? $d['glow_intensity'] ) ) );
 		$out['border_radius']          = max( 8, min( 40, intval( $input['border_radius'] ?? $d['border_radius'] ) ) );
 		$out['button_scale']           = max( 0.8, min( 1.4, floatval( $input['button_scale'] ?? $d['button_scale'] ) ) );
+		$out['mobile_heading_scale']   = max( 0.85, min( 1.2, floatval( $input['mobile_heading_scale'] ?? $d['mobile_heading_scale'] ) ) );
 		$out['card_image_ratio']       = sanitize_text_field( $input['card_image_ratio'] ?? $d['card_image_ratio'] );
 
 		foreach ( $color_keys as $key ) {
@@ -182,6 +208,18 @@ final class Cafe_Moxie_Site_Kit {
 		$out['home_secondary_url'] = self::sanitize_url_or_path( $input['home_secondary_url'] ?? $d['home_secondary_url'] );
 		$out['about_primary_cta']  = sanitize_text_field( $input['about_primary_cta'] ?? $d['about_primary_cta'] );
 		$out['about_primary_url']  = self::sanitize_url_or_path( $input['about_primary_url'] ?? $d['about_primary_url'] );
+		$choices = array(
+			'layout_behavior'      => array( 'balanced', 'single_column', 'showcase_split' ),
+			'page_section_density' => array( 'compact', 'comfortable', 'airy' ),
+			'template_surface'     => array( 'panel', 'soft', 'flat' ),
+			'card_grid_density'    => array( 'compact', 'comfortable', 'airy' ),
+			'mobile_layout_mode'   => array( 'stacked', 'balanced' ),
+			'refresh_mode'         => array( 'safe', 'overwrite' ),
+		);
+		foreach ( $choices as $key => $allowed ) {
+			$value = sanitize_key( $input[ $key ] ?? $d[ $key ] );
+			$out[ $key ] = in_array( $value, $allowed, true ) ? $value : $d[ $key ];
+		}
 
 		return $out;
 	}
@@ -242,16 +280,31 @@ final class Cafe_Moxie_Site_Kit {
 		echo '</td></tr>';
 	}
 
+	private static function select_row( $key, $label, $choices, $hint = '' ) {
+		$s = self::settings();
+		$current = (string) ( $s[ $key ] ?? '' );
+		echo '<tr><th scope="row"><label for="' . esc_attr( $key ) . '">' . esc_html( $label ) . '</label></th><td>';
+		echo '<select id="' . esc_attr( $key ) . '" name="' . esc_attr( self::OPTION ) . '[' . esc_attr( $key ) . ']">';
+		foreach ( $choices as $value => $choice_label ) {
+			echo '<option value="' . esc_attr( $value ) . '" ' . selected( $current, (string) $value, false ) . '>' . esc_html( $choice_label ) . '</option>';
+		}
+		echo '</select>';
+		if ( $hint ) {
+			echo '<p class="description">' . esc_html( $hint ) . '</p>';
+		}
+		echo '</td></tr>';
+	}
+
 	public static function settings_page() {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
 		?>
 		<div class="wrap">
 			<h1>Site System Kit</h1>
-			<p>Reusable storefront and site system layer for Twenty Twenty-Five. Keep templates editable, keep SCF data-driven rendering deterministic, and keep brand defaults configurable.</p>
+			<p>Configure layout behavior, section visibility, template defaults, and responsive output using native WordPress controls.</p>
 			<p><a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
-				<h2>Storefront</h2>
+				<h2>Storefront Basics</h2>
 				<table class="form-table" role="presentation">
 					<?php
 					self::text_row( 'brand_preset', 'Brand preset key', 'text', 'Use cafe_moxie (default) or neutral. Filterable via code for additional presets.' );
@@ -259,14 +312,93 @@ final class Cafe_Moxie_Site_Kit {
 					self::text_row( 'featured_tools_count', 'Featured tools on home', 'number' );
 					self::text_row( 'archive_items_per_page', 'Archive items per page', 'number' );
 					self::checkbox_row( 'show_archive_filters', 'Show archive filters', 'Adds a compact filter bar to the Edge Tool archive.' );
+					self::select_row(
+						'refresh_mode',
+						'Starter page refresh mode',
+						array(
+							'safe'      => 'Safe (create if missing)',
+							'overwrite' => 'Overwrite existing pages',
+						),
+						'Safe mode protects edited Home/About pages during refresh.'
+					);
 					?>
 				</table>
 
-				<h2>Layout + Motion</h2>
+				<h2>Layout Behavior</h2>
+				<table class="form-table" role="presentation">
+					<?php
+					self::select_row(
+						'layout_behavior',
+						'Default layout behavior',
+						array(
+							'balanced'      => 'Balanced split',
+							'single_column' => 'Single column focus',
+							'showcase_split'=> 'Showcase split',
+						),
+						'Controls how the 2-column layout classes render across pages.'
+					);
+					self::select_row(
+						'template_surface',
+						'Template surface style',
+						array(
+							'panel' => 'Panel (default)',
+							'soft'  => 'Soft surface',
+							'flat'  => 'Flat surface',
+						),
+						'Adjusts card/panel framing without editing CSS.'
+					);
+					self::select_row(
+						'page_section_density',
+						'Page section spacing',
+						array(
+							'compact'     => 'Compact',
+							'comfortable' => 'Comfortable',
+							'airy'        => 'Airy',
+						),
+						'Controls section spacing rhythm across generated pages and templates.'
+					);
+					?>
+				</table>
+
+				<h2>Page Sections (Starter Pages)</h2>
+				<table class="form-table" role="presentation">
+					<?php
+					self::checkbox_row( 'show_home_story', 'Show Home story section' );
+					self::checkbox_row( 'show_home_trust', 'Show Home trust sections' );
+					self::checkbox_row( 'show_home_featured', 'Show Home featured tools section' );
+					self::checkbox_row( 'show_home_closing', 'Show Home closing CTA section' );
+					self::checkbox_row( 'show_about_values', 'Show About value cards section' );
+					self::checkbox_row( 'show_about_calibrate', 'Show About final calibration section' );
+					?>
+				</table>
+
+				<h2>Template Defaults + Responsive</h2>
 				<table class="form-table" role="presentation">
 					<?php
 					self::checkbox_row( 'load_google_fonts', 'Load Google Fonts', 'Turn this off if you plan to self-host Chathura and IBM Plex Sans.' );
 					self::checkbox_row( 'enable_motion', 'Enable motion accents', 'Subtle glow, sign flicker, and tactile hover states.' );
+					self::select_row(
+						'card_grid_density',
+						'Card + grid density',
+						array(
+							'compact'     => 'Compact',
+							'comfortable' => 'Comfortable',
+							'airy'        => 'Airy',
+						),
+						'Tightens or loosens card padding and grid gaps.'
+					);
+					self::select_row(
+						'mobile_layout_mode',
+						'Mobile layout mode',
+						array(
+							'stacked'  => 'Stacked sections',
+							'balanced' => 'Balanced sections',
+						),
+						'Stacked is safer for long content and smaller screens.'
+					);
+					self::text_row( 'archive_columns', 'Desktop archive columns', 'number' );
+					self::text_row( 'tablet_columns', 'Tablet archive columns', 'number' );
+					self::text_row( 'mobile_heading_scale', 'Mobile heading scale', 'number', 'Use 1.0 for default, lower for tighter headings.' );
 					self::text_row( 'logo_width', 'Brand mark width (px)', 'number' );
 					self::text_row( 'header_height', 'Header minimum height (px)', 'number' );
 					self::text_row( 'section_max_width', 'Section max width (px)', 'number' );
@@ -330,6 +462,10 @@ final class Cafe_Moxie_Site_Kit {
 		$s = self::settings();
 		$classes[] = 'cm-moxie-site';
 		$classes[] = ! empty( $s['enable_motion'] ) ? 'cm-motion-on' : 'cm-motion-off';
+		$classes[] = 'cm-layout-' . sanitize_html_class( $s['layout_behavior'] ?? 'balanced' );
+		$classes[] = 'cm-mobile-' . sanitize_html_class( $s['mobile_layout_mode'] ?? 'stacked' );
+		$classes[] = 'cm-density-' . sanitize_html_class( $s['card_grid_density'] ?? 'comfortable' );
+		$classes[] = 'cm-surface-' . sanitize_html_class( $s['template_surface'] ?? 'panel' );
 		return $classes;
 	}
 
@@ -355,6 +491,21 @@ final class Cafe_Moxie_Site_Kit {
 		$glow = floatval( $s['glow_intensity'] );
 		$ratio = self::ratio_to_padding( $s['card_image_ratio'] );
 		$motion = ! empty( $s['enable_motion'] ) ? 1 : 0;
+		$section_gap = '28px';
+		if ( 'compact' === ( $s['page_section_density'] ?? '' ) ) {
+			$section_gap = '20px';
+		} elseif ( 'airy' === ( $s['page_section_density'] ?? '' ) ) {
+			$section_gap = '40px';
+		}
+		$card_gap = '20px';
+		$card_padding = 24;
+		if ( 'compact' === ( $s['card_grid_density'] ?? '' ) ) {
+			$card_gap = '14px';
+			$card_padding = 18;
+		} elseif ( 'airy' === ( $s['card_grid_density'] ?? '' ) ) {
+			$card_gap = '28px';
+			$card_padding = 30;
+		}
 		$text_rgba = self::hex_to_rgba( $s['color_cream'], 0.94 );
 		$muted_rgba = self::hex_to_rgba( $s['color_cream'], 0.72 );
 		$line_rgba = self::hex_to_rgba( $s['color_cyan'], 0.18 );
@@ -388,6 +539,12 @@ final class Cafe_Moxie_Site_Kit {
 --moxie-wrap:min({$s['section_max_width']}px,calc(100% - 32px));
 --moxie-radius:{$s['border_radius']}px;
 --moxie-card-ratio:{$ratio};
+--moxie-section-gap:{$section_gap};
+--moxie-card-gap:{$card_gap};
+--moxie-card-pad:{$card_padding}px;
+--moxie-archive-cols:" . intval( $s['archive_columns'] ) . ";
+--moxie-tablet-cols:" . intval( $s['tablet_columns'] ) . ";
+--moxie-mobile-heading-scale:" . floatval( $s['mobile_heading_scale'] ) . ";
 --moxie-button-scale:{$s['button_scale']};
 --moxie-glow-cyan:0 0 " . ( 18 * $glow ) . "px {$cyan_glow_rgba};
 --moxie-glow-amber:0 0 " . ( 20 * $glow ) . "px {$amber_glow_rgba};
@@ -408,8 +565,8 @@ body.cm-moxie-site .wp-block-site-logo img,body.cm-moxie-site .custom-logo{width
 body.cm-moxie-site .wp-block-navigation a{color:var(--moxie-cream);text-decoration:none}
 body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-wrap{width:var(--moxie-wrap);margin-inline:auto}
-.cm-section{margin-block:28px}
-.cm-panel,.cm-card,.is-style-cm-panel{position:relative;overflow:hidden;padding:24px;border-radius:var(--moxie-radius);border:1px solid var(--moxie-line);background:linear-gradient(180deg,rgba(18,26,43,.96),rgba(10,16,32,.98));box-shadow:var(--moxie-shadow)}
+.cm-section{margin-block:var(--moxie-section-gap)}
+.cm-panel,.cm-card,.is-style-cm-panel{position:relative;overflow:hidden;padding:var(--moxie-card-pad);border-radius:var(--moxie-radius);border:1px solid var(--moxie-line);background:linear-gradient(180deg,rgba(18,26,43,.96),rgba(10,16,32,.98));box-shadow:var(--moxie-shadow)}
 .cm-panel:before,.cm-card:before,.is-style-cm-panel:before{content:'';position:absolute;inset:-1px auto auto -1px;width:180px;height:180px;background:radial-gradient(circle at top left, rgba(53,214,255,.14), transparent 70%);pointer-events:none}
 .cm-brand-mark{display:inline-flex;align-items:center;gap:14px;margin-bottom:14px}
 .cm-brand-mark img{display:block;width:min(var(--moxie-logo-width),100%);height:auto;filter:drop-shadow(0 0 12px rgba(53,214,255,.18))}
@@ -427,9 +584,9 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-sign-title:after{content:'';position:absolute;left:0;bottom:0;width:82px;height:3px;border-radius:999px;background:linear-gradient(90deg,var(--moxie-cyan),var(--moxie-teal));box-shadow:var(--moxie-glow-cyan)}
 .cm-subtle{color:var(--moxie-muted)}
 .cm-note{margin-top:16px;padding:14px 16px;border-radius:16px;border:1px solid rgba(246,179,92,.24);background:rgba(246,179,92,.08);color:var(--moxie-cream)}
-.cm-grid-2{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
-.cm-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.cm-grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.cm-grid-2{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--moxie-card-gap)}
+.cm-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--moxie-card-gap)}
+.cm-grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--moxie-card-gap)}
 .cm-hero{min-height:{$s['hero_min_height']}px;align-items:stretch}
 .cm-placeholder{min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:28px;border:1px dashed rgba(53,214,255,.28);border-radius:18px;background:rgba(53,214,255,.04)}
 .cm-kv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -454,7 +611,7 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-price{font-weight:700;color:var(--moxie-amber)}
 .cm-eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--moxie-cyan);margin-bottom:10px}
 .cm-archive-page,.cm-single-page{padding-block:28px 52px}
-.cm-archive-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:22px}
+.cm-archive-tools{display:grid;grid-template-columns:repeat(var(--moxie-archive-cols),minmax(0,1fr));gap:var(--moxie-card-gap);margin-top:22px}
 .cm-filter-bar{display:grid;grid-template-columns:2fr repeat(5,minmax(0,1fr));gap:12px;align-items:end}
 .cm-filter-bar label{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--moxie-cyan);margin-bottom:6px}
 .cm-filter-bar input,.cm-filter-bar select{width:100%;min-height:44px;border-radius:14px;border:1px solid rgba(53,214,255,.16);background:rgba(5,7,13,.40);color:var(--moxie-cream);padding:10px 12px}
@@ -481,9 +638,14 @@ body.cm-motion-on .cm-button:hover,body.cm-motion-on .cm-button:focus{transform:
 body.cm-motion-on .cm-card:hover,body.cm-motion-on .cm-panel:hover{transform:translateY(-2px);border-color:rgba(53,214,255,.28)}
 body.cm-motion-on .cm-sign-flicker{animation:cmSignFlicker " . ( $motion ? '6.2s' : '0s' ) . " ease-in-out infinite}
 @keyframes cmSignFlicker{0%,100%{opacity:1;filter:drop-shadow(0 0 0 rgba(53,214,255,0))}2%{opacity:.88}4%{opacity:1}48%{opacity:1}50%{opacity:.9}51%{opacity:1}}
+body.cm-surface-soft .cm-panel,body.cm-surface-soft .cm-card{background:linear-gradient(180deg,rgba(18,26,43,.80),rgba(10,16,32,.86))}
+body.cm-surface-flat .cm-panel,body.cm-surface-flat .cm-card{background:rgba(14,20,33,.94);box-shadow:none}
+body.cm-layout-single_column .cm-grid-2{grid-template-columns:1fr}
+body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 @media (max-width:1160px){.cm-filter-bar{grid-template-columns:1fr 1fr 1fr}.cm-grid-4,.cm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-archive-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:920px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}}
-@media (max-width:640px){body.cm-moxie-site h1{font-size:46px}body.cm-moxie-site h2{font-size:42px}body.cm-moxie-site h3{font-size:38px}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:280px}}
+@media (max-width:920px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}}
+@media (max-width:640px){body.cm-moxie-site h1{font-size:calc(46px * var(--moxie-mobile-heading-scale))}body.cm-moxie-site h2{font-size:calc(42px * var(--moxie-mobile-heading-scale))}body.cm-moxie-site h3{font-size:calc(38px * var(--moxie-mobile-heading-scale))}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:280px}}
+@media (max-width:640px){body.cm-mobile-balanced .cm-panel,body.cm-mobile-balanced .cm-card{padding:calc(var(--moxie-card-pad) - 4px)}}
 ";
 	}
 
@@ -592,7 +754,7 @@ body.cm-motion-on .cm-sign-flicker{animation:cmSignFlicker " . ( $motion ? '6.2s
 		return ob_get_clean();
 	}
 
-	public static function create_or_update_page( $slug, $title, $content ) {
+	public static function create_or_update_page( $slug, $title, $content, $overwrite = true ) {
 		$existing = get_page_by_path( $slug, OBJECT, 'page' );
 		$data = array(
 			'post_title'   => $title,
@@ -602,6 +764,9 @@ body.cm-motion-on .cm-sign-flicker{animation:cmSignFlicker " . ( $motion ? '6.2s
 			'post_content' => $content,
 		);
 		if ( $existing ) {
+			if ( ! $overwrite ) {
+				return $existing->ID;
+			}
 			$data['ID'] = $existing->ID;
 			return wp_update_post( $data, true );
 		}
@@ -610,10 +775,12 @@ body.cm-motion-on .cm-sign-flicker{animation:cmSignFlicker " . ( $motion ? '6.2s
 
 	public static function create_starter_pages() {
 		check_admin_referer( 'cafe_moxie_create_starter_pages' );
+		$s = self::settings();
+		$overwrite = ( 'overwrite' === ( $s['refresh_mode'] ?? 'safe' ) );
 		foreach ( array( 'home' => 'Home', 'about' => 'About' ) as $slug => $title ) {
 			ob_start();
 			include plugin_dir_path( __FILE__ ) . 'patterns/' . $slug . '.php';
-			self::create_or_update_page( $slug, $title, ob_get_clean() );
+			self::create_or_update_page( $slug, $title, ob_get_clean(), $overwrite );
 		}
 		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&created=1' ) );
 		exit;
