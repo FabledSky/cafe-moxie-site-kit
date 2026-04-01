@@ -1477,6 +1477,7 @@ Implement a real Cafe Moxie polished preset/default profile so the plugin loads 
 Status note (2026-04-01 baseline):
 
 * The settings registry exists, but the current `brand_preset` system does not yet apply a true Cafe Moxie default map across all relevant visual/layout/header/footer/page settings.
+* Implementation update (2026-04-01): preset-default maps now drive first install + explicit reapply flows, `preset_participation` metadata controls preset-managed keys, and the settings UI includes a direct “Apply Cafe Moxie polished defaults” action.
 
 #### Implementation Steps
 
