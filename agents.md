@@ -31,6 +31,8 @@ Here is a clean **GitHub-compatible Table of Contents** for your `agents.md`. Yo
   * [13. Future Extensions](#13-future-extensions)
   * [14. Mental Model for Agents](#14-mental-model-for-agents)
   * [15. Final Rule](#15-final-rule)
+ 
+* [Codex Agent Instructions User Prompt](#codex-agent-instructions-user-prompt)
 
 * [Tasks for Codex Agent](#tasks-for-codex-agent)
 
@@ -469,7 +471,95 @@ If unsure:
 
 ---
 ---
+## Codex Agent Instructions User Prompt
+```
+You are working on the Cafe Moxie Site Kit WordPress plugin.
 
+Your source of truth is:
+- agents.md (STRICT contract)
+- existing plugin codebase
+
+Your task is to COMPLETE Task [XX] exactly as defined in agents.md.
+
+---
+
+## Critical Instructions
+
+1. Read Task [XX] in agents.md fully before making any changes.
+2. Do NOT assume the task is already complete, even if partial implementation exists.
+3. Treat this task as incomplete until ALL implementation steps and definition-of-done criteria are satisfied.
+4. Do NOT modify or rewrite other tasks.
+5. Do NOT introduce:
+   - page builders
+   - heavy frameworks
+   - unnecessary abstraction
+6. Keep everything:
+   - WordPress-native
+   - lean
+   - deterministic
+   - maintainable
+
+---
+
+## Execution Requirements
+
+You MUST:
+
+1. Identify all relevant files for this task.
+2. Audit current implementation against:
+   - Implementation Steps
+   - Definition of Done
+
+3. Explicitly list:
+   - what is already implemented
+   - what is missing or incorrect
+
+4. Then implement ONLY what is missing.
+
+5. Do not break:
+   - SCF schema contract
+   - existing rendering behavior
+   - existing settings unless required
+
+---
+
+## Output Requirements
+
+Return your response in this exact structure:
+
+### 1. Audit Summary
+- What exists
+- What is missing
+- What is incorrect
+
+### 2. Implementation Plan
+- Bullet list of what you will change/add
+
+### 3. Code Changes
+- Provide full updated code for any modified files
+- Do not include unrelated files
+- Keep changes minimal and precise
+
+### 4. Verification Checklist
+Confirm:
+
+- [ ] All Implementation Steps are satisfied
+- [ ] Definition of Done is satisfied
+- [ ] No regressions introduced
+- [ ] Works on clean install (Twenty Twenty-Five + plugin only)
+
+---
+
+## Scope Control
+
+- Do NOT start another task
+- Do NOT “improve” unrelated systems
+- Do NOT refactor beyond what Task [XX] requires
+
+---
+
+Now proceed with Task [XX].
+```
 
 ## Tasks for Codex Agent
 
