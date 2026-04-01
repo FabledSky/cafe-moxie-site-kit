@@ -85,6 +85,17 @@ The plugin includes reusable methods and filters so you can keep growing without
 
 That gives you a clean path to extend behavior in a mu-plugin, child plugin, or future custom integration.
 
+## AI-ready architecture groundwork (non-functional)
+
+To support future AI-assisted editing safely, the plugin now keeps composed page behavior in structured registries before rendering:
+
+- composed section metadata lives in array-based registries (labels, template identifiers, supported content primitives)
+- section markup is mapped by template key with token placeholders
+- a dedicated context map resolves runtime values (brand name, CTA URL, feature counts, layout classes)
+- rendering performs a token replacement step into final block markup
+
+This means a future AI feature can propose or validate section plans as data structures first, without directly writing raw PHP template strings. No model calls, keys, or AI admin UI are included in this baseline.
+
 ## Suggested next steps in WordPress
 
 1. Import the SCF JSON export.

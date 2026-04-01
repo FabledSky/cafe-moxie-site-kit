@@ -1087,15 +1087,49 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		);
 	}
 
+	/**
+	 * Structured section registry for composed pages.
+	 *
+	 * This registry is intentionally data-first so future AI-assisted editing can
+	 * read/write section plans as arrays before they are rendered into block HTML.
+	 */
 	public static function composed_sections() {
 		return array(
-			'hero' => array( 'label' => 'Hero' ),
-			'story_split' => array( 'label' => 'Story split' ),
-			'feature_grid' => array( 'label' => 'Feature grid' ),
-			'cta_band' => array( 'label' => 'CTA band' ),
-			'trust_section' => array( 'label' => 'Trust section' ),
-			'product_feed' => array( 'label' => 'Product feed' ),
-			'content_section' => array( 'label' => 'Content section' ),
+			'hero' => array(
+				'label' => 'Hero',
+				'template' => 'hero',
+				'supports' => array( 'headline', 'kicker', 'body' ),
+			),
+			'story_split' => array(
+				'label' => 'Story split',
+				'template' => 'story_split',
+				'supports' => array( 'headline', 'body', 'media' ),
+			),
+			'feature_grid' => array(
+				'label' => 'Feature grid',
+				'template' => 'feature_grid',
+				'supports' => array( 'cards' ),
+			),
+			'cta_band' => array(
+				'label' => 'CTA band',
+				'template' => 'cta_band',
+				'supports' => array( 'headline', 'cta' ),
+			),
+			'trust_section' => array(
+				'label' => 'Trust section',
+				'template' => 'trust_section',
+				'supports' => array( 'list' ),
+			),
+			'product_feed' => array(
+				'label' => 'Product feed',
+				'template' => 'product_feed',
+				'supports' => array( 'shortcode' ),
+			),
+			'content_section' => array(
+				'label' => 'Content section',
+				'template' => 'content_section',
+				'supports' => array( 'headline', 'body' ),
+			),
 		);
 	}
 
@@ -1128,26 +1162,49 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return ob_get_clean();
 	}
 
-	private static function render_composed_section( $section_key, $s, $brand ) {
-		switch ( $section_key ) {
-			case 'hero':
-				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose">' . self::render_brand_mark() . '<!-- wp:paragraph --><p class="cm-eyebrow">Template Composer</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">' . esc_html( $brand['name'] ) . ' page template</h1><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Start with a focused hero and then add only the sections this page needs.</p><!-- /wp:paragraph --></div><!-- /wp:group -->';
-			case 'story_split':
-				$layout = self::section_layout_classes( 'home_story_layout', 'media_right_split' );
-				return '<!-- wp:group {"className":"' . esc_attr( $layout ) . '","layout":{"type":"default"}} --><div class="wp-block-group ' . esc_attr( $layout ) . '"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Story split</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Explain what this page does.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Use this split to pair explanatory copy with supporting media or an image block.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel"><!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Replace media</span><p class="cm-subtle">Drop in an image, logo treatment, or proof point.</p></div><!-- /wp:html --></div><!-- /wp:group --></div><!-- /wp:group -->';
-			case 'feature_grid':
-				return '<!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-3 cm-section"><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Fast setup</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Keep the first value block clear and practical.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Clear ownership</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Define what users control and what stays simple.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Real-world outcomes</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Show what gets easier after the workflow changes.</p><!-- /wp:paragraph --></div><!-- /wp:group --></div><!-- /wp:group -->';
-			case 'cta_band':
-				return '<!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section"><!-- wp:paragraph --><p class="cm-eyebrow">Next step</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Move from explanation to action.</h2><!-- /wp:heading --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( self::resolve_url( $s['home_primary_url'] ) ) . '">' . esc_html( $s['home_primary_cta'] ) . '</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->';
-			case 'trust_section':
-				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Trust section</p><!-- /wp:paragraph --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>State what you do not do.</li><li>Set expectations for edge cases and limits.</li><li>Keep promises specific and verifiable.</li></ul><!-- /wp:list --></div><!-- /wp:group -->';
-			case 'product_feed':
-				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Product feed</p><!-- /wp:paragraph --><!-- wp:shortcode -->[cafe_moxie_featured_edge_tools count="' . esc_attr( $s['featured_tools_count'] ) . '"]<!-- /wp:shortcode --></div><!-- /wp:group -->';
-			case 'content_section':
-				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Content section</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Add your long-form detail here.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">This section is intentionally generic so the page stays editable and reusable for new site contexts.</p><!-- /wp:paragraph --></div><!-- /wp:group -->';
-		}
+	private static function composed_section_markup() {
+		return array(
+			'hero' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose">{{brand_mark}}<!-- wp:paragraph --><p class="cm-eyebrow">Template Composer</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">{{brand_name}} page template</h1><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Start with a focused hero and then add only the sections this page needs.</p><!-- /wp:paragraph --></div><!-- /wp:group -->',
+			'story_split' => '<!-- wp:group {"className":"{{story_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{story_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Story split</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Explain what this page does.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Use this split to pair explanatory copy with supporting media or an image block.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel"><!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Replace media</span><p class="cm-subtle">Drop in an image, logo treatment, or proof point.</p></div><!-- /wp:html --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'feature_grid' => '<!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-3 cm-section"><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Fast setup</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Keep the first value block clear and practical.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Clear ownership</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Define what users control and what stays simple.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Real-world outcomes</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Show what gets easier after the workflow changes.</p><!-- /wp:paragraph --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'cta_band' => '<!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section"><!-- wp:paragraph --><p class="cm-eyebrow">Next step</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Move from explanation to action.</h2><!-- /wp:heading --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{primary_cta_url}}">{{primary_cta_label}}</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
+			'trust_section' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Trust section</p><!-- /wp:paragraph --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>State what you do not do.</li><li>Set expectations for edge cases and limits.</li><li>Keep promises specific and verifiable.</li></ul><!-- /wp:list --></div><!-- /wp:group -->',
+			'product_feed' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Product feed</p><!-- /wp:paragraph --><!-- wp:shortcode -->[cafe_moxie_featured_edge_tools count="{{featured_tools_count}}"]<!-- /wp:shortcode --></div><!-- /wp:group -->',
+			'content_section' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Content section</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Add your long-form detail here.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">This section is intentionally generic so the page stays editable and reusable for new site contexts.</p><!-- /wp:paragraph --></div><!-- /wp:group -->',
+		);
+	}
 
-		return '';
+	private static function composed_section_context( $s, $brand ) {
+		return array(
+			'brand_mark' => self::render_brand_mark(),
+			'brand_name' => esc_html( $brand['name'] ?? '' ),
+			'story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', 'media_right_split' ) ),
+			'primary_cta_url' => esc_url( self::resolve_url( $s['home_primary_url'] ?? '' ) ),
+			'primary_cta_label' => esc_html( $s['home_primary_cta'] ?? '' ),
+			'featured_tools_count' => esc_attr( (string) (int) ( $s['featured_tools_count'] ?? 3 ) ),
+		);
+	}
+
+	private static function replace_markup_tokens( $markup, $context ) {
+		$replacements = array();
+		foreach ( $context as $key => $value ) {
+			$replacements[ '{{' . $key . '}}' ] = (string) $value;
+		}
+		return strtr( (string) $markup, $replacements );
+	}
+
+	private static function render_composed_section( $section_key, $s, $brand ) {
+		$sections = self::composed_sections();
+		if ( ! isset( $sections[ $section_key ]['template'] ) ) {
+			return '';
+		}
+		$templates = self::composed_section_markup();
+		$template_key = $sections[ $section_key ]['template'];
+		if ( ! isset( $templates[ $template_key ] ) ) {
+			return '';
+		}
+		$context = self::composed_section_context( $s, $brand );
+		return self::replace_markup_tokens( $templates[ $template_key ], $context );
 	}
 
 	public static function create_or_update_page( $slug, $title, $content, $overwrite = true ) {

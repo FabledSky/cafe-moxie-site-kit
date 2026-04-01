@@ -689,6 +689,11 @@ Goals
 
 Lay the non-functional groundwork for future AI-assisted site editing without implementing the actual OpenAI editing flow yet.
 
+Status note (2026-04-01 baseline):
+
+* Initial groundwork is now in place by moving composed-page sections toward structured registries/templates in `plugin/cafe-moxie-site-kit.php`.
+* Future work should build on those registries (section metadata + tokenized markup context) instead of re-introducing large inline section switches.
+
 #### Implementation Steps 
 
 1. Identify where structured page/template data should eventually live if AI is added later.
