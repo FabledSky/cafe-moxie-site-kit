@@ -409,6 +409,167 @@ final class Cafe_Moxie_Site_Kit {
 		echo '</table>';
 	}
 
+	private static function admin_tabs() {
+		return array(
+			'overview' => array(
+				'label' => 'Overview + Setup',
+				'description' => 'Current plugin-managed setup state and high-impact actions.',
+				'groups' => array(),
+			),
+			'brand_presets' => array(
+				'label' => 'Brand + Presets',
+				'description' => 'Brand identity, preset baseline, and storefront media/copy defaults.',
+				'groups' => array( 'storefront_defaults' ),
+			),
+			'layout_spacing' => array(
+				'label' => 'Layout + Spacing',
+				'description' => 'Global spacing and responsive layout defaults for sections and templates.',
+				'groups' => array( 'global_design_tokens', 'component_defaults', 'page_template_defaults' ),
+			),
+			'header_footer' => array(
+				'label' => 'Header + Footer',
+				'description' => 'Header/footer treatment controls currently managed from visual + storefront settings.',
+				'groups' => array( 'global_design_tokens', 'storefront_defaults' ),
+				'keys' => array( 'header_height', 'logo_width', 'display_logo_image', 'footer_copy' ),
+			),
+			'pages_templates' => array(
+				'label' => 'Pages + Templates',
+				'description' => 'Starter/composed page defaults and section-template behavior.',
+				'groups' => array( 'page_template_defaults' ),
+			),
+			'content_modules' => array(
+				'label' => 'Content Modules',
+				'description' => 'Composed section defaults and reusable module readiness for generated pages.',
+				'groups' => array( 'page_template_defaults', 'component_defaults' ),
+				'keys' => array( 'composed_page_template', 'composed_page_slug', 'composed_page_title', 'template_surface', 'content_max_width', 'content_band_max_width' ),
+			),
+			'storefront' => array(
+				'label' => 'Storefront Behavior',
+				'description' => 'Archive/query behavior and tool-catalog presentation defaults.',
+				'groups' => array( 'storefront_defaults', 'component_defaults' ),
+				'keys' => array( 'featured_tools_count', 'archive_items_per_page', 'show_archive_filters', 'archive_columns', 'tablet_columns', 'card_grid_density', 'card_image_ratio' ),
+			),
+		);
+	}
+
+	private static function current_admin_tab() {
+		$tabs = self::admin_tabs();
+		$requested = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'overview';
+		return isset( $tabs[ $requested ] ) ? $requested : 'overview';
+	}
+
+	private static function get_tab_fields( $tab_key ) {
+		$tabs = self::admin_tabs();
+		$groups = self::settings_groups();
+		$registry = self::settings_registry();
+		if ( empty( $tabs[ $tab_key ] ) ) {
+			return array();
+		}
+		$keys = array();
+		foreach ( (array) ( $tabs[ $tab_key ]['groups'] ?? array() ) as $group_key ) {
+			if ( empty( $groups[ $group_key ]['keys'] ) ) {
+				continue;
+			}
+			$keys = array_merge( $keys, $groups[ $group_key ]['keys'] );
+		}
+		if ( ! empty( $tabs[ $tab_key ]['keys'] ) ) {
+			$keys = $tabs[ $tab_key ]['keys'];
+		}
+		$keys = array_values( array_unique( $keys ) );
+		return array_values(
+			array_filter(
+				$keys,
+				static function( $key ) use ( $registry ) {
+					return isset( $registry[ $key ] );
+				}
+			)
+		);
+	}
+
+	private static function render_tab_fields( $tab_key ) {
+		$registry = self::settings_registry();
+		$keys = self::get_tab_fields( $tab_key );
+		if ( empty( $keys ) ) {
+			return;
+		}
+		echo '<table class="form-table" role="presentation">';
+		foreach ( $keys as $key ) {
+			self::render_registry_row( $key, $registry[ $key ] );
+		}
+		echo '</table>';
+	}
+
+	private static function render_status_summary() {
+		$s = self::settings();
+		$front_page_id = (int) get_option( 'page_on_front' );
+		$front_page_title = $front_page_id ? get_the_title( $front_page_id ) : '';
+		$home_page = get_page_by_path( 'home' );
+		$about_page = get_page_by_path( 'about' );
+		$summary = array(
+			'Active preset' => self::brand_profile()['label'],
+			'Starter page state' => ( $home_page || $about_page ) ? 'Home/About pages detected' : 'Starter pages not found',
+			'Composed page default' => sprintf( '%s (%s)', $s['composed_page_title'], $s['composed_page_template'] ),
+			'Header/footer status' => sprintf( 'Header height %dpx, footer copy %s', (int) $s['header_height'], ! empty( $s['footer_copy'] ) ? 'configured' : 'empty' ),
+			'Front page setup' => $front_page_id ? sprintf( 'Assigned: %s', $front_page_title ) : 'No static front page assigned',
+			'Content module readiness' => ! empty( self::composed_sections() ) ? 'Composed sections available' : 'No composed sections registered',
+		);
+		echo '<div class="notice notice-info"><p><strong>System summary</strong> — Current plugin-managed state.</p></div>';
+		echo '<table class="widefat striped" style="max-width:980px"><tbody>';
+		foreach ( $summary as $label => $value ) {
+			echo '<tr><th style="width:240px">' . esc_html( $label ) . '</th><td>' . esc_html( $value ) . '</td></tr>';
+		}
+		echo '</tbody></table>';
+	}
+
+	private static function render_generation_actions() {
+		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
+		$compose_action = admin_url( 'admin-post.php' );
+		?>
+		<hr />
+		<h2>Generation + Assignment Actions</h2>
+		<p>These actions create or refresh content. They are separate from normal settings save actions.</p>
+		<p><a class="button button-secondary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
+		<h3>Generate Composed Page</h3>
+		<form method="post" action="<?php echo esc_url( $compose_action ); ?>">
+			<?php wp_nonce_field( 'cafe_moxie_generate_composed_page' ); ?>
+			<input type="hidden" name="action" value="cafe_moxie_generate_composed_page" />
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="cm-compose-title">Page title</label></th>
+					<td><input id="cm-compose-title" name="page_title" type="text" class="regular-text" value="<?php echo esc_attr( self::settings()['composed_page_title'] ); ?>" required /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="cm-compose-slug">Page slug</label></th>
+					<td><input id="cm-compose-slug" name="page_slug" type="text" class="regular-text" value="<?php echo esc_attr( self::settings()['composed_page_slug'] ); ?>" required /></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="cm-compose-template">Template preset</label></th>
+					<td>
+						<select id="cm-compose-template" name="template_key">
+							<?php foreach ( self::composed_page_templates() as $key => $label ) : ?>
+								<option value="<?php echo esc_attr( $key ); ?>" <?php selected( self::settings()['composed_page_template'], $key ); ?>><?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">Sections</th>
+					<td>
+						<?php foreach ( self::composed_sections() as $section_key => $section ) : ?>
+							<label style="display:block;margin-bottom:6px;">
+								<input type="checkbox" name="sections[]" value="<?php echo esc_attr( $section_key ); ?>" checked />
+								<?php echo esc_html( $section['label'] ); ?>
+							</label>
+						<?php endforeach; ?>
+						<p class="description">Pick the sections you want included. If none are selected, the template preset defaults are used.</p>
+					</td>
+				</tr>
+			</table>
+			<?php submit_button( 'Generate Page from Sections', 'secondary', 'submit', false ); ?>
+		</form>
+		<?php
+	}
+
 	public static function layout_mode_choices() {
 		return array(
 			'single_column'      => 'Single column',
@@ -437,67 +598,42 @@ final class Cafe_Moxie_Site_Kit {
 	}
 
 	public static function settings_page() {
-		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
-		$compose_action = admin_url( 'admin-post.php' );
+		$tabs = self::admin_tabs();
+		$current_tab = self::current_admin_tab();
 		$starter_summary = self::starter_generation_summary_from_request();
 		?>
 		<div class="wrap">
 			<h1>Site System Kit</h1>
-			<p>Configure layout behavior, section visibility, template defaults, and responsive output using native WordPress controls.</p>
+			<p>Use this control console to manage brand presets, layout defaults, composed page behavior, and storefront presentation using native WordPress settings patterns.</p>
 			<?php if ( ! empty( $starter_summary ) ) : ?>
 				<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $starter_summary ); ?></p></div>
 			<?php endif; ?>
-			<p><a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
+			<h2 class="nav-tab-wrapper">
+				<?php foreach ( $tabs as $tab_key => $tab ) : ?>
+					<?php
+					$tab_url = add_query_arg(
+						array(
+							'page' => 'cafe-moxie-site-kit',
+							'tab'  => $tab_key,
+						),
+						admin_url( 'admin.php' )
+					);
+					?>
+					<a href="<?php echo esc_url( $tab_url ); ?>" class="nav-tab <?php echo $tab_key === $current_tab ? 'nav-tab-active' : ''; ?>"><?php echo esc_html( $tab['label'] ); ?></a>
+				<?php endforeach; ?>
+			</h2>
+			<p class="description" style="margin:12px 0 18px;"><?php echo esc_html( $tabs[ $current_tab ]['description'] ); ?></p>
+			<?php if ( 'overview' === $current_tab ) : ?>
+				<?php self::render_status_summary(); ?>
+				<?php self::render_generation_actions(); ?>
+				<?php return; ?>
+			<?php endif; ?>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
-				<?php
-				self::render_settings_group( 'storefront_defaults' );
-				self::render_settings_group( 'page_template_defaults' );
-				self::render_settings_group( 'global_design_tokens' );
-				self::render_settings_group( 'component_defaults' );
-				?>
-				<?php submit_button(); ?>
+				<?php self::render_tab_fields( $current_tab ); ?>
+				<?php submit_button( 'Save settings', 'primary', 'submit', false ); ?>
 			</form>
-			<hr />
-			<h2>Generate Composed Page</h2>
-			<p>Create additional pages from reusable section building blocks. Generated pages are standard WordPress pages and remain editable in the block editor.</p>
-			<form method="post" action="<?php echo esc_url( $compose_action ); ?>">
-				<?php wp_nonce_field( 'cafe_moxie_generate_composed_page' ); ?>
-				<input type="hidden" name="action" value="cafe_moxie_generate_composed_page" />
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row"><label for="cm-compose-title">Page title</label></th>
-						<td><input id="cm-compose-title" name="page_title" type="text" class="regular-text" value="<?php echo esc_attr( self::settings()['composed_page_title'] ); ?>" required /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="cm-compose-slug">Page slug</label></th>
-						<td><input id="cm-compose-slug" name="page_slug" type="text" class="regular-text" value="<?php echo esc_attr( self::settings()['composed_page_slug'] ); ?>" required /></td>
-					</tr>
-					<tr>
-						<th scope="row"><label for="cm-compose-template">Template preset</label></th>
-						<td>
-							<select id="cm-compose-template" name="template_key">
-								<?php foreach ( self::composed_page_templates() as $key => $label ) : ?>
-									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( self::settings()['composed_page_template'], $key ); ?>><?php echo esc_html( $label ); ?></option>
-								<?php endforeach; ?>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">Sections</th>
-						<td>
-							<?php foreach ( self::composed_sections() as $section_key => $section ) : ?>
-								<label style="display:block;margin-bottom:6px;">
-									<input type="checkbox" name="sections[]" value="<?php echo esc_attr( $section_key ); ?>" checked />
-									<?php echo esc_html( $section['label'] ); ?>
-								</label>
-							<?php endforeach; ?>
-							<p class="description">Pick the sections you want included. If none are selected, the template preset defaults are used.</p>
-						</td>
-					</tr>
-				</table>
-				<?php submit_button( 'Generate Page from Sections', 'secondary', 'submit', false ); ?>
-			</form>
+			<?php self::render_generation_actions(); ?>
 		</div>
 		<?php
 	}
