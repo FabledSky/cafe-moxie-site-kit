@@ -60,21 +60,21 @@ while ( have_posts() ) :
 		<div class="cm-wrap">
 			<section class="cm-grid-2 cm-section">
 				<div class="cm-panel">
-					<div class="cm-chip-list" style="margin-bottom:14px;">
+					<div class="cm-chip-list cm-chip-list--tight">
 						<span class="cm-badge">Edge Tool</span>
 						<?php if ( $data['buying_model'] ) : ?><span class="cm-status cm-status--warm"><?php echo esc_html( $data['buying_model'] ); ?></span><?php endif; ?>
 						<?php if ( $data['execution_mode'] ) : ?><span class="cm-status <?php echo false !== stripos( $data['execution_mode'], 'Compute' ) ? 'cm-status--compute' : ''; ?>"><?php echo esc_html( $data['execution_mode'] ); ?></span><?php endif; ?>
 						<?php if ( $data['release_status'] ) : ?><span class="cm-chip"><?php echo esc_html( $data['release_status'] ); ?></span><?php endif; ?>
 					</div>
 					<h1 class="cm-sign-title"><?php echo esc_html( $data['title'] ); ?></h1>
-					<?php if ( $data['short_tagline'] ) : ?><div style="color:var(--moxie-amber);font-weight:700;margin-top:6px;"><?php echo esc_html( $data['short_tagline'] ); ?></div><?php endif; ?>
+					<?php if ( $data['short_tagline'] ) : ?><div class="cm-single-hero-tagline"><?php echo esc_html( $data['short_tagline'] ); ?></div><?php endif; ?>
 					<p class="cm-subtle"><?php echo esc_html( $data['one_line_value'] ? $data['one_line_value'] : $data['tool_summary'] ); ?></p>
-					<div class="cm-chip-list" style="margin:16px 0 0;">
+					<div class="cm-chip-list cm-chip-list--top">
 						<?php foreach ( array_merge( $data['taxonomies']['tool_type'], $data['taxonomies']['workflow_area'] ) as $chip ) : ?>
 							<span class="cm-chip"><?php echo esc_html( $chip ); ?></span>
 						<?php endforeach; ?>
 					</div>
-					<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:18px;">
+					<div class="cm-single-hero-actions">
 						<?php if ( $data['download_url'] ) : ?><a class="cm-button" href="<?php echo esc_url( $data['download_url'] ); ?>">Download Tool</a><?php endif; ?>
 						<?php if ( $data['compute_run_url'] ) : ?><a class="cm-button cm-button--secondary" href="<?php echo esc_url( $data['compute_run_url'] ); ?>">Use Compute</a><?php endif; ?>
 						<?php if ( ! $data['download_url'] && ! $data['compute_run_url'] ) : ?><a class="cm-button" href="#tool-details"><?php echo esc_html( $cta_mode ); ?></a><?php endif; ?>
@@ -83,11 +83,11 @@ while ( have_posts() ) :
 				</div>
 				<div class="cm-panel">
 					<?php if ( $data['hero_image'] ) : ?>
-						<div class="cm-media-frame"><img src="<?php echo esc_url( $data['hero_image'] ); ?>" alt="<?php echo esc_attr( $data['title'] ); ?>" style="display:block;width:100%;height:auto;"></div>
+						<div class="cm-media-frame"><img src="<?php echo esc_url( $data['hero_image'] ); ?>" alt="<?php echo esc_attr( $data['title'] ); ?>" class="cm-media-image"></div>
 					<?php else : ?>
-						<div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title" style="font-size:50px;">Tool media slot</h2><p class="cm-subtle">Use the SCF hero image field or a featured image for a stronger product page.</p></div>
+						<div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title cm-placeholder-title">Tool media slot</h2><p class="cm-subtle">Use the SCF hero image field or a featured image for a stronger product page.</p></div>
 					<?php endif; ?>
-					<div class="cm-kv-grid" style="margin-top:18px;">
+					<div class="cm-kv-grid cm-kv-grid--spaced">
 						<div class="cm-kv"><div class="cm-kv__label">Price</div><div class="cm-kv__value"><?php echo esc_html( $data['price_display'] ? $data['price_display'] : 'See details' ); ?></div></div>
 						<div class="cm-kv"><div class="cm-kv__label">Automation</div><div class="cm-kv__value"><?php echo esc_html( $data['automation_level'] ? $data['automation_level'] : 'Manual' ); ?></div></div>
 						<div class="cm-kv"><div class="cm-kv__label">Runtime</div><div class="cm-kv__value"><?php echo esc_html( $data['typical_runtime'] ? $data['typical_runtime'] : 'Not specified' ); ?></div></div>
@@ -102,24 +102,24 @@ while ( have_posts() ) :
 						<div>
 							<h2 class="cm-sign-title">What's the annoying task?</h2>
 							<p class="cm-subtle"><?php echo esc_html( $data['primary_task'] ? $data['primary_task'] : ( $data['short_tagline'] ? $data['short_tagline'] : $data['tool_summary'] ) ); ?></p>
-							<h2 class="cm-sign-title" style="margin-top:20px;">Who deals with this?</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">Who deals with this?</h2>
 							<?php echo Cafe_Moxie_Site_Kit::render_list( $who_deals ); ?>
-							<h2 class="cm-sign-title" style="margin-top:20px;">What goes in?</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">What goes in?</h2>
 							<?php echo Cafe_Moxie_Site_Kit::render_list( $what_in ); ?>
-							<h2 class="cm-sign-title" style="margin-top:20px;">What comes out?</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">What comes out?</h2>
 							<?php echo Cafe_Moxie_Site_Kit::render_list( $what_out ); ?>
 						</div>
 						<div>
 							<h2 class="cm-sign-title">Local or compute?</h2>
 							<p class="cm-subtle"><?php echo esc_html( $data['execution_mode'] ); ?></p>
-							<h2 class="cm-sign-title" style="margin-top:20px;">How is it priced?</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">How is it priced?</h2>
 							<p class="cm-subtle"><?php echo esc_html( $data['price_display'] ? $data['price_display'] : 'Pricing not yet filled in.' ); ?></p>
 							<?php if ( $data['trial_available'] ) : ?><p class="cm-subtle">Trial available.</p><?php endif; ?>
-							<h2 class="cm-sign-title" style="margin-top:20px;">What still needs your judgment?</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">What still needs your judgment?</h2>
 							<p class="cm-subtle"><?php echo esc_html( $data['trust_cue'] ); ?></p>
-							<h2 class="cm-sign-title" style="margin-top:20px;">Why this saves you time</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">Why this saves you time</h2>
 							<p class="cm-subtle"><?php echo esc_html( $data['one_line_value'] ? $data['one_line_value'] : $data['tool_summary'] ); ?></p>
-							<h2 class="cm-sign-title" style="margin-top:20px;">Who else uses this?</h2>
+							<h2 class="cm-sign-title cm-sign-title--stack">Who else uses this?</h2>
 							<?php echo Cafe_Moxie_Site_Kit::render_list( $who_else ); ?>
 						</div>
 					</div>
@@ -130,11 +130,11 @@ while ( have_posts() ) :
 					<h2 class="cm-sign-title">How it works</h2>
 					<?php if ( $data['how_it_works'] ) : ?><div class="cm-subtle"><?php echo wp_kses_post( $data['how_it_works'] ); ?></div><?php endif; ?>
 					<?php if ( ! empty( $data['secondary_tasks'] ) ) : ?>
-						<h3 class="cm-sign-title" style="margin-top:18px;">Secondary tasks</h3>
+						<h3 class="cm-sign-title cm-sign-title--substack">Secondary tasks</h3>
 						<?php echo Cafe_Moxie_Site_Kit::render_list( $data['secondary_tasks'] ); ?>
 					<?php endif; ?>
 					<?php if ( ! empty( $data['not_for'] ) ) : ?>
-						<h3 class="cm-sign-title" style="margin-top:18px;">Not for</h3>
+						<h3 class="cm-sign-title cm-sign-title--substack">Not for</h3>
 						<?php echo Cafe_Moxie_Site_Kit::render_list( $data['not_for'] ); ?>
 					<?php endif; ?>
 				</div>
@@ -144,7 +144,7 @@ while ( have_posts() ) :
 					<div class="cm-panel">
 						<h2 class="cm-sign-title">Platform + compatibility</h2>
 						<?php echo Cafe_Moxie_Site_Kit::render_list( $platform_items ); ?>
-						<div class="cm-meta-grid" style="margin-top:18px;">
+						<div class="cm-meta-grid cm-meta-grid--spaced">
 							<div><?php echo Cafe_Moxie_Site_Kit::render_meta_row( 'Runs locally', esc_html( Cafe_Moxie_Site_Kit::render_bool( $data['runs_local'] ) ) ); ?></div>
 							<div><?php echo Cafe_Moxie_Site_Kit::render_meta_row( 'Internet required', esc_html( Cafe_Moxie_Site_Kit::render_bool( $data['internet_required'] ) ) ); ?></div>
 							<div><?php echo Cafe_Moxie_Site_Kit::render_meta_row( 'Admin rights required', esc_html( Cafe_Moxie_Site_Kit::render_bool( $data['admin_required'] ) ) ); ?></div>
@@ -167,12 +167,12 @@ while ( have_posts() ) :
 					<h2 class="cm-sign-title">Media + proof</h2>
 					<?php if ( $data['demo_video'] ) : ?><div class="cm-video-wrap"><?php echo wp_oembed_get( esc_url( $data['demo_video'] ) ); ?></div><?php endif; ?>
 					<?php if ( ! empty( $data['gallery'] ) ) : ?>
-						<div class="cm-gallery" style="margin-top:18px;">
+						<div class="cm-gallery cm-gallery--spaced">
 							<?php foreach ( $data['gallery'] as $url ) : ?><figure class="cm-media-frame"><img src="<?php echo esc_url( $url ); ?>" alt="<?php echo esc_attr( $data['title'] ); ?> gallery image"></figure><?php endforeach; ?>
 						</div>
 					<?php endif; ?>
 					<?php if ( ! empty( $data['before_after'] ) ) : ?>
-						<div class="cm-section-stack" style="margin-top:18px;">
+						<div class="cm-section-stack cm-section-stack--spaced">
 							<?php foreach ( $data['before_after'] as $pair ) :
 								$before = Cafe_Moxie_Site_Kit::image_url( $pair['before_asset'] ?? '', 'large' );
 								$after  = Cafe_Moxie_Site_Kit::image_url( $pair['after_asset'] ?? '', 'large' );
@@ -183,7 +183,7 @@ while ( have_posts() ) :
 										<div class="cm-media-frame"><?php if ( $before ) : ?><img src="<?php echo esc_url( $before ); ?>" alt="Before example"><?php else : ?><div class="cm-media-frame__placeholder">Before asset</div><?php endif; ?></div>
 										<div class="cm-media-frame"><?php if ( $after ) : ?><img src="<?php echo esc_url( $after ); ?>" alt="After example"><?php else : ?><div class="cm-media-frame__placeholder">After asset</div><?php endif; ?></div>
 									</div>
-									<?php if ( $caption ) : ?><p class="cm-subtle" style="margin-top:10px;"><?php echo esc_html( $caption ); ?></p><?php endif; ?>
+									<?php if ( $caption ) : ?><p class="cm-subtle cm-subtle--caption"><?php echo esc_html( $caption ); ?></p><?php endif; ?>
 								</div>
 							<?php endforeach; ?>
 						</div>

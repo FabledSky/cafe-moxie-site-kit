@@ -25,7 +25,7 @@ $calibrate_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'about_calibrat
 <?php if ( $story ) : ?>
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $story ); ?>" alt="<?php echo esc_attr( $brand['name'] ); ?> about image" /></figure><!-- /wp:image -->
 <?php else : ?>
-<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add about image</span><h2 class="cm-sign-title" style="font-size:50px;">About image slot</h2><p class="cm-subtle">Use a storefront scene, branded sign, or image that shows your default brand mood.</p></div><!-- /wp:html -->
+<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add about image</span><h2 class="cm-sign-title cm-placeholder-title">About image slot</h2><p class="cm-subtle">Use a storefront scene, branded sign, or image that shows your default brand mood.</p></div><!-- /wp:html -->
 <?php endif; ?>
 </div><!-- /wp:group -->
 </div>
