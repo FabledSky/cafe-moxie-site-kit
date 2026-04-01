@@ -984,6 +984,10 @@ Expand dashboard-controlled width, padding, spacing, density, and layout control
   * `plugin/templates/*.php`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline delivered: bounded dashboard controls were added for wrapper gutter, grid/panel rhythm, archive/single rail widths, header/footer padding, hero spacing, and responsive breakpoint mode. A new site-density preset (compact/comfortable/airy) now scales spacing defaults across plugin-managed surfaces via CSS variables, while existing per-surface density controls remain available for bounded fine-tuning.
+
 ---
 
 ### Task 17
