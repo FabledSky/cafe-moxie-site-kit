@@ -5,8 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 while ( have_posts() ) :
 	the_post();
-	$data = Cafe_Moxie_Site_Kit::edge_tool_data( get_the_ID() );
-	$content_label = Cafe_Moxie_Site_Kit::module_content_label( 'edge_tool' );
+	$module_key = 'edge_tool';
+	$data = Cafe_Moxie_Site_Kit::tool_data( get_the_ID(), $module_key );
+	$module = Cafe_Moxie_Site_Kit::content_module( $module_key );
+	$section_order = $module['single_section_order'] ?? array();
+	$content_label = Cafe_Moxie_Site_Kit::module_content_label( $module_key );
 	$who_deals = ! empty( $data['best_for'] ) ? $data['best_for'] : $data['taxonomies']['workflow_area'];
 	$what_in   = array_values( array_unique( array_merge( $data['input_formats'], $data['taxonomies']['input_type'] ) ) );
 	$what_out  = array_values( array_unique( array_merge( $data['output_formats'], $data['taxonomies']['output_type'] ) ) );
@@ -59,6 +62,7 @@ while ( have_posts() ) :
 	?>
 	<main class="cm-single-page">
 		<div class="cm-wrap">
+			<?php if ( in_array( 'hero', $section_order, true ) ) : ?>
 			<section class="cm-grid-2 cm-section">
 				<div class="cm-panel">
 					<div class="cm-chip-list cm-chip-list--tight">
@@ -96,8 +100,10 @@ while ( have_posts() ) :
 					</div>
 				</div>
 			</section>
+			<?php endif; ?>
 
 			<section id="tool-details" class="cm-section-stack cm-section">
+				<?php if ( in_array( 'details', $section_order, true ) ) : ?>
 				<div class="cm-panel">
 					<div class="cm-meta-grid">
 						<div>
@@ -125,8 +131,9 @@ while ( have_posts() ) :
 						</div>
 					</div>
 				</div>
+				<?php endif; ?>
 
-				<?php if ( $data['how_it_works'] || ! empty( $data['secondary_tasks'] ) || ! empty( $data['not_for'] ) ) : ?>
+				<?php if ( in_array( 'how_it_works', $section_order, true ) && ( $data['how_it_works'] || ! empty( $data['secondary_tasks'] ) || ! empty( $data['not_for'] ) ) ) : ?>
 				<div class="cm-panel">
 					<h2 class="cm-sign-title">How it works</h2>
 					<?php if ( $data['how_it_works'] ) : ?><div class="cm-subtle"><?php echo wp_kses_post( $data['how_it_works'] ); ?></div><?php endif; ?>
@@ -141,6 +148,7 @@ while ( have_posts() ) :
 				</div>
 				<?php endif; ?>
 
+				<?php if ( in_array( 'compatibility', $section_order, true ) ) : ?>
 				<div class="cm-grid-2">
 					<div class="cm-panel">
 						<h2 class="cm-sign-title">Platform + compatibility</h2>
@@ -157,13 +165,16 @@ while ( have_posts() ) :
 						<?php echo Cafe_Moxie_Site_Kit::render_list( $handling_items ); ?>
 					</div>
 				</div>
+				<?php endif; ?>
 
+				<?php if ( in_array( 'security', $section_order, true ) ) : ?>
 				<div class="cm-panel">
 					<h2 class="cm-sign-title">Security + data handling</h2>
 					<?php echo Cafe_Moxie_Site_Kit::render_list( $security_items ); ?>
 				</div>
+				<?php endif; ?>
 
-				<?php if ( ! empty( $data['gallery'] ) || ! empty( $data['before_after'] ) || $data['demo_video'] ) : ?>
+				<?php if ( in_array( 'media_proof', $section_order, true ) && ( ! empty( $data['gallery'] ) || ! empty( $data['before_after'] ) || $data['demo_video'] ) ) : ?>
 				<div class="cm-panel">
 					<h2 class="cm-sign-title">Media + proof</h2>
 					<?php if ( $data['demo_video'] ) : ?><div class="cm-video-wrap"><?php echo wp_oembed_get( esc_url( $data['demo_video'] ) ); ?></div><?php endif; ?>
@@ -192,7 +203,7 @@ while ( have_posts() ) :
 				</div>
 				<?php endif; ?>
 
-				<?php if ( trim( wp_strip_all_tags( $data['content'] ) ) ) : ?>
+				<?php if ( in_array( 'additional_notes', $section_order, true ) && trim( wp_strip_all_tags( $data['content'] ) ) ) : ?>
 				<div class="cm-panel">
 					<h2 class="cm-sign-title">Additional notes</h2>
 					<div class="cm-subtle"><?php echo wp_kses_post( $data['content'] ); ?></div>

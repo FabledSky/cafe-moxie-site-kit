@@ -989,13 +989,48 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				'post_type'                 => 'edge_tool',
 				'archive_query_filter'      => 'cafe_moxie_edge_tool_archive_query_args',
 				'data_filter'               => 'cafe_moxie_tool_data',
+				'data_builder'              => 'edge_tool_data',
 				'singular_template'         => 'templates/single-edge_tool.php',
 				'archive_template'          => 'templates/archive-edge_tool.php',
+				'card_renderer'             => 'render_edge_tool_card',
+				'single_section_renderer'   => 'render_edge_tool_single_sections',
 				'archive_filters'           => array(
 					'tool_type'       => 'Tool Type',
 					'workflow_area'   => 'Workflow Area',
 					'platform'        => 'Platform',
 					'execution_model' => 'Execution Model',
+				),
+				'field_map' => array(
+					'main_media'      => 'hero_image',
+					'gallery'         => 'gallery',
+					'before_after'    => 'before_after_examples',
+					'primary_message' => 'one_line_value',
+					'summary'         => 'tool_summary',
+					'cta_download'    => 'download_url',
+					'cta_compute'     => 'compute_run_url',
+				),
+				'normalization_callbacks' => array(
+					'repeater' => 'flatten_repeater_items',
+					'formats'  => 'flatten_format_rows',
+					'services' => 'flatten_service_rows',
+					'images'   => 'flatten_image_urls',
+				),
+				'derived_values' => array(
+					'execution_mode' => 'derive_execution_mode',
+					'trust_cue'      => 'derive_trust_cue',
+					'platform_line'  => 'derive_platform_line',
+				),
+				'archive_card_schema' => array(
+					'headline' => 'title',
+					'summary'  => 'tool_summary',
+					'image'    => 'hero_image',
+					'price'    => 'price_display',
+					'cta'      => 'View Tool',
+				),
+				'single_section_order' => array( 'hero', 'details', 'how_it_works', 'compatibility', 'security', 'media_proof', 'additional_notes' ),
+				'empty_state_copy' => array(
+					'archive_heading' => 'Nothing matched that pass.',
+					'archive_body'    => 'Try a wider search or clear the filters. As soon as Edge Tool posts are published, they will render here automatically.',
 				),
 				'content_label'            => 'Edge Tool',
 				'default_archive_headline' => 'Tools for people who actually do the work.',
@@ -1785,17 +1820,18 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	}
 
 	public static function template_include( $template ) {
-		$module = self::content_module( 'edge_tool' );
-		if ( is_singular( $module['post_type'] ) ) {
-			$file = plugin_dir_path( __FILE__ ) . $module['singular_template'];
-			if ( file_exists( $file ) ) {
-				return $file;
+		foreach ( self::content_modules() as $module ) {
+			if ( is_singular( $module['post_type'] ) ) {
+				$file = plugin_dir_path( __FILE__ ) . $module['singular_template'];
+				if ( file_exists( $file ) ) {
+					return $file;
+				}
 			}
-		}
-		if ( is_post_type_archive( $module['post_type'] ) ) {
-			$file = plugin_dir_path( __FILE__ ) . $module['archive_template'];
-			if ( file_exists( $file ) ) {
-				return $file;
+			if ( is_post_type_archive( $module['post_type'] ) ) {
+				$file = plugin_dir_path( __FILE__ ) . $module['archive_template'];
+				if ( file_exists( $file ) ) {
+					return $file;
+				}
 			}
 		}
 		return $template;
@@ -1957,6 +1993,45 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return '<div class="cm-brand-mark"><span class="cm-brand-mark__fallback">' . esc_html( $s['site_kicker'] ) . '</span></div>';
 	}
 
+
+	public static function normalize_scalar_text( $value ) {
+		if ( is_array( $value ) || is_object( $value ) ) {
+			return '';
+		}
+		return trim( (string) $value );
+	}
+
+	public static function normalize_bool_flag( $value ) {
+		return ! empty( $value );
+	}
+
+	public static function normalize_string_list( $values ) {
+		$list = array();
+		foreach ( (array) $values as $value ) {
+			$normalized = self::normalize_scalar_text( $value );
+			if ( '' !== $normalized ) {
+				$list[] = $normalized;
+			}
+		}
+		return array_values( array_unique( $list ) );
+	}
+
+	public static function module_data( $post_id, $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		$builder = $module['data_builder'] ?? '';
+		if ( $builder && is_callable( array( __CLASS__, $builder ) ) ) {
+			return call_user_func( array( __CLASS__, $builder ), $post_id );
+		}
+		return array(
+			'post_id' => intval( $post_id ),
+			'title' => get_the_title( $post_id ),
+			'permalink' => get_permalink( $post_id ),
+			'excerpt' => get_the_excerpt( $post_id ),
+			'content' => apply_filters( 'the_content', get_post_field( 'post_content', $post_id ) ),
+			'taxonomies' => array(),
+		);
+	}
+
 	public static function edge_tool_data( $post_id ) {
 		$post_id = intval( $post_id );
 		$featured_image = get_the_post_thumbnail_url( $post_id, 'large' );
@@ -2052,8 +2127,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return apply_filters( $module['data_filter'], $data, $post_id );
 	}
 
-	public static function tool_data( $post_id ) {
-		return self::edge_tool_data( $post_id );
+	public static function tool_data( $post_id, $module_key = 'edge_tool' ) {
+		return self::module_data( $post_id, $module_key );
 	}
 
 	private static function derive_execution_mode( $data ) {
@@ -2133,6 +2208,30 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return '<div class="cm-meta-row"><div class="cm-meta-label">' . esc_html( $label ) . '</div><div class="cm-meta-value">' . $value . '</div></div>';
 	}
 
+
+	public static function render_edge_tool_single_sections( $data, $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		$sections = $module['single_section_order'] ?? array();
+		$html = '';
+		foreach ( $sections as $section_key ) {
+			$html .= self::render_edge_tool_single_section( $section_key, $data );
+		}
+		return $html;
+	}
+
+	private static function render_edge_tool_single_section( $section_key, $data ) {
+		if ( 'how_it_works' === $section_key && empty( $data['how_it_works'] ) && empty( $data['secondary_tasks'] ) && empty( $data['not_for'] ) ) {
+			return '';
+		}
+		if ( 'media_proof' === $section_key && empty( $data['gallery'] ) && empty( $data['before_after'] ) && empty( $data['demo_video'] ) ) {
+			return '';
+		}
+		if ( 'additional_notes' === $section_key && '' === trim( wp_strip_all_tags( (string) $data['content'] ) ) ) {
+			return '';
+		}
+		return '<div class="cm-single-section-marker" data-cm-section="' . esc_attr( $section_key ) . '"></div>';
+	}
+
 	public static function render_edge_tool_card( $post_id ) {
 		$d = self::edge_tool_data( $post_id );
 		$meta = array();
@@ -2182,24 +2281,30 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return $html;
 	}
 
-	public static function render_tool_card( $post_id ) {
+	public static function render_tool_card( $post_id, $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		$renderer = $module['card_renderer'] ?? '';
+		if ( $renderer && is_callable( array( __CLASS__, $renderer ) ) ) {
+			return call_user_func( array( __CLASS__, $renderer ), $post_id );
+		}
 		return self::render_edge_tool_card( $post_id );
 	}
 
-	public static function archive_filters() {
-		$module = self::content_module( 'edge_tool' );
-		return $module['archive_filters'];
+	public static function archive_filters( $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		return $module['archive_filters'] ?? array();
 	}
 
 	public static function request_value( $key ) {
 		return sanitize_text_field( wp_unslash( $_GET[ $key ] ?? '' ) );
 	}
 
-	public static function archive_query() {
-		$s     = self::settings();
-		$paged = max( 1, intval( get_query_var( 'paged' ) ?: get_query_var( 'page' ) ?: 1 ) );
-		$args  = array(
-			'post_type'      => self::content_module( 'edge_tool' )['post_type'],
+	public static function archive_query( $module_key = 'edge_tool' ) {
+		$s      = self::settings();
+		$module = self::content_module( $module_key );
+		$paged  = max( 1, intval( get_query_var( 'paged' ) ?: get_query_var( 'page' ) ?: 1 ) );
+		$args   = array(
+			'post_type'      => $module['post_type'],
 			'post_status'    => 'publish',
 			'paged'          => $paged,
 			'posts_per_page' => intval( $s['archive_items_per_page'] ),
@@ -2211,7 +2316,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		}
 
 		$tax_query = array();
-		foreach ( self::archive_filters() as $taxonomy => $label ) {
+		foreach ( self::archive_filters( $module_key ) as $taxonomy => $label ) {
 			$value = self::request_value( 'cm_' . $taxonomy );
 			if ( $value ) {
 				$tax_query[] = array(
@@ -2231,38 +2336,18 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$meta_query = array();
 		$mode = self::request_value( 'cm_mode' );
 		if ( 'local' === $mode ) {
-			$meta_query[] = array(
-				'key'     => 'runs_local',
-				'value'   => '1',
-				'compare' => '=',
-			);
+			$meta_query[] = array( 'key' => 'runs_local', 'value' => '1', 'compare' => '=' );
 		} elseif ( 'compute' === $mode ) {
-			$meta_query[] = array(
-				'key'     => 'requires_compute',
-				'value'   => '1',
-				'compare' => '=',
-			);
+			$meta_query[] = array( 'key' => 'requires_compute', 'value' => '1', 'compare' => '=' );
 		} elseif ( 'hybrid' === $mode ) {
 			$meta_query[] = array(
 				'relation' => 'AND',
-				array(
-					'key'     => 'runs_local',
-					'value'   => '1',
-					'compare' => '=',
-				),
-				array(
-					'key'     => 'requires_compute',
-					'value'   => '1',
-					'compare' => '=',
-				),
+				array( 'key' => 'runs_local', 'value' => '1', 'compare' => '=' ),
+				array( 'key' => 'requires_compute', 'value' => '1', 'compare' => '=' ),
 			);
 		}
 		if ( ! empty( self::request_value( 'cm_featured' ) ) ) {
-			$meta_query[] = array(
-				'key'     => 'featured_tool',
-				'value'   => '1',
-				'compare' => '=',
-			);
+			$meta_query[] = array( 'key' => 'featured_tool', 'value' => '1', 'compare' => '=' );
 		}
 		if ( ! empty( $meta_query ) ) {
 			if ( count( $meta_query ) > 1 ) {
@@ -2271,7 +2356,6 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			$args['meta_query'] = $meta_query;
 		}
 
-		$module = self::content_module( 'edge_tool' );
 		return new WP_Query( apply_filters( $module['archive_query_filter'], $args ) );
 	}
 
@@ -2313,9 +2397,13 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		);
 	}
 
-	public static function current_archive_args() {
+	public static function current_archive_args( $module_key = 'edge_tool' ) {
 		$args = array();
-		foreach ( array( 'cm_search', 'cm_tool_type', 'cm_workflow_area', 'cm_platform', 'cm_execution_model', 'cm_mode', 'cm_featured' ) as $key ) {
+		$keys = array( 'cm_search', 'cm_mode', 'cm_featured' );
+		foreach ( array_keys( self::archive_filters( $module_key ) ) as $taxonomy ) {
+			$keys[] = 'cm_' . $taxonomy;
+		}
+		foreach ( $keys as $key ) {
 			$value = self::request_value( $key );
 			if ( '' !== $value ) {
 				$args[ $key ] = $value;

@@ -3,16 +3,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 get_header();
-$query = Cafe_Moxie_Site_Kit::archive_query();
+$module_key = 'edge_tool';
+$query = Cafe_Moxie_Site_Kit::archive_query( $module_key );
 $settings = Cafe_Moxie_Site_Kit::settings();
 $brand = Cafe_Moxie_Site_Kit::brand_profile();
-$archive_link = Cafe_Moxie_Site_Kit::module_archive_link( 'edge_tool' );
+$archive_link = Cafe_Moxie_Site_Kit::module_archive_link( $module_key );
+$module = Cafe_Moxie_Site_Kit::content_module( $module_key );
+$empty_copy = $module['empty_state_copy'] ?? array();
 ?>
 <main class="cm-archive-page">
 	<div class="cm-wrap">
 		<section class="cm-panel cm-section">
 			<div class="cm-eyebrow">Browse Tools</div>
-			<h1 class="cm-sign-title"><?php echo esc_html( Cafe_Moxie_Site_Kit::module_archive_headline( 'edge_tool' ) ); ?></h1>
+			<h1 class="cm-sign-title"><?php echo esc_html( Cafe_Moxie_Site_Kit::module_archive_headline( $module_key ) ); ?></h1>
 			<p class="cm-subtle"><?php echo esc_html( $brand['archive_intro'] ); ?></p>
 			<?php if ( ! empty( $settings['show_archive_filters'] ) ) : ?>
 				<form class="cm-section" method="get" action="<?php echo esc_url( $archive_link ); ?>">
@@ -22,7 +25,7 @@ $archive_link = Cafe_Moxie_Site_Kit::module_archive_link( 'edge_tool' );
 							<input type="search" id="cm_search" name="cm_search" value="<?php echo esc_attr( Cafe_Moxie_Site_Kit::request_value( 'cm_search' ) ); ?>" placeholder="Search tools, tasks, formats">
 						</div>
 						<?php
-						foreach ( Cafe_Moxie_Site_Kit::archive_filters() as $taxonomy => $label ) {
+						foreach ( Cafe_Moxie_Site_Kit::archive_filters( $module_key ) as $taxonomy => $label ) {
 							echo Cafe_Moxie_Site_Kit::archive_filter_select( $taxonomy, $label );
 						}
 						?>
@@ -52,7 +55,7 @@ $archive_link = Cafe_Moxie_Site_Kit::module_archive_link( 'edge_tool' );
 		<?php if ( $query->have_posts() ) : ?>
 			<section class="cm-archive-tools">
 				<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-					<?php echo Cafe_Moxie_Site_Kit::render_tool_card( get_the_ID() ); ?>
+					<?php echo Cafe_Moxie_Site_Kit::render_tool_card( get_the_ID(), $module_key ); ?>
 				<?php endwhile; ?>
 			</section>
 			<div class="cm-pagination">
@@ -60,8 +63,8 @@ $archive_link = Cafe_Moxie_Site_Kit::module_archive_link( 'edge_tool' );
 			</div>
 		<?php else : ?>
 			<section class="cm-panel cm-empty-state cm-section">
-				<h2 class="cm-sign-title">Nothing matched that pass.</h2>
-				<p class="cm-subtle">Try a wider search or clear the filters. As soon as Edge Tool posts are published, they will render here automatically.</p>
+				<h2 class="cm-sign-title"><?php echo esc_html( $empty_copy['archive_heading'] ?? 'Nothing matched that pass.' ); ?></h2>
+				<p class="cm-subtle"><?php echo esc_html( $empty_copy['archive_body'] ?? 'Try a wider search or clear the filters. As soon as Edge Tool posts are published, they will render here automatically.' ); ?></p>
 			</section>
 		<?php endif; ?>
 	</div>
