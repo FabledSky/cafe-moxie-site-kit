@@ -785,5 +785,3 @@ Establish a regression checklist so Codex can make UI and architecture changes w
 ---
 
 End of file.
-
-If you want, I can also turn this into a **fully merged replacement `agents.md`** instead of just the task section.
