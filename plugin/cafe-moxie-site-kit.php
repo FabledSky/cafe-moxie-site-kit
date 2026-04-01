@@ -28,6 +28,8 @@ final class Cafe_Moxie_Site_Kit {
 		add_filter( 'body_class', array( __CLASS__, 'body_classes' ) );
 		add_action( 'admin_post_cafe_moxie_create_starter_pages', array( __CLASS__, 'create_starter_pages' ) );
 		add_action( 'admin_post_cafe_moxie_generate_composed_page', array( __CLASS__, 'generate_composed_page' ) );
+		add_action( 'admin_post_cafe_moxie_generate_template_parts', array( __CLASS__, 'generate_template_parts' ) );
+		add_filter( 'render_block_data', array( __CLASS__, 'filter_template_part_blocks' ), 10, 2 );
 
 		if ( false === get_option( self::OPTION ) ) {
 			update_option( self::OPTION, self::defaults() );
@@ -126,6 +128,13 @@ final class Cafe_Moxie_Site_Kit {
 					'archive_items_per_page',
 					'show_archive_filters',
 					'display_logo_image',
+					'enable_managed_header_footer',
+					'header_footer_preset',
+					'header_brand_treatment',
+					'header_nav_source',
+					'header_cta_label',
+					'header_cta_url',
+					'footer_utility_copy',
 					'home_hero_image',
 					'home_story_image',
 					'about_story_image',
@@ -135,7 +144,11 @@ final class Cafe_Moxie_Site_Kit {
 					'home_secondary_url',
 					'about_primary_cta',
 					'about_primary_url',
+					'footer_content_primary',
+					'footer_content_secondary',
 					'footer_copy',
+					'footer_meta_behavior',
+					'footer_legal_text',
 				),
 			),
 		);
@@ -177,6 +190,12 @@ final class Cafe_Moxie_Site_Kit {
 			'about_calibrate_layout' => array( 'label' => 'About calibration layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
 			'page_section_density' => array( 'label' => 'Page section spacing', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable' ),
 			'display_logo_image' => array( 'label' => 'Brand mark image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
+			'enable_managed_header_footer' => array( 'label' => 'Enable plugin-managed header/footer', 'description' => 'When enabled, the plugin can generate and route template part output through managed presets.', 'group' => 'storefront_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 0 ),
+			'header_footer_preset' => array( 'label' => 'Header/footer preset', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'counter' => 'Counter bar', 'utility' => 'Utility split' ), 'sanitize' => 'choice', 'default' => 'counter' ),
+			'header_brand_treatment' => array( 'label' => 'Header brand treatment', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'logo_and_name' => 'Logo + name', 'name_only' => 'Name only', 'logo_only' => 'Logo only' ), 'sanitize' => 'choice', 'default' => 'logo_and_name' ),
+			'header_nav_source' => array( 'label' => 'Header navigation source', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'primary_navigation' => 'Primary menu location', 'footer_navigation' => 'Footer menu location', 'no_navigation' => 'No navigation block' ), 'sanitize' => 'choice', 'default' => 'primary_navigation' ),
+			'header_cta_label' => array( 'label' => 'Header CTA label', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Browse Tools' ),
+			'header_cta_url' => array( 'label' => 'Header CTA URL', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'url_or_path', 'default' => '/edge-tools/' ),
 			'home_hero_image' => array( 'label' => 'Home hero image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
 			'home_story_image' => array( 'label' => 'Home story image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
 			'about_story_image' => array( 'label' => 'About story image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
@@ -186,7 +205,12 @@ final class Cafe_Moxie_Site_Kit {
 			'home_secondary_url' => array( 'label' => 'Home secondary CTA URL', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'url_or_path', 'default' => '/about/' ),
 			'about_primary_cta' => array( 'label' => 'About CTA label', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'See the Tool Counter' ),
 			'about_primary_url' => array( 'label' => 'About CTA URL', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'url_or_path', 'default' => '/edge-tools/' ),
+			'footer_content_primary' => array( 'label' => 'Footer primary content', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Built for practical operators and local-first teams.' ),
+			'footer_content_secondary' => array( 'label' => 'Footer secondary content', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Need deployment help? Contact your implementation partner.' ),
+			'footer_utility_copy' => array( 'label' => 'Footer utility copy', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Reliable defaults. Editable everywhere.' ),
 			'footer_copy' => array( 'label' => 'Footer copy', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Tools for people who actually do the work.' ),
+			'footer_meta_behavior' => array( 'label' => 'Footer legal/meta behavior', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'copyright' => 'Auto copyright line', 'custom' => 'Use custom legal text', 'hidden' => 'Hide legal/meta line' ), 'sanitize' => 'choice', 'default' => 'copyright' ),
+			'footer_legal_text' => array( 'label' => 'Footer custom legal text', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => '' ),
 			'color_ink' => array( 'label' => 'Ink', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#05070D', 'css_var' => '--moxie-ink' ),
 			'color_midnight' => array( 'label' => 'Midnight', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#0A1020', 'css_var' => '--moxie-midnight' ),
 			'color_oil' => array( 'label' => 'Oil', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#121A2B', 'css_var' => '--moxie-oil' ),
@@ -430,7 +454,7 @@ final class Cafe_Moxie_Site_Kit {
 				'label' => 'Header + Footer',
 				'description' => 'Header/footer treatment controls currently managed from visual + storefront settings.',
 				'groups' => array( 'global_design_tokens', 'storefront_defaults' ),
-				'keys' => array( 'header_height', 'logo_width', 'display_logo_image', 'footer_copy' ),
+				'keys' => array( 'enable_managed_header_footer', 'header_footer_preset', 'header_brand_treatment', 'header_nav_source', 'header_height', 'logo_width', 'display_logo_image', 'header_cta_label', 'header_cta_url', 'footer_content_primary', 'footer_content_secondary', 'footer_copy', 'footer_utility_copy', 'footer_meta_behavior', 'footer_legal_text' ),
 			),
 			'pages_templates' => array(
 				'label' => 'Pages + Templates',
@@ -509,7 +533,7 @@ final class Cafe_Moxie_Site_Kit {
 			'Active preset' => self::brand_profile()['label'],
 			'Starter page state' => ( $home_page || $about_page ) ? 'Home/About pages detected' : 'Starter pages not found',
 			'Composed page default' => sprintf( '%s (%s)', $s['composed_page_title'], $s['composed_page_template'] ),
-			'Header/footer status' => sprintf( 'Header height %dpx, footer copy %s', (int) $s['header_height'], ! empty( $s['footer_copy'] ) ? 'configured' : 'empty' ),
+			'Header/footer status' => ! empty( $s['enable_managed_header_footer'] ) ? 'Managed header/footer enabled' : sprintf( 'Theme-managed (header height %dpx)', (int) $s['header_height'] ),
 			'Front page setup' => $front_page_id ? sprintf( 'Assigned: %s', $front_page_title ) : 'No static front page assigned',
 			'Content module readiness' => ! empty( self::composed_sections() ) ? 'Composed sections available' : 'No composed sections registered',
 		);
@@ -529,6 +553,8 @@ final class Cafe_Moxie_Site_Kit {
 		<h2>Generation + Assignment Actions</h2>
 		<p>These actions create or refresh content. They are separate from normal settings save actions.</p>
 		<p><a class="button button-secondary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
+		<?php $template_part_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_generate_template_parts' ), 'cafe_moxie_generate_template_parts' ); ?>
+		<p><a class="button button-secondary" href="<?php echo esc_url( $template_part_url ); ?>">Generate / Refresh Managed Header + Footer</a></p>
 		<h3>Generate Composed Page</h3>
 		<form method="post" action="<?php echo esc_url( $compose_action ); ?>">
 			<?php wp_nonce_field( 'cafe_moxie_generate_composed_page' ); ?>
@@ -601,12 +627,16 @@ final class Cafe_Moxie_Site_Kit {
 		$tabs = self::admin_tabs();
 		$current_tab = self::current_admin_tab();
 		$starter_summary = self::starter_generation_summary_from_request();
+		$template_part_summary = self::template_part_generation_summary_from_request();
 		?>
 		<div class="wrap">
 			<h1>Site System Kit</h1>
 			<p>Use this control console to manage brand presets, layout defaults, composed page behavior, and storefront presentation using native WordPress settings patterns.</p>
 			<?php if ( ! empty( $starter_summary ) ) : ?>
 				<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $starter_summary ); ?></p></div>
+			<?php endif; ?>
+			<?php if ( ! empty( $template_part_summary ) ) : ?>
+				<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $template_part_summary ); ?></p></div>
 			<?php endif; ?>
 			<h2 class="nav-tab-wrapper">
 				<?php foreach ( $tabs as $tab_key => $tab ) : ?>
@@ -732,6 +762,12 @@ body.cm-moxie-site .wp-block-template-part .wp-block-group{min-height:var(--moxi
 body.cm-moxie-site .wp-block-site-logo img,body.cm-moxie-site .custom-logo{width:min(var(--moxie-logo-width),100%);height:auto}
 body.cm-moxie-site .wp-block-navigation a{color:var(--moxie-cream);text-decoration:none}
 body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
+.cm-managed-header,.cm-managed-footer{width:var(--moxie-wrap);margin-inline:auto}
+.cm-managed-header{padding:10px 0}
+.cm-managed-header.is-counter{border-bottom:1px solid var(--moxie-line)}
+.cm-managed-header.is-utility{background:rgba(5,7,13,.25);border-radius:0 0 12px 12px}
+.cm-managed-footer{margin-top:32px;padding:20px 0;border-top:1px solid var(--moxie-line)}
+.cm-managed-footer__meta{margin-top:8px;color:var(--moxie-muted)}
 .cm-wrap{width:var(--moxie-wrap);margin-inline:auto}
 .cm-wrap img,.cm-wrap svg,.cm-wrap video,.cm-wrap iframe{max-width:100%}
 .cm-section{margin-block:var(--moxie-section-gap)}
@@ -1252,6 +1288,24 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		);
 	}
 
+	private static function template_part_generation_summary_from_request() {
+		$created = isset( $_GET['parts_created'] ) ? intval( $_GET['parts_created'] ) : 0;
+		$updated = isset( $_GET['parts_updated'] ) ? intval( $_GET['parts_updated'] ) : 0;
+		$skipped_unmanaged = isset( $_GET['parts_skipped_unmanaged'] ) ? intval( $_GET['parts_skipped_unmanaged'] ) : 0;
+		$errors = isset( $_GET['parts_errors'] ) ? intval( $_GET['parts_errors'] ) : 0;
+		$ran = isset( $_GET['parts_ran'] ) ? intval( $_GET['parts_ran'] ) : 0;
+		if ( $ran < 1 ) {
+			return '';
+		}
+		return sprintf(
+			'Header/footer generation complete: %1$d created, %2$d updated, %3$d skipped (not generated by Site Kit), %4$d errors.',
+			$created,
+			$updated,
+			$skipped_unmanaged,
+			$errors
+		);
+	}
+
 	public static function create_starter_pages() {
 		check_admin_referer( 'cafe_moxie_create_starter_pages' );
 		$s = self::settings();
@@ -1293,6 +1347,162 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				'starter_skipped_existing' => $counts['skipped_existing'],
 				'starter_skipped_unmanaged' => $counts['skipped_unmanaged'],
 				'starter_errors' => $counts['errors'],
+			),
+			admin_url( 'admin.php' )
+		);
+		wp_safe_redirect( $redirect_url );
+		exit;
+	}
+
+	public static function filter_template_part_blocks( $parsed_block, $source_block ) {
+		$s = self::settings();
+		if ( empty( $s['enable_managed_header_footer'] ) ) {
+			return $parsed_block;
+		}
+		if ( empty( $parsed_block['blockName'] ) || 'core/template-part' !== $parsed_block['blockName'] ) {
+			return $parsed_block;
+		}
+		$slug = sanitize_title( $parsed_block['attrs']['slug'] ?? '' );
+		if ( 'header' === $slug && self::find_template_part( 'cm-site-kit-header' ) ) {
+			$parsed_block['attrs']['slug'] = 'cm-site-kit-header';
+			$parsed_block['attrs']['theme'] = get_stylesheet();
+		} elseif ( 'footer' === $slug && self::find_template_part( 'cm-site-kit-footer' ) ) {
+			$parsed_block['attrs']['slug'] = 'cm-site-kit-footer';
+			$parsed_block['attrs']['theme'] = get_stylesheet();
+		}
+		return $parsed_block;
+	}
+
+	private static function find_template_part( $slug ) {
+		$posts = get_posts(
+			array(
+				'post_type' => 'wp_template_part',
+				'name' => sanitize_title( $slug ),
+				'post_status' => array( 'publish', 'draft', 'auto-draft' ),
+				'numberposts' => 1,
+			)
+		);
+		return ! empty( $posts[0] ) ? $posts[0] : null;
+	}
+
+	private static function resolve_navigation_post_id( $source ) {
+		if ( 'no_navigation' === $source ) {
+			return 0;
+		}
+		$location = 'primary_navigation' === $source ? 'primary' : 'footer';
+		$locations = get_nav_menu_locations();
+		$menu_id = isset( $locations[ $location ] ) ? intval( $locations[ $location ] ) : 0;
+		if ( ! $menu_id ) {
+			return 0;
+		}
+		$nav = get_posts(
+			array(
+				'post_type' => 'wp_navigation',
+				'post_status' => array( 'publish', 'draft' ),
+				'meta_key' => 'wp_navigation_menu_id',
+				'meta_value' => $menu_id,
+				'numberposts' => 1,
+			)
+		);
+		return ! empty( $nav[0] ) ? intval( $nav[0]->ID ) : 0;
+	}
+
+	private static function generated_header_markup() {
+		$s = self::settings();
+		$site_name = get_bloginfo( 'name' );
+		$brand_name = ! empty( $s['site_kicker'] ) ? $s['site_kicker'] : $site_name;
+		$logo_url = self::resolve_url( $s['display_logo_image'] ?? '' );
+		$cta_label = ! empty( $s['header_cta_label'] ) ? $s['header_cta_label'] : 'Browse Tools';
+		$cta_url = self::resolve_url( $s['header_cta_url'] ?? '/edge-tools/' );
+		$nav_ref = self::resolve_navigation_post_id( $s['header_nav_source'] ?? 'primary_navigation' );
+		$brand_markup = '<!-- wp:site-title {"level":0} /-->';
+		if ( 'logo_only' === ( $s['header_brand_treatment'] ?? '' ) && ! empty( $logo_url ) ) {
+			$brand_markup = '<!-- wp:image {"sizeSlug":"full","linkDestination":"none"} --><figure class="wp-block-image size-full"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $brand_name ) . '"/></figure><!-- /wp:image -->';
+		} elseif ( 'logo_and_name' === ( $s['header_brand_treatment'] ?? '' ) && ! empty( $logo_url ) ) {
+			$brand_markup = '<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"left"}} --><div class="wp-block-group"><!-- wp:image {"sizeSlug":"thumbnail","linkDestination":"none"} --><figure class="wp-block-image size-thumbnail"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $brand_name ) . '"/></figure><!-- /wp:image --><!-- wp:site-title {"level":0} /--></div><!-- /wp:group -->';
+		}
+		$nav_markup = $nav_ref ? '<!-- wp:navigation {"ref":' . intval( $nav_ref ) . ',"overlayMenu":"mobile"} /-->' : '';
+		$header_class = 'counter' === ( $s['header_footer_preset'] ?? '' ) ? 'cm-managed-header is-counter' : 'cm-managed-header is-utility';
+		return '<!-- cm-site-kit:managed-header --><!-- wp:group {"tagName":"header","className":"' . esc_attr( $header_class ) . '","layout":{"type":"constrained"}} --><header class="wp-block-group ' . esc_attr( $header_class ) . '"><!-- wp:group {"layout":{"type":"flex","justifyContent":"space-between","verticalAlignment":"center","flexWrap":"wrap"}} --><div class="wp-block-group">' . $brand_markup . $nav_markup . '<!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $cta_url ) . '">' . esc_html( $cta_label ) . '</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --></header><!-- /wp:group -->';
+	}
+
+	private static function generated_footer_markup() {
+		$s = self::settings();
+		$meta = '';
+		if ( 'custom' === ( $s['footer_meta_behavior'] ?? '' ) && ! empty( $s['footer_legal_text'] ) ) {
+			$meta = $s['footer_legal_text'];
+		} elseif ( 'copyright' === ( $s['footer_meta_behavior'] ?? '' ) ) {
+			$meta = sprintf( '© %1$s %2$s', gmdate( 'Y' ), get_bloginfo( 'name' ) );
+		}
+		return '<!-- cm-site-kit:managed-footer --><!-- wp:group {"tagName":"footer","className":"cm-managed-footer","layout":{"type":"constrained"}} --><footer class="wp-block-group cm-managed-footer"><!-- wp:columns --><div class="wp-block-columns"><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_copy'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_primary'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column --><div class="wp-block-column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_secondary'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_utility_copy'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->' . ( $meta ? '<!-- wp:paragraph {"className":"cm-managed-footer__meta"} --><p class="cm-managed-footer__meta">' . esc_html( $meta ) . '</p><!-- /wp:paragraph -->' : '' ) . '</footer><!-- /wp:group -->';
+	}
+
+	private static function upsert_template_part( $slug, $title, $content, $area ) {
+		$existing = self::find_template_part( $slug );
+		if ( $existing ) {
+			if ( ! self::is_marked_generated_page( $existing->ID, 'template_part' ) ) {
+				return 'skipped_unmanaged';
+			}
+			$updated = wp_update_post(
+				array(
+					'ID' => $existing->ID,
+					'post_title' => $title,
+					'post_content' => $content,
+					'post_status' => 'publish',
+				),
+				true
+			);
+			if ( is_wp_error( $updated ) ) {
+				return 'errors';
+			}
+			wp_set_post_terms( $existing->ID, array( $area ), 'wp_template_part_area', false );
+			self::set_generated_markers( $existing->ID, 'template_part', $content );
+			return 'updated';
+		}
+		$post_id = wp_insert_post(
+			array(
+				'post_type' => 'wp_template_part',
+				'post_name' => sanitize_title( $slug ),
+				'post_title' => $title,
+				'post_content' => $content,
+				'post_status' => 'publish',
+			),
+			true
+		);
+		if ( is_wp_error( $post_id ) || ! $post_id ) {
+			return 'errors';
+		}
+		wp_set_post_terms( $post_id, array( $area ), 'wp_template_part_area', false );
+		self::set_generated_markers( $post_id, 'template_part', $content );
+		return 'created';
+	}
+
+	public static function generate_template_parts() {
+		check_admin_referer( 'cafe_moxie_generate_template_parts' );
+		$counts = array(
+			'created' => 0,
+			'updated' => 0,
+			'skipped_unmanaged' => 0,
+			'errors' => 0,
+		);
+		$results = array(
+			self::upsert_template_part( 'cm-site-kit-header', 'Site Kit Header', self::generated_header_markup(), 'header' ),
+			self::upsert_template_part( 'cm-site-kit-footer', 'Site Kit Footer', self::generated_footer_markup(), 'footer' ),
+		);
+		foreach ( $results as $result ) {
+			if ( isset( $counts[ $result ] ) ) {
+				$counts[ $result ]++;
+			}
+		}
+		$redirect_url = add_query_arg(
+			array(
+				'page' => 'cafe-moxie-site-kit',
+				'tab' => 'header_footer',
+				'parts_ran' => 1,
+				'parts_created' => $counts['created'],
+				'parts_updated' => $counts['updated'],
+				'parts_skipped_unmanaged' => $counts['skipped_unmanaged'],
+				'parts_errors' => $counts['errors'],
 			),
 			admin_url( 'admin.php' )
 		);
