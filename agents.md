@@ -329,10 +329,48 @@ Do not introduce these patterns unless a human explicitly overrides this contrac
 Before merging:
 
 * Load homepage
+* Load about page
 * Load archive page
 * Load single tool page
 * Test empty fields
 * Test partial data
+
+### 12.1 Regression Checklist (Required for UI/architecture touching PRs)
+
+Use this checklist whenever changes could affect rendering, data normalization, template composition, settings UX, or deployment behavior.
+
+Keep it practical: mark each item **pass / fail / not-applicable** in the PR, and include short notes for any fail/NA items.
+
+1. **Homepage rendering**
+   * Loads without PHP warnings/fatals.
+   * Key sections render with expected spacing and readable text.
+2. **About page rendering**
+   * Pattern/composed sections load in intended order.
+   * Layout degrades cleanly at narrower viewport widths.
+3. **Edge Tools archive**
+   * Tool cards render with complete data.
+   * Filters/search controls (if present) still function.
+4. **Single Edge Tool page**
+   * Core metadata, media, and CTA blocks render.
+   * Missing optional fields do not break layout.
+5. **Empty SCF states**
+   * Pages with sparse/empty SCF values still render gracefully.
+   * No array-to-string/type errors from normalization helpers.
+6. **Missing image states**
+   * Cards/sections without images fall back cleanly (no broken UI chrome).
+7. **Long text states**
+   * Long headlines/paragraphs/lists wrap without overlap or clipping.
+8. **Production deploy workflow integrity**
+   * `.github/workflows/deploy-production.yml` still targets production from `main`.
+   * No staging-only assumptions introduced in docs or workflow logic.
+
+### 12.2 PR Change Disclosure Rule
+
+All PRs that touch plugin behavior/templates/workflows must include:
+
+* **Affected files**: grouped by area (templates, core plugin logic, workflows/docs).
+* **Expected visible changes**: short human-readable description of what should look/behave differently.
+* **Regression checklist results**: the required checklist above with pass/fail/NA annotations.
 
 
 
