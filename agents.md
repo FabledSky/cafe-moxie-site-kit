@@ -783,5 +783,371 @@ Establish a regression checklist so Codex can make UI and architecture changes w
   * `.github/pull_request_template.md`
 
 ---
+## Concise repo review summary
+
+The repo already has the right first-generation primitives for this direction: a single plugin owns tokens and inline CSS, there is an early brand-preset layer, starter-page safety markers exist, `composed_sections()` / `composed_page_templates()` provide an initial modular page-composition seam, `content_modules()` introduces a first content abstraction seam, and the SCF normalization helpers are defensively written. The main gaps are that most of the system still lives in one file, `settings_groups()` is conceptual but not yet driving the admin UX, the settings screen is still one long manual form, Home/About remain largely hardcoded Cafe Moxie patterns, header/footer are not plugin-managed yet, width/padding/spacing controls are only partial, `footer_copy` is exposed without a real footer architecture behind it, and `edge_tool` is still the only true rendering module despite the abstraction seam. The next task layer should therefore formalize registry-driven visual settings, plugin-managed header/footer/template parts, modular section/page composition, stronger module-based SCF rendering, a plugin-first site setup console, and a deterministic architecture that can later support `gpt-5-mini` without reworking the plugin core.
+
+### Task 13
+
+Goals
+
+Create a registry-driven visual system settings architecture so the plugin can become the primary control layer for site aesthetics and layout behavior rather than a collection of manually wired settings.
+
+#### Implementation Steps
+
+1. Audit all current settings, defaults, sanitization, body classes, and CSS token generation in `plugin/cafe-moxie-site-kit.php`.
+2. Replace the current manually rendered settings organization with a formal settings registry that defines, per field:
+
+   * key
+   * label
+   * description
+   * group / tab placement
+   * control type
+   * allowed values
+   * sanitization rule
+   * default value
+   * preset participation
+   * CSS variable / class output mapping
+3. Expand the settings registry so it can express near-complete visual control for the plugin-managed site layer, including:
+
+   * global visual tokens
+   * component framing defaults
+   * layout defaults
+   * section spacing behavior
+   * typography scaling behavior
+   * media framing behavior
+   * CTA/button treatment
+   * archive/grid presentation defaults
+   * template part presentation defaults
+4. Ensure Cafe Moxie remains the default polished preset, while neutral/reusable variants consume the same registry instead of branching into separate hardcoded behavior.
+5. Refactor visual output so CSS token generation and helper-class generation read from this single settings source of truth.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when major visual and layout behavior is controlled through a structured settings architecture instead of ad hoc field handling.
+* Do not introduce a Customizer-like duplicate system or a heavy admin framework.
+* Keep the current option storage stable unless a migration is clearly justified.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/settings-registry.php`
+  * possibly add `plugin/includes/style-system.php`
+  * `agents.md`
+
+---
+
+### Task 14
+
+Goals
+
+Reorganize the plugin admin into a stronger WordPress-native information architecture with clear tabs, panels, summaries, and action areas so the plugin can function as the main aesthetic control console for the site.
+
+#### Implementation Steps
+
+1. Design a native admin IA that groups plugin controls into clear top-level areas such as:
+
+   * overview / setup state
+   * brand + presets
+   * layout + spacing
+   * header + footer
+   * pages + templates
+   * content modules
+   * storefront behavior
+2. Refactor the current long scrolling settings page into WordPress-native tabs and/or grouped admin panels using the settings registry as the source of truth.
+3. Add a top-level summary panel that surfaces current state for key plugin-managed concerns such as:
+
+   * active preset
+   * starter page state
+   * composed page defaults
+   * header/footer status
+   * front-page setup status
+   * content module readiness
+4. Separate standard save actions from generation / refresh / assignment actions so high-impact operations are easier to understand and harder to trigger accidentally.
+5. Improve labels, descriptions, help text, and notices so a non-technical site owner can understand what each setting controls without editing PHP.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the plugin admin is substantially easier to navigate and feels like the primary control center for the site system.
+* Use standard WordPress admin UI patterns only.
+* Do not introduce a SPA, page builder shell, or dependency-heavy admin framework.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/admin-ui.php`
+  * `agents.md`
+
+---
+
+### Task 15
+
+Goals
+
+Add plugin-managed header and footer architecture so site-wide top/bottom presentation can be controlled through the plugin UI while remaining WordPress-native and compatible with a base theme such as Twenty Twenty-Five.
+
+Status note (2026-04-01 baseline):
+
+* `header_height` and `footer_copy` settings exist, but the plugin does not currently own or generate a true site header/footer system.
+
+#### Implementation Steps
+
+1. Audit how the current theme supplies header/footer structure and define a plugin-first strategy that remains block-theme-native.
+2. Introduce plugin-managed header and footer presets using native WordPress structures where appropriate, such as:
+
+   * `wp_template_part`
+   * `wp_navigation`
+   * plugin-generated block markup with generated markers
+3. Add plugin UI controls for header/footer management, including items such as:
+
+   * enable plugin-managed header/footer
+   * preset selection
+   * brand mark treatment
+   * utility copy
+   * CTA/link controls
+   * navigation source
+   * footer content areas
+   * legal/meta line behavior
+4. Reuse the existing safe generation principles from starter pages so header/footer creation and refresh flows are:
+
+   * opt-in
+   * revision-friendly where possible
+   * marker-based
+   * non-destructive to manually customized theme parts
+5. Ensure plugin-managed header/footer output consumes the same visual settings/tokens as the rest of the system.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a user can manage header/footer presentation from the plugin UI without needing to hand-edit theme template parts for normal use.
+* Stay native to WordPress block theme concepts.
+* Do not add a custom visual builder or silently overwrite existing user-customized template parts.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/template-parts.php`
+  * possibly add `plugin/template-parts/*`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+### Task 16
+
+Goals
+
+Expand dashboard-controlled width, padding, spacing, density, and layout controls so the plugin can drive site rhythm and layout behavior without requiring custom CSS edits.
+
+#### Implementation Steps
+
+1. Add bounded visual controls for layout rhythm and width management, including settings such as:
+
+   * outer wrapper max width
+   * long-form content width
+   * full-width band width
+   * section vertical spacing
+   * panel/card padding
+   * grid gap
+   * archive/single template rail widths
+   * header/footer padding
+   * hero spacing
+   * breakpoint-related layout modes
+2. Map these controls into CSS variables and helper classes so they affect all plugin-managed surfaces consistently.
+3. Apply the new controls across all relevant site layers, including:
+
+   * starter pages
+   * composed pages
+   * archive templates
+   * single templates
+   * header/footer presets when added
+4. Provide sane preset behavior for compact / comfortable / airy density models so the user gets meaningful changes without needing dozens of micro-adjustments.
+5. Keep validation strict enough that extreme values cannot easily break layout integrity.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when width and spacing decisions can be meaningfully tuned from the dashboard across the main plugin-rendered surfaces.
+* Do not add per-block or per-section micro-controls that drift toward Elementor-style builder behavior.
+* Favor bounded options, scales, and presets over unconstrained visual tweaking.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * `plugin/templates/*.php`
+  * `agents.md`
+
+---
+
+### Task 17
+
+Goals
+
+Promote the current composed-page foundation into a true modular template/page/section composition architecture so Home, About, and future pages all derive from the same reusable section system.
+
+Status note (2026-04-01 baseline):
+
+* `composed_sections()`, `composed_page_templates()`, and generated-page markers already exist. This task should evolve that baseline into the main composition path rather than creating a second parallel system.
+
+#### Implementation Steps
+
+1. Audit the current relationship between:
+
+   * `plugin/patterns/home.php`
+   * `plugin/patterns/about.php`
+   * `composed_sections()`
+   * `composed_page_templates()`
+   * generated page flows
+2. Convert hardcoded starter-page sections into reusable section definitions with structured metadata such as:
+
+   * label
+   * purpose
+   * default copy
+   * supported layout modes
+   * media requirements
+   * visibility rules
+   * token placeholders
+   * applicable page types
+3. Define a stronger page-template registry for common page types so new pages can be composed from ordered section sets rather than one-off pattern files.
+4. Ensure Home/About either become:
+
+   * thin wrappers around the shared section registry, or
+   * generated outputs from that registry
+
+   but not a competing architecture
+5. Extend safe generation logic so section-based pages can be created, refreshed, and audited using markers/hashes without silently discarding user edits.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the plugin has one primary modular composition architecture for starter pages and future generated pages.
+* Generated pages must remain editable in the block editor after creation.
+* Do not build a drag-and-drop builder or a proprietary visual page editor.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * possibly add `plugin/includes/composition.php`
+  * possibly add `plugin/includes/sections.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+### Task 18
+
+Goals
+
+Strengthen the SCF/custom post type rendering architecture so Edge Tool remains the default module, but the plugin can support additional structured content modules later without duplicating entire template stacks.
+
+Status note (2026-04-01 baseline):
+
+* `content_modules()`, `template_include()`, and `edge_tool_data()` already provide an initial seam. Build on those rather than replacing them with a parallel framework.
+
+#### Implementation Steps
+
+1. Formalize each content module as a configuration-driven definition that can declare:
+
+   * post type
+   * labels
+   * archive filters
+   * field map
+   * normalization callbacks
+   * derived values
+   * archive-card schema
+   * single-page section order
+   * empty-state copy
+2. Split generic SCF/meta normalization helpers from Edge Tool–specific field mapping so reusable logic is clearly separated from module logic.
+3. Refactor archive and single rendering toward modular section renderers rather than a single large inline assembly path.
+4. Ensure module configs can define which sections are rendered and in what order, while maintaining graceful fallback behavior for sparse/missing SCF data.
+5. Preserve current Edge Tool behavior as the default working module and keep public output parity as close as practical during refactor.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a future CPT/SCF-backed module could be added cleanly without copying the full Edge Tool implementation.
+* Do not remove Edge Tool support or introduce a large abstraction framework.
+* Keep rendering deterministic, schema-aware, and defensive against malformed field values.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/templates/archive-edge_tool.php`
+  * `plugin/templates/single-edge_tool.php`
+  * possibly add `plugin/includes/modules/*.php`
+  * possibly add `plugin/includes/renderers.php`
+  * `agents.md`
+
+---
+
+### Task 19
+
+Goals
+
+Make the plugin the main presentation-control layer for the site so common visual/system setup tasks can be handled here instead of requiring the user to hunt across multiple WordPress settings screens.
+
+#### Implementation Steps
+
+1. Audit which site presentation responsibilities still require leaving the plugin screen, such as:
+
+   * front page assignment
+   * key page presence/state
+   * header/footer assignment
+   * navigation readiness
+   * logo/media readiness
+   * archive/storefront readiness
+2. Add a site setup / presentation state panel that reports current status and offers safe actions for plugin-relevant setup tasks.
+3. Where WordPress core already owns the canonical value, use guarded write-through controls and status views rather than creating duplicate shadow options.
+4. Add health checks and notices when theme/core settings drift away from plugin expectations in ways that degrade the intended visual system.
+5. Provide direct links to the exact core screens that still matter, but make the plugin UI the default operating console for routine aesthetic/system setup.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the plugin meaningfully minimizes the need to visit unrelated settings screens for normal site presentation management.
+* Do not hide, remove, or hard-disable core WordPress settings screens.
+* Do not create shadow state for values WordPress already owns unless there is a very strong reason and a clear sync strategy.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `README.md`
+  * `agents.md`
+
+---
+
+### Task 20
+
+Goals
+
+Define the deterministic architecture required for future AI-assisted site editing with `gpt-5-mini`, without implementing any live model integration yet.
+
+#### Implementation Steps
+
+1. Define structured site-plan objects that a future AI layer could safely read/write, including models for:
+
+   * design token plans
+   * layout setting plans
+   * header/footer plans
+   * page template plans
+   * section instance plans
+   * content module render plans
+   * safe mutation/apply actions
+2. Ensure the settings registry, section registry, and content-module registry expose human-readable labels, constraints, supported fields, and example structures suitable for structured AI prompting later.
+3. Design a deterministic future flow such as:
+
+   * inspect current site/plugin state
+   * serialize structured context
+   * generate a proposed diff/plan
+   * require human review/approval
+   * apply only through existing safe generator/update paths
+   * record what changed
+4. Add internal architecture notes, interfaces, or docs showing where future `gpt-5-mini` calls would plug in.
+5. Explicitly constrain future AI scope so it proposes controlled settings/template/content-structure changes instead of arbitrary code mutations or builder-style freeform page edits.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the plugin core is architecturally ready for a future `gpt-5-mini` integration without requiring a major redesign.
+* Do not add model calls, SDKs, API keys, secret handling, or production AI UI yet.
+* Avoid speculative overengineering; keep the system deterministic first.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * possibly add `docs/ai-architecture.md`
+  * `agents.md`
+
+---
 
 End of file.
