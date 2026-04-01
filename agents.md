@@ -1176,6 +1176,10 @@ Define the deterministic architecture required for future AI-assisted site editi
   * possibly add `docs/ai-architecture.md`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Task 20 baseline implemented: deterministic AI-architecture contract scaffolding is now in place without any live model integration. The plugin now exposes structured plan-model metadata, registry snapshots (settings/templates/sections/content modules), and explicit safe-action boundaries for future `gpt-5-mini` proposal workflows. Supporting documentation was added in `docs/ai-architecture.md` and linked from `docs/IMPLEMENTATION-GUIDE.md`.
+
 ---
 
 End of file.

@@ -110,6 +110,8 @@ To support future AI-assisted editing safely, the plugin now keeps composed page
 
 This means a future AI feature can propose or validate section plans as data structures first, without directly writing raw PHP template strings. No model calls, keys, or AI admin UI are included in this baseline.
 
+The deterministic pre-integration contract is documented in `docs/ai-architecture.md`, and the plugin exposes registry snapshots + plan models through internal architecture helpers so future `gpt-5-mini` integration can remain review-gated and deterministic.
+
 ## Suggested next steps in WordPress
 
 1. Import the SCF JSON export.
