@@ -880,6 +880,10 @@ Reorganize the plugin admin into a stronger WordPress-native information archite
   * possibly add `plugin/includes/admin-ui.php`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline delivered: the plugin admin now uses a WordPress-native tabbed IA (overview/setup, brand/presets, layout/spacing, header/footer, pages/templates, content modules, storefront behavior), includes a top summary panel for key setup states, and separates normal setting saves from generation/refresh actions.
+
 ---
 
 ### Task 15
