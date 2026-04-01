@@ -1079,10 +1079,46 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	}
 
 	public static function composed_page_templates() {
+		$templates = self::page_template_registry();
+		$options = array();
+		foreach ( $templates as $key => $template ) {
+			$options[ $key ] = (string) ( $template['label'] ?? $key );
+		}
+		return $options;
+	}
+
+	public static function page_template_registry() {
 		return array(
-			'conversion' => 'Conversion page (hero → features → CTA)',
-			'story'      => 'Story page (hero → split story → trust)',
-			'catalog'    => 'Catalog page (hero → product feed → content)',
+			'home' => array(
+				'label' => 'Home starter page',
+				'purpose' => 'Primary storefront landing page.',
+				'page_types' => array( 'starter', 'generated' ),
+				'sections' => array( 'home_hero', 'home_story', 'home_value_cards', 'home_trust', 'home_featured', 'home_closing' ),
+			),
+			'about' => array(
+				'label' => 'About starter page',
+				'purpose' => 'Brand voice and trust framing.',
+				'page_types' => array( 'starter', 'generated' ),
+				'sections' => array( 'about_intro', 'about_values', 'about_calibrate' ),
+			),
+			'conversion' => array(
+				'label' => 'Conversion page (hero → features → CTA)',
+				'purpose' => 'Focused conversion path.',
+				'page_types' => array( 'generated' ),
+				'sections' => array( 'hero', 'feature_grid', 'cta_band' ),
+			),
+			'story' => array(
+				'label' => 'Story page (hero → split story → trust)',
+				'purpose' => 'Narrative and social proof layout.',
+				'page_types' => array( 'generated' ),
+				'sections' => array( 'hero', 'story_split', 'trust_section', 'cta_band' ),
+			),
+			'catalog' => array(
+				'label' => 'Catalog page (hero → product feed → content)',
+				'purpose' => 'Product showcase and supporting copy.',
+				'page_types' => array( 'generated' ),
+				'sections' => array( 'hero', 'product_feed', 'content_section', 'cta_band' ),
+			),
 		);
 	}
 
@@ -1094,51 +1130,191 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	 */
 	public static function composed_sections() {
 		return array(
+			'home_hero' => array(
+				'label' => 'Home hero',
+				'purpose' => 'Primary first impression and CTA entry.',
+				'template' => 'home_hero',
+				'default_copy' => 'Tools for people who actually do the work.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet' ),
+				'media_requirements' => array( 'optional' => array( 'home_hero_image' ) ),
+				'visibility_rules' => array(),
+				'token_placeholders' => array( 'brand_mark', 'brand_name', 'home_primary_cta_label', 'home_primary_cta_url', 'home_secondary_cta_label', 'home_secondary_cta_url', 'home_hero_image_url' ),
+				'applicable_page_types' => array( 'home' ),
+			),
+			'home_story' => array(
+				'label' => 'Home story split',
+				'purpose' => 'Explain the operating model with optional media.',
+				'template' => 'home_story',
+				'default_copy' => 'A counter, not a corporation.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet' ),
+				'media_requirements' => array( 'optional' => array( 'home_story_image' ) ),
+				'visibility_rules' => array( 'setting_key' => 'show_home_story', 'truthy' => true ),
+				'token_placeholders' => array( 'home_story_image_url', 'brand_name' ),
+				'applicable_page_types' => array( 'home' ),
+			),
+			'home_value_cards' => array(
+				'label' => 'Home value cards',
+				'purpose' => 'Introduce buy once / pay per task / hybrid options.',
+				'template' => 'home_value_cards',
+				'default_copy' => 'Two Ways to Work.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'home' ),
+			),
+			'home_trust' => array(
+				'label' => 'Home trust split',
+				'purpose' => 'Trust and audience framing.',
+				'template' => 'home_trust',
+				'default_copy' => 'Built for people who keep everything running.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array( 'setting_key' => 'show_home_trust', 'truthy' => true ),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'home' ),
+			),
+			'home_featured' => array(
+				'label' => 'Home featured tools',
+				'purpose' => 'Surface featured Edge Tool content.',
+				'template' => 'home_featured',
+				'default_copy' => 'Product Counter.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array( 'setting_key' => 'show_home_featured', 'truthy' => true ),
+				'token_placeholders' => array( 'featured_tools_count' ),
+				'applicable_page_types' => array( 'home' ),
+			),
+			'home_closing' => array(
+				'label' => 'Home closing CTA',
+				'purpose' => 'Final CTA prompt on home.',
+				'template' => 'home_closing',
+				'default_copy' => 'Your next unfair advantage is probably a small tool.',
+				'supported_layout_modes' => array( 'full_width_band', 'single_column' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array( 'setting_key' => 'show_home_closing', 'truthy' => true ),
+				'token_placeholders' => array( 'home_primary_cta_label', 'home_primary_cta_url' ),
+				'applicable_page_types' => array( 'home' ),
+			),
+			'about_intro' => array(
+				'label' => 'About intro split',
+				'purpose' => 'Narrative intro and brand anchor.',
+				'template' => 'about_intro',
+				'default_copy' => 'A worker refuge with sharper tools.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet' ),
+				'media_requirements' => array( 'optional' => array( 'about_story_image' ) ),
+				'visibility_rules' => array(),
+				'token_placeholders' => array( 'about_primary_cta_label', 'about_primary_cta_url', 'about_story_image_url', 'brand_name', 'brand_mark' ),
+				'applicable_page_types' => array( 'about' ),
+			),
+			'about_values' => array(
+				'label' => 'About value cards',
+				'purpose' => 'Voice, visual direction, and commerce model.',
+				'template' => 'about_values',
+				'default_copy' => 'Core values.',
+				'supported_layout_modes' => array( 'single_column', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array( 'setting_key' => 'show_about_values', 'truthy' => true ),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'about' ),
+			),
+			'about_calibrate' => array(
+				'label' => 'About final calibration',
+				'purpose' => 'Guardrails and final calibration statements.',
+				'template' => 'about_calibrate',
+				'default_copy' => 'Final calibration.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array( 'setting_key' => 'show_about_calibrate', 'truthy' => true ),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'about' ),
+			),
 			'hero' => array(
 				'label' => 'Hero',
+				'purpose' => 'Default generated page hero.',
 				'template' => 'hero',
-				'supports' => array( 'headline', 'kicker', 'body' ),
+				'default_copy' => 'Template Composer',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array( 'brand_mark', 'brand_name' ),
+				'applicable_page_types' => array( 'conversion', 'story', 'catalog' ),
 			),
 			'story_split' => array(
 				'label' => 'Story split',
+				'purpose' => 'Default split body section.',
 				'template' => 'story_split',
-				'supports' => array( 'headline', 'body', 'media' ),
+				'default_copy' => 'Explain what this page does.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet' ),
+				'media_requirements' => array( 'optional' => array( 'image' ) ),
+				'visibility_rules' => array(),
+				'token_placeholders' => array( 'story_layout' ),
+				'applicable_page_types' => array( 'story' ),
 			),
 			'feature_grid' => array(
 				'label' => 'Feature grid',
+				'purpose' => 'Default value blocks.',
 				'template' => 'feature_grid',
-				'supports' => array( 'cards' ),
+				'default_copy' => 'Fast setup.',
+				'supported_layout_modes' => array( 'single_column', 'balanced_two_column', 'stacked_on_tablet' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'conversion' ),
 			),
 			'cta_band' => array(
 				'label' => 'CTA band',
+				'purpose' => 'Default conversion footer.',
 				'template' => 'cta_band',
-				'supports' => array( 'headline', 'cta' ),
+				'default_copy' => 'Move from explanation to action.',
+				'supported_layout_modes' => array( 'full_width_band', 'single_column' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array( 'primary_cta_url', 'primary_cta_label' ),
+				'applicable_page_types' => array( 'conversion', 'story', 'catalog' ),
 			),
 			'trust_section' => array(
 				'label' => 'Trust section',
+				'purpose' => 'Default trust checklist.',
 				'template' => 'trust_section',
-				'supports' => array( 'list' ),
+				'default_copy' => 'State what you do not do.',
+				'supported_layout_modes' => array( 'single_column' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'story' ),
 			),
 			'product_feed' => array(
 				'label' => 'Product feed',
+				'purpose' => 'Default featured products embed.',
 				'template' => 'product_feed',
-				'supports' => array( 'shortcode' ),
+				'default_copy' => 'Featured tools feed.',
+				'supported_layout_modes' => array( 'single_column' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array( 'featured_tools_count' ),
+				'applicable_page_types' => array( 'catalog' ),
 			),
 			'content_section' => array(
 				'label' => 'Content section',
+				'purpose' => 'Default long-form body section.',
 				'template' => 'content_section',
-				'supports' => array( 'headline', 'body' ),
+				'default_copy' => 'Add your long-form detail here.',
+				'supported_layout_modes' => array( 'single_column' ),
+				'media_requirements' => array(),
+				'visibility_rules' => array(),
+				'token_placeholders' => array(),
+				'applicable_page_types' => array( 'catalog' ),
 			),
 		);
 	}
 
 	public static function template_sections( $template_key ) {
-		$map = array(
-			'conversion' => array( 'hero', 'feature_grid', 'cta_band' ),
-			'story'      => array( 'hero', 'story_split', 'trust_section', 'cta_band' ),
-			'catalog'    => array( 'hero', 'product_feed', 'content_section', 'cta_band' ),
-		);
-		return $map[ $template_key ] ?? $map['conversion'];
+		$registry = self::page_template_registry();
+		if ( isset( $registry[ $template_key ]['sections'] ) && is_array( $registry[ $template_key ]['sections'] ) ) {
+			return $registry[ $template_key ]['sections'];
+		}
+		return $registry['conversion']['sections'];
 	}
 
 	public static function compose_page_content( $section_keys = array(), $args = array() ) {
@@ -1163,6 +1339,15 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 
 	private static function composed_section_markup() {
 		return array(
+			'home_hero' => '<!-- wp:group {"className":"{{home_hero_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{home_hero_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose">{{brand_mark}}<!-- wp:paragraph --><p class="cm-badge">Tools for people who actually do the work.</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">Tools for people who actually do the work.</h1><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">{{brand_name}} is a worker-first software shop: focused desktop tools and compute-backed utilities for repetitive, real-world digital tasks.</p><!-- /wp:paragraph --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{home_primary_cta_url}}">{{home_primary_cta_label}}</a></div><!-- /wp:button --><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button cm-button--secondary" href="{{home_secondary_cta_url}}">{{home_secondary_cta_label}}</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel">{{home_hero_media}}</div><!-- /wp:group --></div><!-- /wp:group -->',
+			'home_story' => '<!-- wp:group {"className":"{{home_story_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{home_story_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">What This System Is</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">A counter, not a corporation.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">This site system showcases small, practical software tools for people whose jobs happen on computers.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel">{{home_story_media}}</div><!-- /wp:group --></div><!-- /wp:group -->',
+			'home_value_cards' => '<!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-3 cm-section"><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Two Ways to Work</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Buy Once</h3><!-- /wp:heading --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Two Ways to Work</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Pay Per Task</h3><!-- /wp:heading --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Two Ways to Work</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Hybrid</h3><!-- /wp:heading --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'home_trust' => '<!-- wp:group {"className":"{{home_trust_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{home_trust_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Built for the People Who Keep Everything Running</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">For the person everyone asks for help.</h2><!-- /wp:heading --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Workers Should Own the Leverage</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">AI is happening. Workers should own the leverage.</h2><!-- /wp:heading --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'home_featured' => '<!-- wp:group {"className":"{{home_featured_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{home_featured_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">What We Won\'t Do</p><!-- /wp:paragraph --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>We won\'t harvest your documents to train models.</li><li>We won\'t gate basic functionality behind a subscription.</li><li>We won\'t pretend AI replaces your judgment.</li></ul><!-- /wp:list --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Product Counter</p><!-- /wp:paragraph --><!-- wp:shortcode -->[cafe_moxie_featured_edge_tools count="{{featured_tools_count}}"]<!-- /wp:shortcode --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'home_closing' => '<!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section"><!-- wp:paragraph --><p class="cm-eyebrow">Closing CTA</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Your next unfair advantage is probably a small tool.</h2><!-- /wp:heading --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{home_primary_cta_url}}">{{home_primary_cta_label}}</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
+			'about_intro' => '<!-- wp:group {"className":"{{about_intro_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{about_intro_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose">{{brand_mark}}<!-- wp:paragraph --><p class="cm-eyebrow">About {{brand_name}}</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">A worker refuge with sharper tools.</h1><!-- /wp:heading --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{about_primary_cta_url}}">{{about_primary_cta_label}}</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel">{{about_story_media}}</div><!-- /wp:group --></div><!-- /wp:group -->',
+			'about_values' => '<!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-3 cm-section"><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Voice</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Visual Direction</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Commerce</p><!-- /wp:paragraph --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'about_calibrate' => '<!-- wp:group {"className":"{{about_calibrate_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{about_calibrate_layout}}"><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel"><!-- wp:paragraph --><p class="cm-eyebrow">What This Brand Is Not</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel"><!-- wp:paragraph --><p class="cm-eyebrow">Final Calibration</p><!-- /wp:paragraph --></div><!-- /wp:group --></div><!-- /wp:group -->',
 			'hero' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose">{{brand_mark}}<!-- wp:paragraph --><p class="cm-eyebrow">Template Composer</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">{{brand_name}} page template</h1><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Start with a focused hero and then add only the sections this page needs.</p><!-- /wp:paragraph --></div><!-- /wp:group -->',
 			'story_split' => '<!-- wp:group {"className":"{{story_layout}}","layout":{"type":"default"}} --><div class="wp-block-group {{story_layout}}"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Story split</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Explain what this page does.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Use this split to pair explanatory copy with supporting media or an image block.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel"><!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Replace media</span><p class="cm-subtle">Drop in an image, logo treatment, or proof point.</p></div><!-- /wp:html --></div><!-- /wp:group --></div><!-- /wp:group -->',
 			'feature_grid' => '<!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-3 cm-section"><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Fast setup</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Keep the first value block clear and practical.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Clear ownership</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Define what users control and what stays simple.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Real-world outcomes</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Show what gets easier after the workflow changes.</p><!-- /wp:paragraph --></div><!-- /wp:group --></div><!-- /wp:group -->',
@@ -1174,12 +1359,30 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	}
 
 	private static function composed_section_context( $s, $brand ) {
+		$home_hero_image = self::resolve_url( $s['home_hero_image'] ?? '' );
+		$home_story_image = self::resolve_url( $s['home_story_image'] ?? '' );
+		$about_story_image = self::resolve_url( $s['about_story_image'] ?? '' );
 		return array(
 			'brand_mark' => self::render_brand_mark(),
 			'brand_name' => esc_html( $brand['name'] ?? '' ),
+			'home_hero_layout' => esc_attr( self::section_layout_classes( 'home_hero_layout', 'balanced_two_column', 'cm-hero' ) ),
+			'home_story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', 'media_right_split' ) ),
+			'home_trust_layout' => esc_attr( self::section_layout_classes( 'home_trust_layout', 'balanced_two_column' ) ),
+			'home_featured_layout' => esc_attr( self::section_layout_classes( 'home_featured_layout', 'stacked_on_tablet' ) ),
+			'about_intro_layout' => esc_attr( self::section_layout_classes( 'about_intro_layout', 'media_right_split' ) ),
+			'about_calibrate_layout' => esc_attr( self::section_layout_classes( 'about_calibrate_layout', 'balanced_two_column' ) ),
+			'home_hero_media' => $home_hero_image ? '<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="' . esc_url( $home_hero_image ) . '" alt="' . esc_attr( $brand['name'] ?? '' ) . ' hero image" /></figure><!-- /wp:image -->' : '<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title cm-placeholder-title">Hero image slot</h2></div><!-- /wp:html -->',
+			'home_story_media' => $home_story_image ? '<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="' . esc_url( $home_story_image ) . '" alt="' . esc_attr( $brand['name'] ?? '' ) . ' story image" /></figure><!-- /wp:image -->' : '<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add story image</span><h2 class="cm-sign-title cm-placeholder-title">Story image slot</h2></div><!-- /wp:html -->',
+			'about_story_media' => $about_story_image ? '<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="' . esc_url( $about_story_image ) . '" alt="' . esc_attr( $brand['name'] ?? '' ) . ' about image" /></figure><!-- /wp:image -->' : '<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add about image</span><h2 class="cm-sign-title cm-placeholder-title">About image slot</h2></div><!-- /wp:html -->',
 			'story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', 'media_right_split' ) ),
 			'primary_cta_url' => esc_url( self::resolve_url( $s['home_primary_url'] ?? '' ) ),
 			'primary_cta_label' => esc_html( $s['home_primary_cta'] ?? '' ),
+			'home_primary_cta_url' => esc_url( self::resolve_url( $s['home_primary_url'] ?? '' ) ),
+			'home_primary_cta_label' => esc_html( $s['home_primary_cta'] ?? '' ),
+			'home_secondary_cta_url' => esc_url( self::resolve_url( $s['home_secondary_url'] ?? '' ) ),
+			'home_secondary_cta_label' => esc_html( $s['home_secondary_cta'] ?? '' ),
+			'about_primary_cta_url' => esc_url( self::resolve_url( $s['about_primary_url'] ?? '' ) ),
+			'about_primary_cta_label' => esc_html( $s['about_primary_cta'] ?? '' ),
 			'featured_tools_count' => esc_attr( (string) (int) ( $s['featured_tools_count'] ?? 3 ) ),
 		);
 	}
@@ -1196,6 +1399,15 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$sections = self::composed_sections();
 		if ( ! isset( $sections[ $section_key ]['template'] ) ) {
 			return '';
+		}
+		$visibility = $sections[ $section_key ]['visibility_rules'] ?? array();
+		if ( ! empty( $visibility['setting_key'] ) ) {
+			$setting_key = sanitize_key( $visibility['setting_key'] );
+			$expected = isset( $visibility['truthy'] ) ? (bool) $visibility['truthy'] : true;
+			$current = ! empty( $s[ $setting_key ] );
+			if ( $expected !== $current ) {
+				return '';
+			}
 		}
 		$templates = self::composed_section_markup();
 		$template_key = $sections[ $section_key ]['template'];
