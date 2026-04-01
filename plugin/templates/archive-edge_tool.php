@@ -5,13 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 $query = Cafe_Moxie_Site_Kit::archive_query();
 $settings = Cafe_Moxie_Site_Kit::settings();
+$brand = Cafe_Moxie_Site_Kit::brand_profile();
 ?>
 <main class="cm-archive-page">
 	<div class="cm-wrap">
 		<section class="cm-panel cm-section">
-			<div class="cm-eyebrow">Browse the Counter</div>
+			<div class="cm-eyebrow">Browse Tools</div>
 			<h1 class="cm-sign-title">Tools for people who actually do the work.</h1>
-			<p class="cm-subtle">Cafe Moxie is Fabled Sky's worker-first software counter for local tools and compute-backed utilities built for real digital work.</p>
+			<p class="cm-subtle"><?php echo esc_html( $brand['archive_intro'] ); ?></p>
 			<?php if ( ! empty( $settings['show_archive_filters'] ) ) : ?>
 				<form class="cm-section" method="get" action="<?php echo esc_url( get_post_type_archive_link( 'edge_tool' ) ); ?>">
 					<div class="cm-filter-bar">
@@ -35,7 +36,7 @@ $settings = Cafe_Moxie_Site_Kit::settings();
 						</div>
 					</div>
 					<div class="cm-filter-actions">
-						<label style="display:inline-flex;align-items:center;gap:8px;color:var(--moxie-cream);font-weight:700;"><input type="checkbox" name="cm_featured" value="1" <?php checked( Cafe_Moxie_Site_Kit::request_value( 'cm_featured' ), '1' ); ?>> Worker Favorites only</label>
+						<label style="display:inline-flex;align-items:center;gap:8px;color:var(--moxie-cream);font-weight:700;"><input type="checkbox" name="cm_featured" value="1" <?php checked( Cafe_Moxie_Site_Kit::request_value( 'cm_featured' ), '1' ); ?>> Featured only</label>
 						<button class="cm-button" type="submit">Apply Filters</button>
 						<a class="cm-button cm-button--subtle" href="<?php echo esc_url( get_post_type_archive_link( 'edge_tool' ) ); ?>">Reset</a>
 					</div>

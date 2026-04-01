@@ -6,7 +6,7 @@ This repo is structured for a lean WordPress workflow:
 - `plugin/` contains the live plugin code deployed to WordPress
 - `scf-json/` contains versioned Secure Custom Fields exports
 - `docs/` contains implementation and deployment notes
-- `.github/workflows/` contains GitHub Actions for staging, production, and release ZIP packaging
+- `.github/workflows/` contains GitHub Actions for production deploys and release ZIP packaging
 
 ## Current production target
 - Live site: `https://moxie.fabledsky.com`
@@ -16,8 +16,7 @@ This repo is structured for a lean WordPress workflow:
   `/var/www/clients/client0/web25/web/wp-content/plugins/cafe-moxie-site-kit-enterprise-ready-fixed`
 
 ## Recommended branch model
-- `main` → staging deploys
-- `production` → production deploys
+- `main` → live production deploys
 - feature branches / PRs → Codex or manual changes
 
 ## Repo layout
@@ -42,9 +41,8 @@ Ask Codex to make changes in branches and PRs, not directly on production. Good 
 ## GitHub secrets to add
 Set these repository secrets before enabling deploy workflows.
 
-### Shared / packaging
+### Production deploy
 - `PLUGIN_REMOTE_PATH_PRODUCTION`
-- `PLUGIN_REMOTE_PATH_STAGING`
 
 ### Production SFTP
 - `SFTP_HOST_PRODUCTION`
@@ -52,27 +50,18 @@ Set these repository secrets before enabling deploy workflows.
 - `SFTP_USERNAME_PRODUCTION`
 - `SFTP_PASSWORD_PRODUCTION`
 
-### Staging SFTP
-- `SFTP_HOST_STAGING`
-- `SFTP_PORT_STAGING`
-- `SFTP_USERNAME_STAGING`
-- `SFTP_PASSWORD_STAGING`
-
-If staging uses the same server, you can reuse the same host and username with a different remote path.
 
 ## Suggested GitHub variables
 Use GitHub repository variables for non-secret defaults if you prefer:
 - `LIVE_SITE_URL`
-- `STAGING_SITE_URL`
 - `SERVER_IP`
 
 ## First-time setup
 1. Create the GitHub repo named `cafe-moxie-site-kit`.
 2. Upload this repo bundle or push it from local Git.
 3. Add the GitHub secrets listed above.
-4. Create a staging plugin path on the server.
-5. Push to `main` to deploy staging.
-6. After validation, merge or cherry-pick into `production` to deploy live.
+4. Set `PLUGIN_REMOTE_PATH_PRODUCTION` to the live plugin directory.
+5. Push to `main` to deploy live.
 
 ## Packaging a manual ZIP
 Run:
