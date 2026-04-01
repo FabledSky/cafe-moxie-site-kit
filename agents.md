@@ -3,6 +3,67 @@
 This document defines how humans and AI agents (Codex, ChatGPT, etc.) should understand, modify, and extend the **Cafe Moxie Site Kit** WordPress plugin.
 
 It is the **single operational contract** for development.
+Here is a clean **GitHub-compatible Table of Contents** for your `agents.md`. You can paste this at the very top.
+
+---
+
+## Table of Contents
+
+* [Overview & Background](#overview--background)
+
+  * [1. System Overview](#1-system-overview)
+  * [2. Architectural Model](#2-architectural-model)
+  * [3. Key Design Philosophy](#3-key-design-philosophy)
+  * [4. Critical Functions](#4-critical-functions)
+  * [5. SCF Data Rules](#5-scf-data-rules)
+  * [6. Frontend System](#6-frontend-system)
+  * [7. Git + Deployment Workflow](#7-git--deployment-workflow)
+  * [8. Repository Structure](#8-repository-structure)
+  * [9. Coding Standards](#9-coding-standards)
+  * [9.1 Settings Taxonomy Contract](#91-settings-taxonomy-contract)
+  * [9.2 Native Plugin UX Contract](#92-native-plugin-ux-contract)
+  * [10. What Agents SHOULD Do](#10-what-agents-should-do)
+  * [11. What Agents MUST NOT Do](#11-what-agents-must-not-do)
+  * [11.1 Explicit Anti-Patterns](#111-explicit-anti-patterns)
+  * [12. Testing Rules](#12-testing-rules)
+  * [12.1 Regression Checklist (Required for UI/architecture touching PRs)](#121-regression-checklist-required-for-uiarchitecture-touching-prs)
+  * [12.2 PR Change Disclosure Rule](#122-pr-change-disclosure-rule)
+  * [13. Future Extensions](#13-future-extensions)
+  * [14. Mental Model for Agents](#14-mental-model-for-agents)
+  * [15. Final Rule](#15-final-rule)
+
+* [Tasks for Codex Agent](#tasks-for-codex-agent)
+
+  * [Task 1](#task-1)
+  * [Task 2](#task-2)
+  * [Task 3](#task-3)
+  * [Task 4](#task-4)
+  * [Task 5](#task-5)
+  * [Task 6](#task-6)
+  * [Task 7](#task-7)
+  * [Task 8](#task-8)
+  * [Task 9](#task-9)
+  * [Task 10](#task-10)
+  * [Task 11](#task-11)
+  * [Task 12](#task-12)
+  * [Task 13](#task-13)
+  * [Task 14](#task-14)
+  * [Task 15](#task-15)
+  * [Task 16](#task-16)
+  * [Task 17](#task-17)
+  * [Task 18](#task-18)
+  * [Task 19](#task-19)
+  * [Task 20](#task-20)
+  * [Task 21](#task-21)
+  * [Task 22](#task-22)
+  * [Task 23](#task-23)
+  * [Task 24](#task-24)
+  * [Task 25](#task-25)
+  * [Task 26](#task-26)
+
+---
+
+This matches your exact header structure and will work cleanly with GitHub anchor links. 
 
 ---
 ## Overview & Background
@@ -1181,5 +1242,405 @@ Define the deterministic architecture required for future AI-assisted site editi
 Task 20 baseline implemented: deterministic AI-architecture contract scaffolding is now in place without any live model integration. The plugin now exposes structured plan-model metadata, registry snapshots (settings/templates/sections/content modules), and explicit safe-action boundaries for future `gpt-5-mini` proposal workflows. Supporting documentation was added in `docs/ai-architecture.md` and linked from `docs/IMPLEMENTATION-GUIDE.md`.
 
 ---
+## Concise repo review summary
+
+The updated repo has a real baseline for Tasks 13–20, but it is not yet the polished out-of-box Cafe Moxie system we discussed. The strongest foundations are now present: a central `settings_registry()`, tabbed admin UI, managed template-part generation, shared page/section registries, richer Edge Tool module metadata, and deterministic AI-contract scaffolding. The main remaining gaps are that `brand_presets()` still does not apply a true Cafe Moxie default map despite `preset_participation` metadata existing, `starter_page_definitions()` still only generates Home/About, `page_template_registry()` still leans generic, several generated sections remain placeholder/generic instead of following `cade-moxie-brand-guide.md`, starter-page images still render as raw `wp:image` blocks rather than adaptive media frames, and `generated_header_markup()` still packs brand/nav/CTA too tightly, which matches the crowding/overlap problem you noticed. The next task layer should therefore focus on verified closure of Tasks 13–20, a real Cafe Moxie polished preset, non-crowded header/button/action layouts, a canonical 6-page Cafe Moxie starter pack, orientation-aware media/layout behavior, and a one-click polished setup flow.
+
+### Task 21
+
+Goals
+
+Audit Tasks 13–20 against the actual shipped code and convert “baseline exists” into “verified, polished, production-ready” so the task list reflects what is truly done versus what is only structurally present.
+
+#### Implementation Steps
+
+1. Perform a file-by-file audit of the current implementation for Tasks 13–20, mapping each task’s stated outcome to the actual code paths now present in:
+
+   * `plugin/cafe-moxie-site-kit.php`
+   * `plugin/patterns/*.php`
+   * `plugin/templates/*.php`
+   * `docs/IMPLEMENTATION-GUIDE.md`
+   * `docs/ai-architecture.md`
+2. For each Task 13–20 status update, classify the current state as one of:
+
+   * structurally present
+   * partially polished
+   * fully verified
+     and record where the implementation still falls short of the original intent.
+3. Explicitly verify the following known gap areas rather than assuming the existing status notes are sufficient:
+
+   * preset system completeness versus mere metadata presence
+   * admin IA polish versus tabs-only delivery
+   * header/footer usability versus simple generation support
+   * starter/composed page quality versus generic placeholder content
+   * responsive/media quality versus basic CSS coverage
+   * plugin-first setup versus isolated actions spread across tabs
+4. Add a follow-up punch list in `agents.md` only for gaps that are still materially open after code review. Keep each follow-up task narrow enough to be completed in a single prompt/PR.
+5. Add a mandatory verification rule for future task status updates: do not mark a task “baseline delivered” or “advanced” until it has passed visual QA on a clean WordPress install using Twenty Twenty-Five and only this plugin.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when Tasks 13–20 are truthfully reclassified and any still-open work is explicitly tracked without vague “mostly done” language.
+* Do not treat scaffolding alone as full completion.
+* Do not delete the historical task intent; clarify completion state accurately.
+* Files likely to modify:
+
+  * `agents.md`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+
+---
+
+### Task 22
+
+Goals
+
+Implement a real Cafe Moxie polished preset/default profile so the plugin loads into an elegant, sleek, on-brand state without the user having to manually tune settings.
+
+Status note (2026-04-01 baseline):
+
+* The settings registry exists, but the current `brand_preset` system does not yet apply a true Cafe Moxie default map across all relevant visual/layout/header/footer/page settings.
+
+#### Implementation Steps
+
+1. Introduce a true preset-defaults layer keyed by brand preset, rather than relying only on field-level registry defaults. At minimum, add:
+
+   * a Cafe Moxie polished preset
+   * a neutral reusable preset
+2. Make the Cafe Moxie preset own explicit default values for the settings that most affect first impression and crowding, including at minimum:
+
+   * `enable_managed_header_footer` = `1`
+   * `header_footer_preset` = `counter`
+   * `header_brand_treatment` = `logo_and_name`
+   * `header_nav_source` = `primary_navigation`
+   * `header_cta_label` = `Browse the Counter`
+   * `header_cta_url` = `/edge-tools/`
+   * `home_primary_cta` = `Browse the Counter`
+   * `home_secondary_cta` = `See What Runs Local`
+   * `about_primary_cta` = `Browse the Counter`
+   * `footer_copy` = `Tools for people who actually do the work.`
+   * `footer_utility_copy` = `Pull up a chair. The tools are ready.`
+   * `footer_content_primary` = `Own it when you want ownership. Run it when you just need the task done.`
+   * `footer_content_secondary` = `Buy once for local tools. Pay per task for compute-backed workflows.`
+   * `logo_width` = `240`
+   * `header_height` = `88`
+   * `header_vertical_padding` = `12`
+   * `footer_vertical_padding` = `24`
+   * `section_max_width` = `1240`
+   * `outer_wrapper_gutter` = `28`
+   * `hero_min_height` = `620`
+   * `hero_section_spacing` = `36`
+   * `border_radius` = `16`
+   * `button_scale` = `0.96`
+   * `mobile_heading_scale` = `0.94`
+   * `card_image_ratio` = `4:3`
+   * `grid_gap` = `24`
+   * `panel_padding` = `26`
+   * `content_max_width` = `720`
+   * `content_band_max_width` = `1160`
+   * `archive_rail_max_width` = `1280`
+   * `single_rail_max_width` = `1120`
+   * `responsive_breakpoint_mode` = `early_stack`
+   * `page_section_density` = `comfortable`
+   * `site_density_preset` = `comfortable`
+   * `archive_columns` = `3`
+   * `tablet_columns` = `2`
+   * `home_hero_layout` = `media_right_split`
+   * `home_story_layout` = `media_right_split`
+   * `home_trust_layout` = `stacked_on_tablet`
+   * `home_featured_layout` = `stacked_on_tablet`
+   * `about_intro_layout` = `media_right_split`
+   * `about_calibrate_layout` = `stacked_on_tablet`
+3. Ensure preset application is deterministic in three places:
+
+   * first install / first option creation
+   * explicit “reset/apply preset” action from the plugin UI
+   * future AI-proposed preset changes
+4. Make `preset_participation` metadata actually control which fields are reset/reapplied by a preset, instead of leaving that metadata unused.
+5. Add a visible plugin action such as “Apply Cafe Moxie polished defaults” so a site owner can safely restore the intended default shell after experiments.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a fresh install defaults to a polished Cafe Moxie experience and the preset system is real rather than nominal.
+* Do not remove the neutral preset path.
+* Do not introduce hidden state or duplicate option stores.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/presets.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+### Task 23
+
+Goals
+
+Eliminate crowding/overlap in the default front-end shell by refining header/footer structure, action-cluster spacing, and button wrapping so the default Cafe Moxie presentation feels composed instead of cramped.
+
+Status note (2026-04-01 baseline):
+
+* Managed header/footer generation exists, but the generated header structure is still too compact and currently packs brand, navigation, and CTA into a crowd-prone cluster.
+
+#### Implementation Steps
+
+1. Audit all plugin-generated button/action clusters that currently risk crowding, including:
+
+   * `generated_header_markup()`
+   * `generated_footer_markup()`
+   * composed page hero/button clusters
+   * archive filter/action clusters
+   * overview/generation action buttons in admin
+2. Refactor the managed header markup into explicit structural regions instead of one broad flex cluster. At minimum provide:
+
+   * left region = brand mark / site title
+   * center region = navigation
+   * right region = CTA / utility actions
+3. Add explicit CSS/layout rules for all action clusters so they:
+
+   * wrap cleanly
+   * preserve readable tap targets
+   * maintain consistent gap spacing
+   * avoid logo/nav/button collisions
+   * stack earlier on medium viewports when needed
+4. Add plugin-owned classes for button groups/action clusters instead of relying on whatever spacing the active theme happens to apply to core block buttons.
+5. Verify the default Cafe Moxie shell at these viewport widths at minimum:
+
+   * `1440px`
+   * `1280px`
+   * `1024px`
+   * `782px`
+   * `640px`
+   * `390px`
+     and treat any overlap/crowding as a failure.
+6. Apply the same anti-crowding rules to the generated footer and key composed-page CTA areas so the polished default experience is consistent across the whole site shell.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the default header/footer/CTA layouts no longer crowd, collide, or wrap awkwardly in a clean install.
+* Do not solve this by adding a heavy responsive builder or per-section manual controls.
+* Keep the layout deterministic and theme-independent enough to behave well on Twenty Twenty-Five.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * `plugin/templates/*.php`
+  * `agents.md`
+
+---
+
+### Task 24
+
+Goals
+
+Create the canonical Cafe Moxie starter page pack and make it the default generated content set, using `cade-moxie-brand-guide.md` as the source of truth instead of generic placeholder copy.
+
+Status note (2026-04-01 baseline):
+
+* The composition framework exists, but `starter_page_definitions()` still only generates Home/About and several composed sections/templates remain generic or placeholder-oriented rather than fully Cafe Moxie specific.
+
+#### Implementation Steps
+
+1. Expand the starter-page system from a minimal Home/About pair into a canonical Cafe Moxie starter pack with six default pages:
+
+   * `home` → `Home`
+   * `about` → `About Cafe Moxie`
+   * `browse-the-counter` → `Browse the Counter`
+   * `how-it-works` → `How It Works`
+   * `who-its-for` → `Who It’s For`
+   * `trust-faq` → `Trust + FAQ`
+2. Use `cade-moxie-brand-guide.md` as the canonical content source for these pages. Do not use generic “site system” language where the brand guide already gives concrete Cafe Moxie copy.
+3. Map each generated page to an explicit section plan and content source, for example:
+
+   * Home → use the homepage structure from brand guide section 17 exactly
+   * About Cafe Moxie → pull from sections 1–7 and 9–16
+   * Browse the Counter → introduce the counter metaphor, category names from section 18, and CTA into the Edge Tool archive
+   * How It Works → explain Buy Once / Pay Per Task / Hybrid and Compute Credits using sections 15–16
+   * Who It’s For → use the audience definition, traits, and emotional truth from section 3
+   * Trust + FAQ → use trust messages, commerce rules, and product-page clarity rules from sections 6, 19, and 20
+4. Replace placeholder section text in the current composed section markup with real Cafe Moxie copy where the default preset is Cafe Moxie.
+5. Keep generic/non-Cafe-Moxie templates available for reusable mode, but make the Cafe Moxie starter generator default to this canonical six-page pack.
+6. Add one explicit generation action for this pack, such as “Generate / Refresh Cafe Moxie Starter Set,” and ensure pages remain block-editor editable after generation.
+7. Keep generation marker-based and revision-safe:
+
+   * create if missing
+   * overwrite only plugin-managed generated pages when explicitly allowed
+   * never silently replace unmanaged user-authored pages
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a clean install can generate a coherent, brand-correct Cafe Moxie page shell without placeholder copy.
+* Do not invent fake testimonials, fake client logos, fake metrics, or unsupported claims.
+* Do not create fake product inventory; use real Edge Tool content where available and graceful placeholders where not.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * possibly add `plugin/includes/cafe-moxie-page-pack.php`
+  * `cade-moxie-brand-guide.md`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+### Task 25
+
+Goals
+
+Add orientation-aware media framing and responsive composition rules so starter pages, composed sections, and module templates look elegant regardless of whether the image is portrait, landscape, square, tiny, or missing.
+
+Status note (2026-04-01 baseline):
+
+* Tool cards use a ratio frame, but composed starter-page media still renders as raw `wp:image` output, which is why portrait/small images can look awkward or under-filled in split sections.
+
+#### Implementation Steps
+
+1. Audit all plugin-managed media rendering surfaces, including:
+
+   * composed starter-page media
+   * generated page templates
+   * header/footer brand images
+   * Edge Tool hero/gallery/before-after media
+   * archive cards
+2. Replace raw starter-page/media block output with a shared media-frame layer that can choose a presentation mode based on image metadata and section context.
+3. Introduce a deterministic media metadata resolver that can expose, where available:
+
+   * attachment ID
+   * width
+   * height
+   * aspect ratio
+   * orientation class (`portrait`, `landscape`, `square`, `unknown`)
+4. Support both local WordPress media and URL fallback:
+
+   * when a WordPress attachment is available, use attachment metadata
+   * when only a URL is available, use safe fallbacks and default frame behavior rather than leaving the layout visually inconsistent
+5. Define bounded frame/layout modes for major contexts, such as:
+
+   * hero-wide
+   * split-standard
+   * split-tall
+   * square-card
+   * portrait-focus
+   * logo/signage
+6. Add responsive rules so portrait or undersized imagery in split layouts does not leave a tiny image floating in a tall blank column. Acceptable strategies include:
+
+   * taller cropped media frames
+   * automatic earlier stacking for that section
+   * switching to media-top treatment at narrower widths
+7. Ensure missing or weak media falls back to polished Cafe Moxie signage-style placeholders rather than generic blank boxes.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the plugin’s default pages and templates remain visually balanced across mixed image aspect ratios without manual CSS edits.
+* Do not add heavy JavaScript layout measurement, drag-and-drop crop tools, or builder-style media controls.
+* Keep the behavior deterministic, lightweight, and WordPress-native.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * `plugin/templates/*.php`
+  * possibly add `plugin/includes/media-system.php`
+  * `agents.md`
+
+---
+
+### Task 26
+
+Goals
+
+Make the plugin feel like the primary polished setup console for Cafe Moxie by adding an enterprise-quality, one-click setup flow and more refined admin panel organization without turning the plugin into a builder.
+
+#### Implementation Steps
+
+1. Refine the current tabbed admin UI into grouped panels/cards inside each tab instead of rendering each tab as one flat settings table.
+2. Add a first-run / quick-actions area with the high-value actions a site owner actually needs, at minimum:
+
+   * Apply Cafe Moxie polished defaults
+   * Generate / Refresh Cafe Moxie Starter Set
+   * Generate / Refresh Managed Header + Footer
+   * Assign Home as Front Page
+   * Preview Site
+3. Add setup-state reporting that distinguishes between:
+
+   * plugin-managed generated pages
+   * plugin-managed template parts
+   * unmanaged or user-edited content
+   * missing assets / navigation / logo
+4. Make the Overview + Setup experience deterministic enough that a clean install can reach a polished Cafe Moxie shell from this plugin screen with minimal trips to core screens.
+5. Add “recommended for Cafe Moxie” guidance within relevant panels so the user understands which controls matter most for the polished default experience.
+6. Add a clean-install QA checklist for the whole experience, covering:
+
+   * plugin activation state
+   * preset application
+   * page generation
+   * header/footer generation
+   * front-page assignment
+   * desktop/tablet/mobile visual checks
+7. Keep all of this WordPress-native and maintainable. The goal is a better control console, not a wizard, SPA, or page builder.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when the plugin can serve as the main operational surface for standing up a polished Cafe Moxie site shell.
+* Do not add hidden state machines, proprietary builders, or dependency-heavy admin frameworks.
+* Preserve access to core WordPress screens even if the plugin becomes the preferred operating console.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/admin-ui.php`
+  * `README.md`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+### Task 27
+
+Goals
+
+Automatically maintain the `agents.md` Table of Contents so it stays in sync whenever sections or tasks are added, renamed, or removed.
+
+#### Implementation Steps
+
+1. Add a lightweight script under `scripts/` that reads `agents.md`, finds all markdown headers, and regenerates the Table of Contents block at the top of the file.
+2. Generate full GitHub edit-page anchor links in this exact format:
+
+   * `https://github.com/FabledSky/cafe-moxie-site-kit/edit/main/agents.md#overview--background`
+3. Support the heading levels currently used in `agents.md`, including at minimum:
+
+   * `##`
+   * `###`
+   * `####`
+4. Match GitHub anchor behavior closely enough for the current document structure, including:
+
+   * lowercase conversion
+   * spaces to hyphens
+   * removal of punctuation where appropriate
+   * preservation of numeric headings like `9.1` → `#91-settings-taxonomy-contract`
+5. Detect and replace only the Table of Contents section, without rewriting the rest of the file.
+6. Add a clear marker block around the generated TOC, for example:
+
+   * `<!-- BEGIN AUTO TOC -->`
+   * `<!-- END AUTO TOC -->`
+7. Add an npm script, shell alias, or documented command so Codex can run the TOC generator in one step before finishing a PR.
+8. Update `agents.md` instructions so future agents know:
+
+   * the TOC is generated
+   * they must re-run the generator whenever headings/tasks change
+   * they should not hand-edit links inside the generated TOC block
+9. Optionally add a CI check or pre-commit validation that fails if headings changed but the generated TOC block was not updated.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when `agents.md` has a stable auto-generated TOC workflow that future agents can maintain with one command.
+* Keep the implementation lightweight and repo-native.
+* Do not add a heavy documentation toolchain just for TOC generation.
+* Files likely to modify:
+
+  * `agents.md`
+  * `scripts/*`
+  * optionally `package.json`
+  * optionally `.github/workflows/*`
+ 
+ ---
 
 End of file.
