@@ -6,15 +6,16 @@ get_header();
 $query = Cafe_Moxie_Site_Kit::archive_query();
 $settings = Cafe_Moxie_Site_Kit::settings();
 $brand = Cafe_Moxie_Site_Kit::brand_profile();
+$archive_link = Cafe_Moxie_Site_Kit::module_archive_link( 'edge_tool' );
 ?>
 <main class="cm-archive-page">
 	<div class="cm-wrap">
 		<section class="cm-panel cm-section">
 			<div class="cm-eyebrow">Browse Tools</div>
-			<h1 class="cm-sign-title">Tools for people who actually do the work.</h1>
+			<h1 class="cm-sign-title"><?php echo esc_html( Cafe_Moxie_Site_Kit::module_archive_headline( 'edge_tool' ) ); ?></h1>
 			<p class="cm-subtle"><?php echo esc_html( $brand['archive_intro'] ); ?></p>
 			<?php if ( ! empty( $settings['show_archive_filters'] ) ) : ?>
-				<form class="cm-section" method="get" action="<?php echo esc_url( get_post_type_archive_link( 'edge_tool' ) ); ?>">
+				<form class="cm-section" method="get" action="<?php echo esc_url( $archive_link ); ?>">
 					<div class="cm-filter-bar">
 						<div>
 							<label for="cm_search">Search</label>
@@ -38,7 +39,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 					<div class="cm-filter-actions">
 						<label class="cm-filter-toggle"><input type="checkbox" name="cm_featured" value="1" <?php checked( Cafe_Moxie_Site_Kit::request_value( 'cm_featured' ), '1' ); ?>> Featured only</label>
 						<button class="cm-button" type="submit">Apply Filters</button>
-						<a class="cm-button cm-button--subtle" href="<?php echo esc_url( get_post_type_archive_link( 'edge_tool' ) ); ?>">Reset</a>
+						<a class="cm-button cm-button--subtle" href="<?php echo esc_url( $archive_link ); ?>">Reset</a>
 					</div>
 				</form>
 			<?php endif; ?>
