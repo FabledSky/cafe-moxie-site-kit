@@ -63,6 +63,13 @@ The public template intentionally excludes the Internal Ops Metadata group from 
 - configure brand treatment, navigation source, and header CTA
 - configure footer content areas, utility copy, and legal/meta behavior
 - generate or refresh managed `wp_template_part` header/footer assets with marker-safe updates
+- apply a deterministic **Cafe Moxie polished defaults** preset action to restore the intended shell after experiments
+
+### Brand preset defaults layer
+- preset defaults are applied from a real preset map (`cafe_moxie` and `neutral`) rather than only per-field fallback defaults
+- first install seeds settings using the Cafe Moxie polished preset
+- preset re-apply/reset actions use `preset_participation` metadata to control which keys are intentionally managed by presets
+- the neutral path remains available for reusable non-Cafe deployments while sharing the same registry contract
 
 ### Presentation setup state panel (Overview + Setup)
 - the plugin overview now includes a **Presentation setup state** table designed as the day-to-day setup console

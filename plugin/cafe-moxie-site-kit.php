@@ -105,66 +105,17 @@ final class Cafe_Moxie_Site_Kit {
 		);
 	}
 
-	private static function preset_participating_keys() {
-		return array(
-			'site_kicker',
-			'enable_managed_header_footer',
-			'header_footer_preset',
-			'header_brand_treatment',
-			'header_nav_source',
-			'header_cta_label',
-			'header_cta_url',
-			'home_primary_cta',
-			'home_secondary_cta',
-			'about_primary_cta',
-			'footer_copy',
-			'footer_utility_copy',
-			'footer_content_primary',
-			'footer_content_secondary',
-			'logo_width',
-			'header_height',
-			'header_vertical_padding',
-			'footer_vertical_padding',
-			'section_max_width',
-			'outer_wrapper_gutter',
-			'hero_min_height',
-			'hero_section_spacing',
-			'border_radius',
-			'button_scale',
-			'mobile_heading_scale',
-			'card_image_ratio',
-			'grid_gap',
-			'panel_padding',
-			'content_max_width',
-			'content_band_max_width',
-			'archive_rail_max_width',
-			'single_rail_max_width',
-			'responsive_breakpoint_mode',
-			'page_section_density',
-			'site_density_preset',
-			'archive_columns',
-			'tablet_columns',
-			'home_hero_layout',
-			'home_story_layout',
-			'home_trust_layout',
-			'home_featured_layout',
-			'about_intro_layout',
-			'about_calibrate_layout',
-		);
-	}
-
 	private static function apply_brand_preset_to_settings( $settings, $preset_key, $force_all = false ) {
 		$registry = self::settings_registry();
 		$preset_map = self::preset_defaults_map();
 		$preset_key = sanitize_key( $preset_key );
 		$preset_defaults = $preset_map[ $preset_key ] ?? array();
 
-		$participating_keys = self::preset_participating_keys();
 		foreach ( $preset_defaults as $key => $value ) {
 			if ( ! isset( $registry[ $key ] ) ) {
 				continue;
 			}
-			$participates = ! empty( $registry[ $key ]['preset_participation'] ) || in_array( $key, $participating_keys, true );
+			$participates = ! empty( $registry[ $key ]['preset_participation'] );
 			if ( ! $force_all && ! $participates ) {
 				continue;
 			}
@@ -292,7 +243,7 @@ final class Cafe_Moxie_Site_Kit {
 
 	public static function settings_registry() {
 		$layout_modes = self::layout_mode_choices();
-		return array(
+		$registry = array(
 			'brand_preset' => array( 'label' => 'Brand preset', 'description' => 'Preset used as a baseline visual profile.', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'cafe_moxie' => 'Cafe Moxie', 'neutral' => 'Generic Site System' ), 'sanitize' => 'preset_key', 'default' => 'cafe_moxie', 'preset_participation' => true ),
 			'site_kicker' => array( 'label' => 'Brand kicker', 'description' => 'Displayed short brand label used in templates.', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Cafe Moxie', 'preset_participation' => true ),
 			'featured_tools_count' => array( 'label' => 'Featured tools on home', 'group' => 'storefront_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 12, 'default' => 3 ),
@@ -381,6 +332,15 @@ final class Cafe_Moxie_Site_Kit {
 			'composed_page_slug' => array( 'label' => 'Default generated page slug', 'group' => 'page_template_defaults', 'type' => 'text', 'sanitize' => 'slug', 'default' => 'services' ),
 			'composed_page_title' => array( 'label' => 'Default generated page title', 'group' => 'page_template_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Services' ),
 		);
+
+		foreach ( self::preset_defaults_map() as $preset_defaults ) {
+			foreach ( $preset_defaults as $key => $value ) {
+				if ( isset( $registry[ $key ] ) && ! array_key_exists( 'preset_participation', $registry[ $key ] ) ) {
+					$registry[ $key ]['preset_participation'] = true;
+				}
+			}
+		}
+		return $registry;
 	}
 
 	public static function brand_presets() {
