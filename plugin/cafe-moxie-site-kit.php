@@ -35,80 +35,11 @@ final class Cafe_Moxie_Site_Kit {
 	}
 
 	public static function defaults() {
-		return array(
-			'load_google_fonts'      => 1,
-			'enable_motion'          => 1,
-			'show_archive_filters'   => 1,
-			'featured_tools_count'   => 3,
-			'archive_items_per_page' => 9,
-			'refresh_mode'           => 'safe',
-
-			'logo_width'       => 320,
-			'header_height'    => 82,
-			'section_max_width'=> 1220,
-			'hero_min_height'  => 640,
-			'card_image_ratio' => '16:10',
-			'glow_intensity'   => 1.0,
-			'border_radius'    => 22,
-			'button_scale'     => 1.0,
-
-			'color_ink'            => '#05070D',
-			'color_midnight'       => '#0A1020',
-			'color_oil'            => '#121A2B',
-			'color_gunmetal'       => '#2A3140',
-			'color_cyan'           => '#35D6FF',
-			'color_teal'           => '#1FB8B2',
-			'color_arcade'         => '#5AA9FF',
-			'color_magenta'        => '#FF4FA3',
-			'color_amber'          => '#F6B35C',
-			'color_gold'           => '#D9A441',
-			'color_cream'          => '#F5E6C8',
-			'color_rust'           => '#8E5A3C',
-			'color_signal_red'     => '#E64848',
-			'color_warning_yellow' => '#F2C94C',
-
-			'display_logo_image' => '',
-			'home_hero_image'    => '',
-			'home_story_image'   => '',
-			'about_story_image'  => '',
-
-			'brand_preset'         => 'cafe_moxie',
-			'site_kicker'          => 'Cafe Moxie',
-			'footer_copy'          => 'Tools for people who actually do the work.',
-			'home_primary_cta'     => 'Browse the Counter',
-			'home_primary_url'     => '/edge-tools/',
-			'home_secondary_cta'   => 'See What Runs Local',
-			'home_secondary_url'   => '/about/',
-			'about_primary_cta'    => 'See the Tool Counter',
-			'about_primary_url'    => '/edge-tools/',
-
-			'layout_behavior'      => 'balanced',
-			'home_hero_layout'     => 'balanced_two_column',
-			'home_story_layout'    => 'media_right_split',
-			'home_trust_layout'    => 'balanced_two_column',
-			'home_featured_layout' => 'stacked_on_tablet',
-			'about_intro_layout'   => 'media_right_split',
-			'about_calibrate_layout' => 'balanced_two_column',
-			'page_section_density' => 'comfortable',
-			'template_surface'     => 'panel',
-			'card_grid_density'    => 'comfortable',
-			'mobile_layout_mode'   => 'stacked',
-			'content_max_width'    => 760,
-			'content_band_max_width' => 1120,
-			'archive_columns'      => 3,
-			'tablet_columns'       => 2,
-			'mobile_heading_scale' => 1.0,
-
-			'show_home_story'      => 1,
-			'show_home_trust'      => 1,
-			'show_home_featured'   => 1,
-			'show_home_closing'    => 1,
-			'show_about_values'    => 1,
-			'show_about_calibrate' => 1,
-			'composed_page_template' => 'conversion',
-			'composed_page_slug'     => 'services',
-			'composed_page_title'    => 'Services',
-		);
+		$defaults = array();
+		foreach ( self::settings_registry() as $key => $field ) {
+			$defaults[ $key ] = $field['default'];
+		}
+		return $defaults;
 	}
 
 	public static function settings() {
@@ -210,6 +141,78 @@ final class Cafe_Moxie_Site_Kit {
 		);
 	}
 
+	public static function settings_registry() {
+		$layout_modes = self::layout_mode_choices();
+		return array(
+			'brand_preset' => array( 'label' => 'Brand preset', 'description' => 'Preset used as a baseline visual profile.', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'cafe_moxie' => 'Cafe Moxie', 'neutral' => 'Generic Site System' ), 'sanitize' => 'preset_key', 'default' => 'cafe_moxie', 'preset_participation' => true ),
+			'site_kicker' => array( 'label' => 'Brand kicker', 'description' => 'Displayed short brand label used in templates.', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Cafe Moxie', 'preset_participation' => true ),
+			'featured_tools_count' => array( 'label' => 'Featured tools on home', 'group' => 'storefront_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 12, 'default' => 3 ),
+			'archive_items_per_page' => array( 'label' => 'Archive items per page', 'group' => 'storefront_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 3, 'max' => 24, 'default' => 9 ),
+			'show_archive_filters' => array( 'label' => 'Show archive filters', 'description' => 'Adds a compact filter bar to the Edge Tool archive.', 'group' => 'storefront_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'refresh_mode' => array( 'label' => 'Starter page refresh mode', 'description' => 'Safe mode protects edited pages.', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'safe' => 'Safe (create if missing)', 'overwrite' => 'Overwrite existing pages' ), 'sanitize' => 'choice', 'default' => 'safe' ),
+			'load_google_fonts' => array( 'label' => 'Load Google Fonts', 'description' => 'Disable if fonts are self-hosted.', 'group' => 'global_design_tokens', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'enable_motion' => array( 'label' => 'Enable motion accents', 'group' => 'global_design_tokens', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1, 'class_output' => 'cm-motion-{value}' ),
+			'logo_width' => array( 'label' => 'Brand mark width (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 120, 'max' => 640, 'default' => 320, 'css_var' => '--moxie-logo-width', 'css_unit' => 'px' ),
+			'header_height' => array( 'label' => 'Header minimum height (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 60, 'max' => 160, 'default' => 82, 'css_var' => '--moxie-header-height', 'css_unit' => 'px' ),
+			'section_max_width' => array( 'label' => 'Section max width (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 960, 'max' => 1600, 'default' => 1220 ),
+			'hero_min_height' => array( 'label' => 'Hero min height (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 420, 'max' => 980, 'default' => 640 ),
+			'glow_intensity' => array( 'label' => 'Glow intensity', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.2, 'max' => 2.5, 'default' => 1.0 ),
+			'border_radius' => array( 'label' => 'Corner radius (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 8, 'max' => 40, 'default' => 22, 'css_var' => '--moxie-radius', 'css_unit' => 'px' ),
+			'button_scale' => array( 'label' => 'Button scale', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.8, 'max' => 1.4, 'default' => 1.0, 'css_var' => '--moxie-button-scale' ),
+			'mobile_heading_scale' => array( 'label' => 'Mobile heading scale', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.85, 'max' => 1.2, 'default' => 1.0, 'css_var' => '--moxie-mobile-heading-scale' ),
+			'mobile_layout_mode' => array( 'label' => 'Mobile layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'stacked' => 'Stacked sections', 'balanced' => 'Balanced sections' ), 'sanitize' => 'choice', 'default' => 'stacked', 'class_output' => 'cm-mobile-{value}' ),
+			'card_image_ratio' => array( 'label' => 'Card image ratio', 'group' => 'component_defaults', 'type' => 'text', 'sanitize' => 'ratio', 'default' => '16:10' ),
+			'card_grid_density' => array( 'label' => 'Card + grid density', 'group' => 'component_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable', 'class_output' => 'cm-density-{value}' ),
+			'template_surface' => array( 'label' => 'Template surface style', 'group' => 'component_defaults', 'type' => 'select', 'allowed_values' => array( 'panel' => 'Panel (default)', 'soft' => 'Soft surface', 'flat' => 'Flat surface' ), 'sanitize' => 'choice', 'default' => 'panel', 'class_output' => 'cm-surface-{value}' ),
+			'content_max_width' => array( 'label' => 'Long-form content max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 540, 'max' => 980, 'default' => 760, 'css_var' => '--moxie-content-max', 'css_unit' => 'px' ),
+			'content_band_max_width' => array( 'label' => 'Full-width band max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 860, 'max' => 1600, 'default' => 1120 ),
+			'archive_columns' => array( 'label' => 'Desktop archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 4, 'default' => 3, 'css_var' => '--moxie-archive-cols' ),
+			'tablet_columns' => array( 'label' => 'Tablet archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 3, 'default' => 2, 'css_var' => '--moxie-tablet-cols' ),
+			'layout_behavior' => array( 'label' => 'Default layout behavior', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'balanced' => 'Balanced split', 'single_column' => 'Single column focus', 'showcase_split' => 'Showcase split' ), 'sanitize' => 'choice', 'default' => 'balanced', 'class_output' => 'cm-layout-{value}' ),
+			'home_hero_layout' => array( 'label' => 'Home hero layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
+			'home_story_layout' => array( 'label' => 'Home story layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'media_right_split' ),
+			'home_trust_layout' => array( 'label' => 'Home trust layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
+			'home_featured_layout' => array( 'label' => 'Home featured layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'stacked_on_tablet' ),
+			'about_intro_layout' => array( 'label' => 'About intro layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'media_right_split' ),
+			'about_calibrate_layout' => array( 'label' => 'About calibration layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
+			'page_section_density' => array( 'label' => 'Page section spacing', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable' ),
+			'display_logo_image' => array( 'label' => 'Brand mark image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
+			'home_hero_image' => array( 'label' => 'Home hero image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
+			'home_story_image' => array( 'label' => 'Home story image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
+			'about_story_image' => array( 'label' => 'About story image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
+			'home_primary_cta' => array( 'label' => 'Home primary CTA label', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Browse the Counter' ),
+			'home_primary_url' => array( 'label' => 'Home primary CTA URL', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'url_or_path', 'default' => '/edge-tools/' ),
+			'home_secondary_cta' => array( 'label' => 'Home secondary CTA label', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'See What Runs Local' ),
+			'home_secondary_url' => array( 'label' => 'Home secondary CTA URL', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'url_or_path', 'default' => '/about/' ),
+			'about_primary_cta' => array( 'label' => 'About CTA label', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'See the Tool Counter' ),
+			'about_primary_url' => array( 'label' => 'About CTA URL', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'url_or_path', 'default' => '/edge-tools/' ),
+			'footer_copy' => array( 'label' => 'Footer copy', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Tools for people who actually do the work.' ),
+			'color_ink' => array( 'label' => 'Ink', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#05070D', 'css_var' => '--moxie-ink' ),
+			'color_midnight' => array( 'label' => 'Midnight', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#0A1020', 'css_var' => '--moxie-midnight' ),
+			'color_oil' => array( 'label' => 'Oil', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#121A2B', 'css_var' => '--moxie-oil' ),
+			'color_gunmetal' => array( 'label' => 'Gunmetal', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#2A3140', 'css_var' => '--moxie-gunmetal' ),
+			'color_cyan' => array( 'label' => 'Cyan', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#35D6FF', 'css_var' => '--moxie-cyan' ),
+			'color_teal' => array( 'label' => 'Teal', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#1FB8B2', 'css_var' => '--moxie-teal' ),
+			'color_arcade' => array( 'label' => 'Arcade', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#5AA9FF', 'css_var' => '--moxie-arcade' ),
+			'color_magenta' => array( 'label' => 'Magenta', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#FF4FA3', 'css_var' => '--moxie-magenta' ),
+			'color_amber' => array( 'label' => 'Amber', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#F6B35C', 'css_var' => '--moxie-amber' ),
+			'color_gold' => array( 'label' => 'Gold', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#D9A441', 'css_var' => '--moxie-gold' ),
+			'color_cream' => array( 'label' => 'Cream', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#F5E6C8', 'css_var' => '--moxie-cream' ),
+			'color_rust' => array( 'label' => 'Rust', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#8E5A3C', 'css_var' => '--moxie-rust' ),
+			'color_signal_red' => array( 'label' => 'Signal red', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#E64848', 'css_var' => '--moxie-signal-red' ),
+			'color_warning_yellow' => array( 'label' => 'Warning yellow', 'group' => 'global_design_tokens', 'type' => 'color', 'sanitize' => 'color', 'default' => '#F2C94C', 'css_var' => '--moxie-warning-yellow' ),
+			'show_home_story' => array( 'label' => 'Show Home story section', 'group' => 'page_template_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'show_home_trust' => array( 'label' => 'Show Home trust sections', 'group' => 'page_template_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'show_home_featured' => array( 'label' => 'Show Home featured tools section', 'group' => 'page_template_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'show_home_closing' => array( 'label' => 'Show Home closing CTA section', 'group' => 'page_template_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'show_about_values' => array( 'label' => 'Show About value cards section', 'group' => 'page_template_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'show_about_calibrate' => array( 'label' => 'Show About final calibration section', 'group' => 'page_template_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 1 ),
+			'composed_page_template' => array( 'label' => 'Composed page template', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => self::composed_page_templates(), 'sanitize' => 'choice', 'default' => 'conversion' ),
+			'composed_page_slug' => array( 'label' => 'Default generated page slug', 'group' => 'page_template_defaults', 'type' => 'text', 'sanitize' => 'slug', 'default' => 'services' ),
+			'composed_page_title' => array( 'label' => 'Default generated page title', 'group' => 'page_template_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Services' ),
+		);
+	}
+
 	public static function brand_presets() {
 		return array(
 			'cafe_moxie' => array(
@@ -250,99 +253,48 @@ final class Cafe_Moxie_Site_Kit {
 
 	public static function sanitize_settings( $input ) {
 		$d = self::defaults();
-		$bool_keys = array(
-			'load_google_fonts',
-			'enable_motion',
-			'show_archive_filters',
-			'show_home_story',
-			'show_home_trust',
-			'show_home_featured',
-			'show_home_closing',
-			'show_about_values',
-			'show_about_calibrate',
-		);
-		$color_keys = array(
-			'color_ink',
-			'color_midnight',
-			'color_oil',
-			'color_gunmetal',
-			'color_cyan',
-			'color_teal',
-			'color_arcade',
-			'color_magenta',
-			'color_amber',
-			'color_gold',
-			'color_cream',
-			'color_rust',
-			'color_signal_red',
-			'color_warning_yellow',
-		);
 		$out = array();
-
-		foreach ( $bool_keys as $key ) {
-			$out[ $key ] = empty( $input[ $key ] ) ? 0 : 1;
+		$input = is_array( $input ) ? $input : array();
+		foreach ( self::settings_registry() as $key => $field ) {
+			$value = $input[ $key ] ?? $d[ $key ];
+			switch ( $field['sanitize'] ) {
+				case 'bool':
+					$out[ $key ] = empty( $input[ $key ] ) ? 0 : 1;
+					break;
+				case 'int_range':
+					$out[ $key ] = max( intval( $field['min'] ), min( intval( $field['max'] ), intval( $value ) ) );
+					break;
+				case 'float_range':
+					$out[ $key ] = max( floatval( $field['min'] ), min( floatval( $field['max'] ), floatval( $value ) ) );
+					break;
+				case 'color':
+					$sanitized = sanitize_hex_color( $value );
+					$out[ $key ] = $sanitized ? $sanitized : $d[ $key ];
+					break;
+				case 'url_or_path':
+					$out[ $key ] = self::sanitize_url_or_path( $value );
+					break;
+				case 'choice':
+					$allowed = array_keys( $field['allowed_values'] ?? array() );
+					$sanitized_value = sanitize_key( $value );
+					$out[ $key ] = in_array( $sanitized_value, $allowed, true ) ? $sanitized_value : $d[ $key ];
+					break;
+				case 'preset_key':
+					$sanitized_value = sanitize_key( $value );
+					$out[ $key ] = isset( self::brand_presets()[ $sanitized_value ] ) ? $sanitized_value : 'cafe_moxie';
+					break;
+				case 'slug':
+					$out[ $key ] = sanitize_title( $value );
+					break;
+				case 'ratio':
+					$out[ $key ] = preg_match( '/^\s*\d+(\.\d+)?\s*:\s*\d+(\.\d+)?\s*$/', (string) $value ) ? sanitize_text_field( $value ) : $d[ $key ];
+					break;
+				case 'text':
+				default:
+					$out[ $key ] = sanitize_text_field( $value );
+					break;
+			}
 		}
-
-		$out['featured_tools_count']   = max( 1, min( 12, intval( $input['featured_tools_count'] ?? $d['featured_tools_count'] ) ) );
-		$out['archive_items_per_page'] = max( 3, min( 24, intval( $input['archive_items_per_page'] ?? $d['archive_items_per_page'] ) ) );
-		$out['archive_columns']        = max( 1, min( 4, intval( $input['archive_columns'] ?? $d['archive_columns'] ) ) );
-		$out['tablet_columns']         = max( 1, min( 3, intval( $input['tablet_columns'] ?? $d['tablet_columns'] ) ) );
-		$out['logo_width']             = max( 120, min( 640, intval( $input['logo_width'] ?? $d['logo_width'] ) ) );
-		$out['header_height']          = max( 60, min( 160, intval( $input['header_height'] ?? $d['header_height'] ) ) );
-		$out['section_max_width']      = max( 960, min( 1600, intval( $input['section_max_width'] ?? $d['section_max_width'] ) ) );
-		$out['hero_min_height']        = max( 420, min( 980, intval( $input['hero_min_height'] ?? $d['hero_min_height'] ) ) );
-		$out['glow_intensity']         = max( 0.2, min( 2.5, floatval( $input['glow_intensity'] ?? $d['glow_intensity'] ) ) );
-		$out['border_radius']          = max( 8, min( 40, intval( $input['border_radius'] ?? $d['border_radius'] ) ) );
-		$out['button_scale']           = max( 0.8, min( 1.4, floatval( $input['button_scale'] ?? $d['button_scale'] ) ) );
-		$out['mobile_heading_scale']   = max( 0.85, min( 1.2, floatval( $input['mobile_heading_scale'] ?? $d['mobile_heading_scale'] ) ) );
-		$out['card_image_ratio']       = sanitize_text_field( $input['card_image_ratio'] ?? $d['card_image_ratio'] );
-
-		foreach ( $color_keys as $key ) {
-			$sanitized = sanitize_hex_color( $input[ $key ] ?? '' );
-			$out[ $key ] = $sanitized ? $sanitized : $d[ $key ];
-		}
-
-		$out['display_logo_image'] = self::sanitize_url_or_path( $input['display_logo_image'] ?? '' );
-		$out['home_hero_image']    = self::sanitize_url_or_path( $input['home_hero_image'] ?? '' );
-		$out['home_story_image']   = self::sanitize_url_or_path( $input['home_story_image'] ?? '' );
-		$out['about_story_image']  = self::sanitize_url_or_path( $input['about_story_image'] ?? '' );
-
-		$out['brand_preset']       = sanitize_key( $input['brand_preset'] ?? $d['brand_preset'] );
-		if ( ! isset( self::brand_presets()[ $out['brand_preset'] ] ) ) {
-			$out['brand_preset'] = 'cafe_moxie';
-		}
-		$out['site_kicker']        = sanitize_text_field( $input['site_kicker'] ?? $d['site_kicker'] );
-		$out['footer_copy']        = sanitize_text_field( $input['footer_copy'] ?? $d['footer_copy'] );
-		$out['home_primary_cta']   = sanitize_text_field( $input['home_primary_cta'] ?? $d['home_primary_cta'] );
-		$out['home_primary_url']   = self::sanitize_url_or_path( $input['home_primary_url'] ?? $d['home_primary_url'] );
-		$out['home_secondary_cta'] = sanitize_text_field( $input['home_secondary_cta'] ?? $d['home_secondary_cta'] );
-		$out['home_secondary_url'] = self::sanitize_url_or_path( $input['home_secondary_url'] ?? $d['home_secondary_url'] );
-		$out['about_primary_cta']  = sanitize_text_field( $input['about_primary_cta'] ?? $d['about_primary_cta'] );
-		$out['about_primary_url']  = self::sanitize_url_or_path( $input['about_primary_url'] ?? $d['about_primary_url'] );
-		$out['composed_page_slug']  = sanitize_title( $input['composed_page_slug'] ?? $d['composed_page_slug'] );
-		$out['composed_page_title'] = sanitize_text_field( $input['composed_page_title'] ?? $d['composed_page_title'] );
-		$choices = array(
-			'layout_behavior'      => array( 'balanced', 'single_column', 'showcase_split' ),
-			'home_hero_layout'     => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
-			'home_story_layout'    => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
-			'home_trust_layout'    => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
-			'home_featured_layout' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
-			'about_intro_layout'   => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
-			'about_calibrate_layout' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
-			'page_section_density' => array( 'compact', 'comfortable', 'airy' ),
-			'template_surface'     => array( 'panel', 'soft', 'flat' ),
-			'card_grid_density'    => array( 'compact', 'comfortable', 'airy' ),
-			'mobile_layout_mode'   => array( 'stacked', 'balanced' ),
-			'refresh_mode'         => array( 'safe', 'overwrite' ),
-			'composed_page_template' => array_keys( self::composed_page_templates() ),
-		);
-		foreach ( $choices as $key => $allowed ) {
-			$value = sanitize_key( $input[ $key ] ?? $d[ $key ] );
-			$out[ $key ] = in_array( $value, $allowed, true ) ? $value : $d[ $key ];
-		}
-		$out['content_max_width']      = max( 540, min( 980, intval( $input['content_max_width'] ?? $d['content_max_width'] ) ) );
-		$out['content_band_max_width'] = max( 860, min( 1600, intval( $input['content_band_max_width'] ?? $d['content_band_max_width'] ) ) );
-
 		return $out;
 	}
 
@@ -417,6 +369,46 @@ final class Cafe_Moxie_Site_Kit {
 		echo '</td></tr>';
 	}
 
+	private static function render_registry_row( $key, $field ) {
+		$label = $field['label'] ?? $key;
+		$hint = $field['description'] ?? '';
+		$type = $field['type'] ?? 'text';
+		if ( 'checkbox' === $type ) {
+			self::checkbox_row( $key, $label, $hint );
+			return;
+		}
+		if ( 'color' === $type ) {
+			self::color_row( $key, $label );
+			return;
+		}
+		if ( 'select' === $type ) {
+			self::select_row( $key, $label, $field['allowed_values'] ?? array(), $hint );
+			return;
+		}
+		if ( 'number' === $type || 'url' === $type || 'text' === $type ) {
+			self::text_row( $key, $label, $type, $hint );
+			return;
+		}
+		self::text_row( $key, $label, 'text', $hint );
+	}
+
+	private static function render_settings_group( $group_key ) {
+		$groups = self::settings_groups();
+		$registry = self::settings_registry();
+		if ( empty( $groups[ $group_key ] ) ) {
+			return;
+		}
+		echo '<h2>' . esc_html( $groups[ $group_key ]['label'] ) . '</h2>';
+		echo '<p class="description">' . esc_html( $groups[ $group_key ]['description'] ) . '</p>';
+		echo '<table class="form-table" role="presentation">';
+		foreach ( $groups[ $group_key ]['keys'] as $key ) {
+			if ( isset( $registry[ $key ] ) ) {
+				self::render_registry_row( $key, $registry[ $key ] );
+			}
+		}
+		echo '</table>';
+	}
+
 	public static function layout_mode_choices() {
 		return array(
 			'single_column'      => 'Single column',
@@ -458,216 +450,12 @@ final class Cafe_Moxie_Site_Kit {
 			<p><a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
-				<h2>Storefront Defaults</h2>
-				<p class="description">Catalog behavior and commerce-facing defaults for Edge Tool storefront pages.</p>
-				<table class="form-table" role="presentation">
-					<?php
-					self::text_row( 'brand_preset', 'Brand preset key', 'text', 'Use cafe_moxie (default) or neutral. Filterable via code for additional presets.' );
-					self::text_row( 'site_kicker', 'Brand kicker' );
-					self::text_row( 'featured_tools_count', 'Featured tools on home', 'number' );
-					self::text_row( 'archive_items_per_page', 'Archive items per page', 'number' );
-					self::checkbox_row( 'show_archive_filters', 'Show archive filters', 'Adds a compact filter bar to the Edge Tool archive.' );
-					self::select_row(
-						'refresh_mode',
-						'Starter page refresh mode',
-						array(
-							'safe'      => 'Safe (create if missing)',
-							'overwrite' => 'Overwrite existing pages',
-						),
-						'Safe mode protects edited pages. Overwrite mode creates a revision before regeneration and only updates marked starter pages.'
-					);
-					?>
-				</table>
-
-				<h2>Page Template Defaults</h2>
-				<p class="description">Control starter-page structure and template composition defaults separately from design tokens.</p>
-				<table class="form-table" role="presentation">
-					<?php
-					self::select_row(
-						'layout_behavior',
-						'Default layout behavior',
-						array(
-							'balanced'      => 'Balanced split',
-							'single_column' => 'Single column focus',
-							'showcase_split'=> 'Showcase split',
-						),
-						'Controls how the 2-column layout classes render across pages.'
-					);
-					self::select_row(
-						'home_hero_layout',
-						'Home hero layout mode',
-						self::layout_mode_choices(),
-						'Choose how the hero section balances long text and media.'
-					);
-					self::select_row(
-						'home_story_layout',
-						'Home story layout mode',
-						self::layout_mode_choices(),
-						'Set the default split for the Home story section.'
-					);
-					self::select_row(
-						'home_trust_layout',
-						'Home trust layout mode',
-						self::layout_mode_choices(),
-						'Set layout mode for the Home trust section.'
-					);
-					self::select_row(
-						'home_featured_layout',
-						'Home featured layout mode',
-						self::layout_mode_choices(),
-						'Set layout mode for the Home featured tools section.'
-					);
-					self::select_row(
-						'about_intro_layout',
-						'About intro layout mode',
-						self::layout_mode_choices(),
-						'Set layout mode for About intro copy/media.'
-					);
-					self::select_row(
-						'about_calibrate_layout',
-						'About calibration layout mode',
-						self::layout_mode_choices(),
-						'Set layout mode for About list sections.'
-					);
-					self::select_row(
-						'page_section_density',
-						'Page section spacing',
-						array(
-							'compact'     => 'Compact',
-							'comfortable' => 'Comfortable',
-							'airy'        => 'Airy',
-						),
-						'Controls section spacing rhythm across generated pages and templates.'
-					);
-					?>
-				</table>
-
-				<h3>Starter Page Sections</h3>
-				<table class="form-table" role="presentation">
-					<?php
-					self::checkbox_row( 'show_home_story', 'Show Home story section' );
-					self::checkbox_row( 'show_home_trust', 'Show Home trust sections' );
-					self::checkbox_row( 'show_home_featured', 'Show Home featured tools section' );
-					self::checkbox_row( 'show_home_closing', 'Show Home closing CTA section' );
-					self::checkbox_row( 'show_about_values', 'Show About value cards section' );
-					self::checkbox_row( 'show_about_calibrate', 'Show About final calibration section' );
-					?>
-				</table>
-
-				<h3>Template Composer (Generate Additional Pages)</h3>
-				<table class="form-table" role="presentation">
-					<?php
-					self::select_row(
-						'composed_page_template',
-						'Composed page template',
-						self::composed_page_templates(),
-						'Pick a reusable section bundle, then generate a new page from it below.'
-					);
-					self::text_row( 'composed_page_title', 'Default generated page title' );
-					self::text_row( 'composed_page_slug', 'Default generated page slug' );
-					?>
-				</table>
-
-				<h2>Global Design Tokens</h2>
-				<p class="description">Shared visual primitives used across components and templates.</p>
-				<table class="form-table" role="presentation">
-					<?php
-					self::checkbox_row( 'load_google_fonts', 'Load Google Fonts', 'Turn this off if you plan to self-host Chathura and IBM Plex Sans.' );
-					self::checkbox_row( 'enable_motion', 'Enable motion accents', 'Subtle glow, sign flicker, and tactile hover states.' );
-					self::select_row(
-						'mobile_layout_mode',
-						'Mobile layout mode',
-						array(
-							'stacked'  => 'Stacked sections',
-							'balanced' => 'Balanced sections',
-						),
-						'Stacked is safer for long content and smaller screens.'
-					);
-					self::text_row( 'mobile_heading_scale', 'Mobile heading scale', 'number', 'Use 1.0 for default, lower for tighter headings.' );
-					self::text_row( 'logo_width', 'Brand mark width (px)', 'number' );
-					self::text_row( 'header_height', 'Header minimum height (px)', 'number' );
-					self::text_row( 'section_max_width', 'Section max width (px)', 'number' );
-					self::text_row( 'hero_min_height', 'Hero min height (px)', 'number' );
-					self::text_row( 'glow_intensity', 'Glow intensity', 'number' );
-					self::text_row( 'border_radius', 'Corner radius (px)', 'number' );
-					self::text_row( 'button_scale', 'Button scale', 'number' );
-					?>
-				</table>
-
-				<h2>Component Defaults</h2>
-				<p class="description">Reusable defaults for cards, content bands, and grids that templates inherit.</p>
-				<table class="form-table" role="presentation">
-					<?php
-					self::select_row(
-						'card_grid_density',
-						'Card + grid density',
-						array(
-							'compact'     => 'Compact',
-							'comfortable' => 'Comfortable',
-							'airy'        => 'Airy',
-						),
-						'Tightens or loosens card padding and grid gaps.'
-					);
-					self::select_row(
-						'template_surface',
-						'Template surface style',
-						array(
-							'panel' => 'Panel (default)',
-							'soft'  => 'Soft surface',
-							'flat'  => 'Flat surface',
-						),
-						'Adjusts card/panel framing without editing CSS.'
-					);
-					self::text_row( 'card_image_ratio', 'Card image ratio', 'text', 'Example 16:10 or 4:3' );
-					self::text_row( 'archive_columns', 'Desktop archive columns', 'number' );
-					self::text_row( 'tablet_columns', 'Tablet archive columns', 'number' );
-					self::text_row( 'content_band_max_width', 'Full-width band max width (px)', 'number', 'Used by full-width content bands to avoid edge-to-edge crowding.' );
-					self::text_row( 'content_max_width', 'Long-form content max width (px)', 'number', 'Limits paragraph line length to improve readability.' );
-					?>
-				</table>
-
-				<h3>Storefront Media</h3>
-				<table class="form-table" role="presentation">
-					<?php
-					self::text_row( 'display_logo_image', 'Brand mark image URL', 'url', 'Used in starter pages and tool templates. Set Site Logo separately in WordPress if you want it in the global header.' );
-					self::text_row( 'home_hero_image', 'Home hero image URL', 'url' );
-					self::text_row( 'home_story_image', 'Home story image URL', 'url' );
-					self::text_row( 'about_story_image', 'About story image URL', 'url' );
-					?>
-				</table>
-
-				<h3>Storefront Calls to Action</h3>
-				<table class="form-table" role="presentation">
-					<?php
-					self::text_row( 'home_primary_cta', 'Home primary CTA label' );
-					self::text_row( 'home_primary_url', 'Home primary CTA URL', 'text' );
-					self::text_row( 'home_secondary_cta', 'Home secondary CTA label' );
-					self::text_row( 'home_secondary_url', 'Home secondary CTA URL', 'text' );
-					self::text_row( 'about_primary_cta', 'About CTA label' );
-					self::text_row( 'about_primary_url', 'About CTA URL', 'text' );
-					self::text_row( 'footer_copy', 'Footer copy' );
-					?>
-				</table>
-
-				<h3>Color Tokens</h3>
-				<table class="form-table" role="presentation">
-					<?php
-					self::color_row( 'color_ink', 'Ink' );
-					self::color_row( 'color_midnight', 'Midnight' );
-					self::color_row( 'color_oil', 'Oil' );
-					self::color_row( 'color_gunmetal', 'Gunmetal' );
-					self::color_row( 'color_cyan', 'Cyan' );
-					self::color_row( 'color_teal', 'Teal' );
-					self::color_row( 'color_arcade', 'Arcade' );
-					self::color_row( 'color_magenta', 'Magenta' );
-					self::color_row( 'color_amber', 'Amber' );
-					self::color_row( 'color_gold', 'Gold' );
-					self::color_row( 'color_cream', 'Cream' );
-					self::color_row( 'color_rust', 'Rust' );
-					self::color_row( 'color_signal_red', 'Signal red' );
-					self::color_row( 'color_warning_yellow', 'Warning yellow' );
-					?>
-				</table>
+				<?php
+				self::render_settings_group( 'storefront_defaults' );
+				self::render_settings_group( 'page_template_defaults' );
+				self::render_settings_group( 'global_design_tokens' );
+				self::render_settings_group( 'component_defaults' );
+				?>
 				<?php submit_button(); ?>
 			</form>
 			<hr />
@@ -717,11 +505,16 @@ final class Cafe_Moxie_Site_Kit {
 	public static function body_classes( $classes ) {
 		$s = self::settings();
 		$classes[] = 'cm-moxie-site';
-		$classes[] = ! empty( $s['enable_motion'] ) ? 'cm-motion-on' : 'cm-motion-off';
-		$classes[] = 'cm-layout-' . sanitize_html_class( $s['layout_behavior'] ?? 'balanced' );
-		$classes[] = 'cm-mobile-' . sanitize_html_class( $s['mobile_layout_mode'] ?? 'stacked' );
-		$classes[] = 'cm-density-' . sanitize_html_class( $s['card_grid_density'] ?? 'comfortable' );
-		$classes[] = 'cm-surface-' . sanitize_html_class( $s['template_surface'] ?? 'panel' );
+		foreach ( self::settings_registry() as $key => $field ) {
+			if ( empty( $field['class_output'] ) ) {
+				continue;
+			}
+			$value = isset( $s[ $key ] ) ? $s[ $key ] : $field['default'];
+			if ( 'bool' === ( $field['sanitize'] ?? '' ) ) {
+				$value = ! empty( $value ) ? 'on' : 'off';
+			}
+			$classes[] = sanitize_html_class( str_replace( '{value}', (string) $value, $field['class_output'] ) );
+		}
 		return $classes;
 	}
 
@@ -769,41 +562,21 @@ final class Cafe_Moxie_Site_Kit {
 		$cyan_glow_rgba = self::hex_to_rgba( $s['color_cyan'], 0.22 );
 		$amber_glow_rgba = self::hex_to_rgba( $s['color_amber'], 0.20 );
 		$magenta_glow_rgba = self::hex_to_rgba( $s['color_magenta'], 0.18 );
+		$registry_vars = self::css_variable_map( $s );
 
 		return "
 :root{
---moxie-ink:{$s['color_ink']};
---moxie-midnight:{$s['color_midnight']};
---moxie-oil:{$s['color_oil']};
---moxie-gunmetal:{$s['color_gunmetal']};
---moxie-cyan:{$s['color_cyan']};
---moxie-teal:{$s['color_teal']};
---moxie-arcade:{$s['color_arcade']};
---moxie-magenta:{$s['color_magenta']};
---moxie-amber:{$s['color_amber']};
---moxie-gold:{$s['color_gold']};
---moxie-cream:{$s['color_cream']};
---moxie-rust:{$s['color_rust']};
---moxie-signal-red:{$s['color_signal_red']};
---moxie-warning-yellow:{$s['color_warning_yellow']};
+{$registry_vars}
 --moxie-text:{$text_rgba};
 --moxie-muted:{$muted_rgba};
 --moxie-line:{$line_rgba};
 --moxie-line-soft:{$line_soft_rgba};
---moxie-logo-width:{$s['logo_width']}px;
---moxie-header-height:{$s['header_height']}px;
 --moxie-wrap:min({$s['section_max_width']}px,calc(100% - 32px));
 --moxie-band-wrap:min({$s['content_band_max_width']}px,calc(100% - 24px));
---moxie-content-max:{$s['content_max_width']}px;
---moxie-radius:{$s['border_radius']}px;
 --moxie-card-ratio:{$ratio};
 --moxie-section-gap:{$section_gap};
 --moxie-card-gap:{$card_gap};
 --moxie-card-pad:{$card_padding}px;
---moxie-archive-cols:" . intval( $s['archive_columns'] ) . ";
---moxie-tablet-cols:" . intval( $s['tablet_columns'] ) . ";
---moxie-mobile-heading-scale:" . floatval( $s['mobile_heading_scale'] ) . ";
---moxie-button-scale:{$s['button_scale']};
 --moxie-glow-cyan:0 0 " . ( 18 * $glow ) . "px {$cyan_glow_rgba};
 --moxie-glow-amber:0 0 " . ( 20 * $glow ) . "px {$amber_glow_rgba};
 --moxie-glow-magenta:0 0 " . ( 18 * $glow ) . "px {$magenta_glow_rgba};
@@ -930,6 +703,19 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 @media (max-width:640px){body.cm-moxie-site h1{font-size:calc(44px * var(--moxie-mobile-heading-scale));line-height:1}body.cm-moxie-site h2{font-size:calc(40px * var(--moxie-mobile-heading-scale));line-height:1.02}body.cm-moxie-site h3{font-size:calc(34px * var(--moxie-mobile-heading-scale));line-height:1.04}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:220px}.cm-panel,.cm-card{overflow-wrap:anywhere}.cm-chip,.cm-status,.cm-badge,.cm-button{width:100%}}
 @media (max-width:640px){body.cm-mobile-balanced .cm-panel,body.cm-mobile-balanced .cm-card{padding:calc(var(--moxie-card-pad) - 4px)}}
 ";
+	}
+
+	private static function css_variable_map( $settings ) {
+		$vars = array();
+		foreach ( self::settings_registry() as $key => $field ) {
+			if ( empty( $field['css_var'] ) ) {
+				continue;
+			}
+			$value = $settings[ $key ] ?? $field['default'];
+			$unit = $field['css_unit'] ?? '';
+			$vars[] = $field['css_var'] . ':' . $value . $unit . ';';
+		}
+		return implode( "\n", $vars );
 	}
 
 	private static function hex_to_rgba( $hex, $alpha = 1 ) {
