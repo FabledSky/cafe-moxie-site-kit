@@ -64,6 +64,12 @@ The public template intentionally excludes the Internal Ops Metadata group from 
 - configure footer content areas, utility copy, and legal/meta behavior
 - generate or refresh managed `wp_template_part` header/footer assets with marker-safe updates
 
+### Presentation setup state panel (Overview + Setup)
+- the plugin overview now includes a **Presentation setup state** table designed as the day-to-day setup console
+- it reports readiness for front page assignment, starter page presence, managed header/footer generation, navigation assignment, logo/media state, and Edge Tool archive readiness
+- includes a guarded write-through action to assign the Home page as the static front page using WordPress core options (`show_on_front`, `page_on_front`)
+- links directly to relevant core screens (Reading settings, Pages, Navigation, Site Editor template parts, Customizer logo control) so canonical values stay in core
+
 ### Color tokens
 All primary brand tokens from the guide are exposed as overrideable settings.
 
