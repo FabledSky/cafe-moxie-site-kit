@@ -1,0 +1,44 @@
+name: Deploy plugin to staging
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Prepare deploy bundle
+        run: |
+          mkdir -p .deploy
+          cp -R plugin/. .deploy/
+
+      - name: Upload plugin over SFTP
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST_STAGING }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT_STAGING }}
+          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME_STAGING }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD_STAGING }}
+          REMOTE_PATH: ${{ secrets.PLUGIN_REMOTE_PATH_STAGING }}
+        run: |
+          test -n "$SFTP_HOST"
+          test -n "$SFTP_PORT"
+          test -n "$SFTP_USERNAME"
+          test -n "$SFTP_PASSWORD"
+          test -n "$REMOTE_PATH"
+          lftp -u "$SFTP_USERNAME","$SFTP_PASSWORD" sftp://"$SFTP_HOST":"$SFTP_PORT" <<LFTP_CMDS
+          set sftp:auto-confirm yes
+          set ssl:verify-certificate no
+          mkdir -p "$REMOTE_PATH"
+          mirror -R --delete --verbose .deploy "$REMOTE_PATH"
+          bye
+LFTP_CMDS

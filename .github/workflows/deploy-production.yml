@@ -1,0 +1,25 @@
+name: Deploy Plugin to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy plugin via SFTP
+        uses: Dylan700/sftp-upload-action@latest
+        with:
+          server: ${{ secrets.SFTP_HOST_PRODUCTION }}
+          port: ${{ secrets.SFTP_PORT_PRODUCTION }}
+          username: ${{ secrets.SFTP_USERNAME_PRODUCTION }}
+          password: ${{ secrets.SFTP_PASSWORD_PRODUCTION }}
+          uploads: |
+            ./plugin/ => ${{ secrets.PLUGIN_REMOTE_PATH_PRODUCTION }}/
