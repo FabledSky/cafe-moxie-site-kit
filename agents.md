@@ -1042,6 +1042,10 @@ Status note (2026-04-01 baseline):
   * `docs/IMPLEMENTATION-GUIDE.md`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline advanced: Home/About starter patterns now route through the same composition renderer used by generated pages, a shared page-template registry now includes starter and generated template definitions, section entries now carry richer metadata (purpose, layout support, media requirements, visibility rules, token placeholders, applicable page types), and composition rendering now enforces section visibility rules before tokenized block output.
+
 ---
 
 ### Task 18
