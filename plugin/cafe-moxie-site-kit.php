@@ -1149,6 +1149,239 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		);
 	}
 
+
+	/**
+	 * Structured, deterministic architecture contract for future AI-assisted editing.
+	 *
+	 * This exposes only metadata + constraints + allowable operations. It does not
+	 * perform model calls and does not mutate state.
+	 */
+	public static function ai_architecture_contract() {
+		$settings_registry = self::settings_registry();
+		$setting_examples = array();
+		foreach ( $settings_registry as $key => $field ) {
+			$setting_examples[ $key ] = $field['default'] ?? '';
+		}
+
+		return array(
+			'contract_version' => '2026-04-01',
+			'deterministic_flow' => array(
+				'inspect_current_state',
+				'serialize_structured_context',
+				'propose_plan_diff',
+				'human_review_required',
+				'apply_via_safe_actions_only',
+				'record_change_log',
+			),
+			'scope_constraints' => array(
+				'allow' => array(
+					'settings value proposals constrained by registry rules',
+					'page template + section sequence proposals using registered templates/sections',
+					'header/footer generation proposals using managed template-part generators',
+					'content-module render-plan proposals using module registry metadata',
+				),
+				'deny' => array(
+					'arbitrary PHP/code mutation',
+					'raw SQL/direct database writes',
+					'freeform page-builder style DOM editing',
+					'unsafe overwrite of non-generated pages without explicit opt-in',
+				),
+			),
+			'plan_models' => array(
+				'design_token_plan' => array(
+					'type' => 'object',
+					'description' => 'Proposed changes to token-like settings with strict bounds.',
+					'fields' => self::ai_settings_plan_fields( 'global_design_tokens' ),
+					'example' => array(
+						'changes' => array(
+							'section_max_width' => $setting_examples['section_max_width'] ?? 1220,
+							'outer_wrapper_gutter' => $setting_examples['outer_wrapper_gutter'] ?? 20,
+						),
+					),
+				),
+				'layout_settings_plan' => array(
+					'type' => 'object',
+					'description' => 'Proposed section/layout defaults constrained to supported modes.',
+					'fields' => self::ai_settings_plan_fields( 'page_template_defaults' ),
+					'example' => array(
+						'changes' => array(
+							'home_hero_layout' => $setting_examples['home_hero_layout'] ?? 'balanced_two_column',
+							'mobile_layout_mode' => $setting_examples['mobile_layout_mode'] ?? 'stacked',
+						),
+					),
+				),
+				'header_footer_plan' => array(
+					'type' => 'object',
+					'description' => 'Managed header/footer settings and generation intent.',
+					'fields' => self::ai_settings_plan_fields( 'storefront_defaults' ),
+					'example' => array(
+						'changes' => array(
+							'enable_managed_header_footer' => $setting_examples['enable_managed_header_footer'] ?? 0,
+							'header_cta_label' => $setting_examples['header_cta_label'] ?? 'View Edge Tools',
+						),
+					),
+				),
+				'page_template_plan' => array(
+					'type' => 'object',
+					'description' => 'Template selection + section sequence constrained by registries.',
+					'fields' => array(
+						'template_key' => array( 'type' => 'string', 'allowed' => array_keys( self::page_template_registry() ) ),
+						'sections' => array( 'type' => 'array', 'allowed' => array_keys( self::composed_sections() ) ),
+					),
+					'example' => array(
+						'template_key' => 'conversion',
+						'sections' => array( 'hero', 'feature_grid', 'cta_band' ),
+					),
+				),
+				'section_instance_plan' => array(
+					'type' => 'object',
+					'description' => 'Per-section intent with visibility + layout guardrails.',
+					'fields' => self::ai_section_plan_fields(),
+					'example' => array(
+						'section_key' => 'home_featured',
+						'layout_mode' => 'stacked_on_tablet',
+						'visibility_setting' => 'show_home_featured',
+					),
+				),
+				'content_module_render_plan' => array(
+					'type' => 'object',
+					'description' => 'Module-level render intents tied to known module registries.',
+					'fields' => self::ai_content_module_plan_fields(),
+					'example' => array(
+						'module_key' => 'edge_tool',
+						'archive_filters' => array( 'tool_type', 'platform' ),
+						'single_section_order' => array( 'hero', 'details', 'how_it_works' ),
+					),
+				),
+				'safe_mutation_apply_actions' => array(
+					'type' => 'array',
+					'description' => 'Actions that may be applied after human review.',
+					'allowed_actions' => self::ai_safe_actions(),
+				),
+			),
+			'registries' => array(
+				'settings' => self::ai_settings_registry_snapshot(),
+				'page_templates' => self::ai_page_template_snapshot(),
+				'sections' => self::ai_sections_snapshot(),
+				'content_modules' => self::ai_content_module_snapshot(),
+			),
+		);
+	}
+
+	private static function ai_settings_plan_fields( $group_key ) {
+		$fields = array();
+		foreach ( self::settings_registry() as $key => $field ) {
+			if ( $group_key !== (string) ( $field['group'] ?? '' ) ) {
+				continue;
+			}
+			$fields[ $key ] = array(
+				'label' => (string) ( $field['label'] ?? $key ),
+				'type' => (string) ( $field['type'] ?? 'text' ),
+				'default' => $field['default'] ?? '',
+				'min' => isset( $field['min'] ) ? (int) $field['min'] : null,
+				'max' => isset( $field['max'] ) ? (int) $field['max'] : null,
+				'allowed_values' => isset( $field['allowed_values'] ) && is_array( $field['allowed_values'] ) ? array_keys( $field['allowed_values'] ) : array(),
+				'description' => (string) ( $field['description'] ?? '' ),
+			);
+		}
+		return $fields;
+	}
+
+	private static function ai_settings_registry_snapshot() {
+		$registry = array();
+		foreach ( self::settings_registry() as $key => $field ) {
+			$registry[ $key ] = array(
+				'label' => (string) ( $field['label'] ?? $key ),
+				'group' => (string) ( $field['group'] ?? '' ),
+				'type' => (string) ( $field['type'] ?? 'text' ),
+				'sanitize' => (string) ( $field['sanitize'] ?? '' ),
+				'min' => isset( $field['min'] ) ? (int) $field['min'] : null,
+				'max' => isset( $field['max'] ) ? (int) $field['max'] : null,
+				'allowed_values' => isset( $field['allowed_values'] ) && is_array( $field['allowed_values'] ) ? $field['allowed_values'] : array(),
+				'default' => $field['default'] ?? '',
+				'example' => array( 'key' => $key, 'value' => $field['default'] ?? '' ),
+			);
+		}
+		return $registry;
+	}
+
+	private static function ai_page_template_snapshot() {
+		$templates = array();
+		foreach ( self::page_template_registry() as $key => $template ) {
+			$templates[ $key ] = array(
+				'label' => (string) ( $template['label'] ?? $key ),
+				'purpose' => (string) ( $template['purpose'] ?? '' ),
+				'page_types' => isset( $template['page_types'] ) ? (array) $template['page_types'] : array(),
+				'sections' => isset( $template['sections'] ) ? (array) $template['sections'] : array(),
+				'example' => array(
+					'template_key' => $key,
+					'sections' => isset( $template['sections'] ) ? (array) $template['sections'] : array(),
+				),
+			);
+		}
+		return $templates;
+	}
+
+	private static function ai_sections_snapshot() {
+		$sections = array();
+		foreach ( self::composed_sections() as $key => $section ) {
+			$sections[ $key ] = array(
+				'label' => (string) ( $section['label'] ?? $key ),
+				'purpose' => (string) ( $section['purpose'] ?? '' ),
+				'template' => (string) ( $section['template'] ?? '' ),
+				'supported_layout_modes' => isset( $section['supported_layout_modes'] ) ? (array) $section['supported_layout_modes'] : array(),
+				'visibility_rules' => isset( $section['visibility_rules'] ) ? (array) $section['visibility_rules'] : array(),
+				'token_placeholders' => isset( $section['token_placeholders'] ) ? (array) $section['token_placeholders'] : array(),
+				'applicable_page_types' => isset( $section['applicable_page_types'] ) ? (array) $section['applicable_page_types'] : array(),
+				'example' => array( 'section_key' => $key, 'template' => (string) ( $section['template'] ?? '' ) ),
+			);
+		}
+		return $sections;
+	}
+
+	private static function ai_section_plan_fields() {
+		return array(
+			'section_key' => array( 'type' => 'string', 'allowed' => array_keys( self::composed_sections() ) ),
+			'layout_mode' => array( 'type' => 'string', 'allowed' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ) ),
+			'visibility_setting' => array( 'type' => 'string', 'description' => 'Optional setting key controlling whether section is rendered.' ),
+		);
+	}
+
+	private static function ai_content_module_snapshot() {
+		$modules = array();
+		foreach ( self::content_modules() as $key => $module ) {
+			$modules[ $key ] = array(
+				'label' => (string) ( $module['content_label'] ?? $key ),
+				'post_type' => (string) ( $module['post_type'] ?? '' ),
+				'archive_filters' => isset( $module['archive_filters'] ) ? (array) $module['archive_filters'] : array(),
+				'field_map' => isset( $module['field_map'] ) ? (array) $module['field_map'] : array(),
+				'archive_card_schema' => isset( $module['archive_card_schema'] ) ? (array) $module['archive_card_schema'] : array(),
+				'single_section_order' => isset( $module['single_section_order'] ) ? (array) $module['single_section_order'] : array(),
+				'example' => array( 'module_key' => $key, 'post_type' => (string) ( $module['post_type'] ?? '' ) ),
+			);
+		}
+		return $modules;
+	}
+
+	private static function ai_content_module_plan_fields() {
+		return array(
+			'module_key' => array( 'type' => 'string', 'allowed' => array_keys( self::content_modules() ) ),
+			'archive_filters' => array( 'type' => 'array', 'description' => 'Subset of module archive filter keys.' ),
+			'single_section_order' => array( 'type' => 'array', 'description' => 'Ordered single-section keys used by renderer.' ),
+		);
+	}
+
+	private static function ai_safe_actions() {
+		return array(
+			'update_settings_via_sanitize_settings',
+			'compose_page_content_via_registered_template_sections',
+			'create_or_update_page_for_generated_content',
+			'generate_or_update_starter_pages',
+			'generate_or_update_managed_template_parts',
+			'assign_front_page_via_wp_options',
+		);
+	}
+
 	public static function content_module( $module_key = 'edge_tool' ) {
 		$modules = self::content_modules();
 		return $modules[ $module_key ] ?? $modules['edge_tool'];
