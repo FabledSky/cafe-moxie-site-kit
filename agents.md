@@ -834,6 +834,10 @@ Create a registry-driven visual system settings architecture so the plugin can b
   * possibly add `plugin/includes/style-system.php`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline delivered: plugin visual/admin settings now run through a central settings registry that drives defaults, sanitization, admin field rendering, body-class output mapping, and CSS variable emission from one source of truth. Follow-up iterations should focus on extracting the registry/style system into dedicated include files and expanding template-part controls.
+
 ---
 
 ### Task 14
