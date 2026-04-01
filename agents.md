@@ -23,6 +23,14 @@ The Cafe Moxie Site Kit is a **custom WordPress plugin** that:
 > WordPress = CMS
 > Plugin = System + Rendering Layer
 
+#### Product Direction (Global + Reusable)
+
+Cafe Moxie remains the default preset, but the plugin direction is now **globally reusable**:
+
+* Core behavior should be brand-agnostic wherever practical.
+* Cafe Moxie copy/styles should be implemented as defaults/presets, not hard requirements.
+* New architecture decisions should improve portability to other storefront/content models without removing Edge Tool support.
+
 
 
 ### 2. Architectural Model
@@ -211,15 +219,18 @@ trim(array) → fatal error
 #### Branches
 
 * main → live
+* No staging branch is part of the normal deployment model
 
 #### Deployment
 
 * GitHub Actions via SFTP
+* Production-only deploy flow from `main`
 
 #### Rules
 
 * Never edit production directly
 * All changes via PR
+* Do not introduce staging-only assumptions in docs, workflows, or release instructions unless explicitly requested later
 * Always test on a live-safe verification checklist before and after deploy
 
 
@@ -265,6 +276,22 @@ For maintainability across brands, plugin settings are grouped into four distinc
 
 Agents should keep these groups conceptually separate, even when values remain stored in the same WordPress option.
 
+### 9.2 Native Plugin UX Contract
+
+For this project, **native plugin UX** means:
+
+* All major controls are managed through standard WordPress admin settings screens.
+* Labels, descriptions, defaults, and validation are clear enough for non-technical users.
+* Layout/template generation is guided by settings and predictable actions, not hidden code-only toggles.
+* Generated content should remain editable in the block editor after creation.
+* Admin interactions should be lightweight, accessible, and consistent with core WordPress patterns.
+
+Native plugin UX explicitly does **not** mean:
+
+* Drag-and-drop page builders
+* Custom visual editors that duplicate WordPress core editing behavior
+* Heavy client-side admin frameworks where native settings UI is sufficient
+
 
 
 ### 10. What Agents SHOULD Do
@@ -283,6 +310,17 @@ Agents should keep these groups conceptually separate, even when values remain s
 * Introduce plugin dependencies
 * Add unnecessary abstraction
 * Replace WordPress core behavior
+* Hardcode rigid layout assumptions that fail with variable content
+* Add destructive overwrite flows that can silently remove user edits
+
+### 11.1 Explicit Anti-Patterns
+
+Do not introduce these patterns unless a human explicitly overrides this contract:
+
+* Page builder dependencies (Elementor-style runtime coupling)
+* Plugin bloat (large UI/runtime libraries without clear necessity)
+* Hardcoded layout assumptions (fixed grids/markup that cannot degrade gracefully)
+* Destructive overwrite behavior for generated pages/templates without clear opt-in and recovery path
 
 
 
@@ -337,6 +375,12 @@ If unsure:
 ## Tasks for Codex Agent
 
 Add tasks below. Codex agent is to read agents.md (this file) and follow instructions like:
+
+Task maintenance rule:
+
+* Keep this task list current as architecture and workflow evolve.
+* When a task becomes obsolete or completed by a durable baseline change, update or remove it in the same PR that introduces that change.
+* Treat this section as operational planning, not historical archive.
 
 ### Task 1
 
