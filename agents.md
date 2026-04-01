@@ -1090,6 +1090,10 @@ Status note (2026-04-01 baseline):
   * possibly add `plugin/includes/renderers.php`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline advanced: module definitions are now configuration-rich (field map, normalization callbacks, derived values, card schema, section order, empty-state copy), template resolution now iterates all registered content modules, archive query/filter helpers now accept module keys, and Edge Tool single/archive templates now consume module-configured section/filter/empty-state behavior while preserving Edge Tool as the default module path.
+
 ---
 
 ### Task 19
