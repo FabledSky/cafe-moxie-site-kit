@@ -1398,6 +1398,37 @@ Classification scale used:
 | 19 (plugin-first presentation control) | **Partially polished** | Setup state panel + guarded front-page write-through + core-screen links are implemented. | Setup remains distributed across tabs/actions; one-click polished setup path is not yet present. |
 | 20 (AI deterministic contract) | **Structurally present** | Plan models, registry snapshots, safe-action boundaries, and architecture docs exist. | Contract is ready as scaffolding, but intentionally unverified for real visual outcomes until future integrations and QA loops. |
 
+#### Task 21 file-by-file code-path audit map (2026-04-01)
+
+`plugin/cafe-moxie-site-kit.php`
+
+- **Task 13 (settings architecture):** `settings_registry()`, `defaults()`, and `sanitize_settings()` provide centralized setting metadata/defaults/sanitization and output mappings, while `brand_presets()` remains light metadata instead of a full preset-default map.
+- **Task 14 (admin IA):** tabbed settings IA is wired through `settings_tabs()`, `settings_page()`, and `render_settings_tabs()`, with grouped fields and action panels.
+- **Task 15 (header/footer system):** managed template-part generation flows through `generate_template_parts()`, `upsert_template_part()`, `generated_header_markup()`, and `generated_footer_markup()`.
+- **Task 16 (layout/spacing controls):** registry-provided token values are emitted via frontend style/class output paths and layout mode helpers (`layout_mode_choices()`, density/breakpoint/layout settings in `settings_registry()`).
+- **Task 17 (modular composition architecture):** shared composition path is provided by `page_template_registry()`, `section_registry()`, `compose_page_content()`, `resolve_template_sections()`, and starter generation hooks.
+- **Task 18 (content module architecture):** module-level configuration and render seams are driven by `content_module_registry()`, `archive_query()`, `archive_filters()`, and module-aware template resolution helpers.
+- **Task 19 (plugin-first setup control):** overview/setup state and write-through controls are wired in `render_setup_state_panel()` and setup action handlers.
+- **Task 20 (AI deterministic contract):** deterministic plan scaffolding is exposed by `ai_plan_models()`, `ai_registry_snapshot()`, and safe-action guardrails.
+
+`plugin/patterns/*.php`
+
+- Home/About patterns route to composition rendering through `compose_page_content()` and `template_key` assignment, confirming starter pages are now composition-driven and not hand-maintained parallel templates.
+
+`plugin/templates/*.php`
+
+- `archive-edge_tool.php` consumes module-aware archive query/filter/headline helpers and empty-state configuration.
+- `single-edge_tool.php` consumes normalized tool data and module-defined section ordering/fallback behavior.
+- These templates verify module seams are real, but also confirm parity/polish must be validated with explicit visual QA rather than inferred from scaffolding.
+
+`docs/IMPLEMENTATION-GUIDE.md`
+
+- Documents plugin-first setup flow, composition architecture, module hooks, and status verification policy, but does not replace runtime visual QA evidence requirements.
+
+`docs/ai-architecture.md`
+
+- Documents plan models, registry snapshots, and deterministic apply boundaries for future AI-assisted workflows; no live model execution path is shipped (by design).
+
 ### Task 21 follow-up punch list (narrow PR-sized items)
 
 #### Task 21.1 — True preset defaults map

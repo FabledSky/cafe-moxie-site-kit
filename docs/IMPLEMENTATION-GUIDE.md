@@ -136,4 +136,12 @@ A task should only be marked baseline-delivered/advanced after visual QA passes 
 - only this plugin active (plus required SCF data import)
 - desktop, tablet, and mobile checks for header/footer, starter/composed pages, Edge Tool archive/single templates, and setup actions
 
-Until that QA pass is documented, status should remain “structurally present” or “partially polished.”
+Required evidence for any “baseline-delivered/advanced” status update:
+
+1. Exact environment declaration (WordPress version, theme, active plugins).
+2. Action path used (fresh install flow + plugin actions invoked).
+3. Visual checks performed (desktop/tablet/mobile minimum).
+4. Regression notes for header/footer, starter/composed pages, Edge Tool archive/single, and setup panel actions.
+5. Explicit pass/fail statement.
+
+Until that QA pass is documented with the evidence above, status should remain “structurally present” or “partially polished.”
