@@ -71,7 +71,11 @@ final class Cafe_Moxie_Site_Kit {
 					'logo_width',
 					'header_height',
 					'section_max_width',
+					'outer_wrapper_gutter',
 					'hero_min_height',
+					'header_vertical_padding',
+					'footer_vertical_padding',
+					'hero_section_spacing',
 					'border_radius',
 					'button_scale',
 					'glow_intensity',
@@ -89,6 +93,10 @@ final class Cafe_Moxie_Site_Kit {
 					'template_surface',
 					'content_max_width',
 					'content_band_max_width',
+					'grid_gap',
+					'panel_padding',
+					'archive_rail_max_width',
+					'single_rail_max_width',
 					'archive_columns',
 					'tablet_columns',
 				),
@@ -99,7 +107,9 @@ final class Cafe_Moxie_Site_Kit {
 				'keys' => array(
 					'layout_behavior',
 					'mobile_layout_mode',
+					'responsive_breakpoint_mode',
 					'page_section_density',
+					'site_density_preset',
 					'home_hero_layout',
 					'home_story_layout',
 					'home_trust_layout',
@@ -168,7 +178,11 @@ final class Cafe_Moxie_Site_Kit {
 			'logo_width' => array( 'label' => 'Brand mark width (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 120, 'max' => 640, 'default' => 320, 'css_var' => '--moxie-logo-width', 'css_unit' => 'px' ),
 			'header_height' => array( 'label' => 'Header minimum height (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 60, 'max' => 160, 'default' => 82, 'css_var' => '--moxie-header-height', 'css_unit' => 'px' ),
 			'section_max_width' => array( 'label' => 'Section max width (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 960, 'max' => 1600, 'default' => 1220 ),
+			'outer_wrapper_gutter' => array( 'label' => 'Outer wrapper gutter (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 12, 'max' => 72, 'default' => 32 ),
 			'hero_min_height' => array( 'label' => 'Hero min height (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 420, 'max' => 980, 'default' => 640 ),
+			'header_vertical_padding' => array( 'label' => 'Header vertical padding (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 4, 'max' => 40, 'default' => 10 ),
+			'footer_vertical_padding' => array( 'label' => 'Footer vertical padding (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 8, 'max' => 56, 'default' => 20 ),
+			'hero_section_spacing' => array( 'label' => 'Hero spacing rhythm (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 12, 'max' => 96, 'default' => 28 ),
 			'glow_intensity' => array( 'label' => 'Glow intensity', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.2, 'max' => 2.5, 'default' => 1.0 ),
 			'border_radius' => array( 'label' => 'Corner radius (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 8, 'max' => 40, 'default' => 22, 'css_var' => '--moxie-radius', 'css_unit' => 'px' ),
 			'button_scale' => array( 'label' => 'Button scale', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.8, 'max' => 1.4, 'default' => 1.0, 'css_var' => '--moxie-button-scale' ),
@@ -179,6 +193,10 @@ final class Cafe_Moxie_Site_Kit {
 			'template_surface' => array( 'label' => 'Template surface style', 'group' => 'component_defaults', 'type' => 'select', 'allowed_values' => array( 'panel' => 'Panel (default)', 'soft' => 'Soft surface', 'flat' => 'Flat surface' ), 'sanitize' => 'choice', 'default' => 'panel', 'class_output' => 'cm-surface-{value}' ),
 			'content_max_width' => array( 'label' => 'Long-form content max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 540, 'max' => 980, 'default' => 760, 'css_var' => '--moxie-content-max', 'css_unit' => 'px' ),
 			'content_band_max_width' => array( 'label' => 'Full-width band max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 860, 'max' => 1600, 'default' => 1120 ),
+			'grid_gap' => array( 'label' => 'Grid gap baseline (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 8, 'max' => 48, 'default' => 20 ),
+			'panel_padding' => array( 'label' => 'Panel/card padding baseline (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 14, 'max' => 48, 'default' => 24 ),
+			'archive_rail_max_width' => array( 'label' => 'Archive rail max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 900, 'max' => 1800, 'default' => 1320 ),
+			'single_rail_max_width' => array( 'label' => 'Single template rail max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 860, 'max' => 1600, 'default' => 1180 ),
 			'archive_columns' => array( 'label' => 'Desktop archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 4, 'default' => 3, 'css_var' => '--moxie-archive-cols' ),
 			'tablet_columns' => array( 'label' => 'Tablet archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 3, 'default' => 2, 'css_var' => '--moxie-tablet-cols' ),
 			'layout_behavior' => array( 'label' => 'Default layout behavior', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'balanced' => 'Balanced split', 'single_column' => 'Single column focus', 'showcase_split' => 'Showcase split' ), 'sanitize' => 'choice', 'default' => 'balanced', 'class_output' => 'cm-layout-{value}' ),
@@ -188,7 +206,9 @@ final class Cafe_Moxie_Site_Kit {
 			'home_featured_layout' => array( 'label' => 'Home featured layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'stacked_on_tablet' ),
 			'about_intro_layout' => array( 'label' => 'About intro layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'media_right_split' ),
 			'about_calibrate_layout' => array( 'label' => 'About calibration layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
+			'responsive_breakpoint_mode' => array( 'label' => 'Responsive breakpoint mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'early_stack' => 'Early stack (tablet-first)', 'balanced' => 'Balanced', 'late_stack' => 'Late stack (wider layouts persist)' ), 'sanitize' => 'choice', 'default' => 'balanced', 'class_output' => 'cm-breakpoints-{value}' ),
 			'page_section_density' => array( 'label' => 'Page section spacing', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable' ),
+			'site_density_preset' => array( 'label' => 'Site density preset', 'description' => 'Sets the base rhythm for spacing and padding across plugin-managed surfaces.', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable', 'class_output' => 'cm-site-density-{value}' ),
 			'display_logo_image' => array( 'label' => 'Brand mark image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
 			'enable_managed_header_footer' => array( 'label' => 'Enable plugin-managed header/footer', 'description' => 'When enabled, the plugin can generate and route template part output through managed presets.', 'group' => 'storefront_defaults', 'type' => 'checkbox', 'sanitize' => 'bool', 'default' => 0 ),
 			'header_footer_preset' => array( 'label' => 'Header/footer preset', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'counter' => 'Counter bar', 'utility' => 'Utility split' ), 'sanitize' => 'choice', 'default' => 'counter' ),
@@ -706,20 +726,35 @@ final class Cafe_Moxie_Site_Kit {
 		$glow = floatval( $s['glow_intensity'] );
 		$ratio = self::ratio_to_padding( $s['card_image_ratio'] );
 		$motion = ! empty( $s['enable_motion'] ) ? 1 : 0;
-		$section_gap = '28px';
-		if ( 'compact' === ( $s['page_section_density'] ?? '' ) ) {
-			$section_gap = '20px';
-		} elseif ( 'airy' === ( $s['page_section_density'] ?? '' ) ) {
-			$section_gap = '40px';
+		$density_scale = 1.0;
+		if ( 'compact' === ( $s['site_density_preset'] ?? '' ) ) {
+			$density_scale = 0.88;
+		} elseif ( 'airy' === ( $s['site_density_preset'] ?? '' ) ) {
+			$density_scale = 1.18;
 		}
-		$card_gap = '20px';
-		$card_padding = 24;
+		$section_gap = (int) round( intval( $s['hero_section_spacing'] ) * $density_scale ) . 'px';
+		if ( 'compact' === ( $s['page_section_density'] ?? '' ) ) {
+			$section_gap = (int) round( intval( $s['hero_section_spacing'] ) * 0.82 * $density_scale ) . 'px';
+		} elseif ( 'airy' === ( $s['page_section_density'] ?? '' ) ) {
+			$section_gap = (int) round( intval( $s['hero_section_spacing'] ) * 1.34 * $density_scale ) . 'px';
+		}
+		$card_gap = (int) round( intval( $s['grid_gap'] ) * $density_scale ) . 'px';
+		$card_padding = (int) round( intval( $s['panel_padding'] ) * $density_scale );
 		if ( 'compact' === ( $s['card_grid_density'] ?? '' ) ) {
-			$card_gap = '14px';
-			$card_padding = 18;
+			$card_gap = (int) round( intval( $s['grid_gap'] ) * 0.72 * $density_scale ) . 'px';
+			$card_padding = (int) round( intval( $s['panel_padding'] ) * 0.75 * $density_scale );
 		} elseif ( 'airy' === ( $s['card_grid_density'] ?? '' ) ) {
-			$card_gap = '28px';
-			$card_padding = 30;
+			$card_gap = (int) round( intval( $s['grid_gap'] ) * 1.32 * $density_scale ) . 'px';
+			$card_padding = (int) round( intval( $s['panel_padding'] ) * 1.24 * $density_scale );
+		}
+		$archive_breakpoint = 1160;
+		$tablet_breakpoint = 920;
+		if ( 'early_stack' === ( $s['responsive_breakpoint_mode'] ?? '' ) ) {
+			$archive_breakpoint = 1280;
+			$tablet_breakpoint = 1024;
+		} elseif ( 'late_stack' === ( $s['responsive_breakpoint_mode'] ?? '' ) ) {
+			$archive_breakpoint = 1080;
+			$tablet_breakpoint = 860;
 		}
 		$text_rgba = self::hex_to_rgba( $s['color_cream'], 0.94 );
 		$muted_rgba = self::hex_to_rgba( $s['color_cream'], 0.72 );
@@ -737,12 +772,16 @@ final class Cafe_Moxie_Site_Kit {
 --moxie-muted:{$muted_rgba};
 --moxie-line:{$line_rgba};
 --moxie-line-soft:{$line_soft_rgba};
---moxie-wrap:min({$s['section_max_width']}px,calc(100% - 32px));
---moxie-band-wrap:min({$s['content_band_max_width']}px,calc(100% - 24px));
+--moxie-wrap:min({$s['section_max_width']}px,calc(100% - {$s['outer_wrapper_gutter']}px));
+--moxie-band-wrap:min({$s['content_band_max_width']}px,calc(100% - " . max( 16, intval( $s['outer_wrapper_gutter'] ) - 8 ) . "px));
+--moxie-archive-rail:min({$s['archive_rail_max_width']}px,calc(100% - {$s['outer_wrapper_gutter']}px));
+--moxie-single-rail:min({$s['single_rail_max_width']}px,calc(100% - {$s['outer_wrapper_gutter']}px));
 --moxie-card-ratio:{$ratio};
 --moxie-section-gap:{$section_gap};
 --moxie-card-gap:{$card_gap};
 --moxie-card-pad:{$card_padding}px;
+--moxie-header-pad:" . (int) round( intval( $s['header_vertical_padding'] ) * $density_scale ) . "px;
+--moxie-footer-pad:" . (int) round( intval( $s['footer_vertical_padding'] ) * $density_scale ) . "px;
 --moxie-glow-cyan:0 0 " . ( 18 * $glow ) . "px {$cyan_glow_rgba};
 --moxie-glow-amber:0 0 " . ( 20 * $glow ) . "px {$amber_glow_rgba};
 --moxie-glow-magenta:0 0 " . ( 18 * $glow ) . "px {$magenta_glow_rgba};
@@ -763,12 +802,14 @@ body.cm-moxie-site .wp-block-site-logo img,body.cm-moxie-site .custom-logo{width
 body.cm-moxie-site .wp-block-navigation a{color:var(--moxie-cream);text-decoration:none}
 body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-managed-header,.cm-managed-footer{width:var(--moxie-wrap);margin-inline:auto}
-.cm-managed-header{padding:10px 0}
+.cm-managed-header{padding:var(--moxie-header-pad) 0}
 .cm-managed-header.is-counter{border-bottom:1px solid var(--moxie-line)}
 .cm-managed-header.is-utility{background:rgba(5,7,13,.25);border-radius:0 0 12px 12px}
-.cm-managed-footer{margin-top:32px;padding:20px 0;border-top:1px solid var(--moxie-line)}
+.cm-managed-footer{margin-top:32px;padding:var(--moxie-footer-pad) 0;border-top:1px solid var(--moxie-line)}
 .cm-managed-footer__meta{margin-top:8px;color:var(--moxie-muted)}
 .cm-wrap{width:var(--moxie-wrap);margin-inline:auto}
+.cm-archive-page .cm-wrap{width:var(--moxie-archive-rail)}
+.cm-single-page .cm-wrap{width:var(--moxie-single-rail)}
 .cm-wrap img,.cm-wrap svg,.cm-wrap video,.cm-wrap iframe{max-width:100%}
 .cm-section{margin-block:var(--moxie-section-gap)}
 .cm-panel,.cm-card,.is-style-cm-panel{position:relative;overflow:hidden;padding:var(--moxie-card-pad);border-radius:var(--moxie-radius);border:1px solid var(--moxie-line);background:linear-gradient(180deg,rgba(18,26,43,.96),rgba(10,16,32,.98));box-shadow:var(--moxie-shadow)}
@@ -801,7 +842,7 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-layout--full-width-content-band{width:var(--moxie-band-wrap);margin-inline:auto}
 .cm-layout--full-width-content-band > *{max-width:var(--moxie-content-max)}
 .cm-copy-prose p,.cm-copy-prose li{max-width:var(--moxie-content-max)}
-.cm-hero{min-height:{$s['hero_min_height']}px;align-items:stretch}
+.cm-hero{min-height:{$s['hero_min_height']}px;align-items:stretch;padding-block:var(--moxie-section-gap)}
 .cm-placeholder{min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:28px;border:1px dashed rgba(53,214,255,.28);border-radius:18px;background:rgba(53,214,255,.04)}
 .cm-placeholder-title{font-size:clamp(34px,4.8vw,50px)}
 .cm-kv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -870,8 +911,8 @@ body.cm-surface-soft .cm-panel,body.cm-surface-soft .cm-card{background:linear-g
 body.cm-surface-flat .cm-panel,body.cm-surface-flat .cm-card{background:rgba(14,20,33,.94);box-shadow:none}
 body.cm-layout-single_column .cm-grid-2{grid-template-columns:1fr}
 body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
-@media (max-width:1160px){.cm-filter-bar{grid-template-columns:1fr 1fr 1fr}.cm-grid-4,.cm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-archive-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:920px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--stacked-on-tablet{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-query-summary .cm-chip-list{width:100%}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}}
+@media (max-width:{$archive_breakpoint}px){.cm-filter-bar{grid-template-columns:1fr 1fr 1fr}.cm-grid-4,.cm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-archive-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:{$tablet_breakpoint}px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--stacked-on-tablet{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-query-summary .cm-chip-list{width:100%}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}}
 @media (max-width:640px){body.cm-moxie-site h1{font-size:calc(44px * var(--moxie-mobile-heading-scale));line-height:1}body.cm-moxie-site h2{font-size:calc(40px * var(--moxie-mobile-heading-scale));line-height:1.02}body.cm-moxie-site h3{font-size:calc(34px * var(--moxie-mobile-heading-scale));line-height:1.04}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:220px}.cm-panel,.cm-card{overflow-wrap:anywhere}.cm-chip,.cm-status,.cm-badge,.cm-button{width:100%}}
 @media (max-width:640px){body.cm-mobile-balanced .cm-panel,body.cm-mobile-balanced .cm-card{padding:calc(var(--moxie-card-pad) - 4px)}}
 ";
