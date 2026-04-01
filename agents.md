@@ -254,6 +254,17 @@ trim(array) → fatal error
 * Always escaped
 * Always validated
 
+### 9.1 Settings Taxonomy Contract
+
+For maintainability across brands, plugin settings are grouped into four distinct responsibilities:
+
+* **global design tokens** (colors, spacing primitives, motion, typography scale)
+* **component defaults** (cards, grids, reusable UI framing)
+* **page template defaults** (section layouts, density, starter/composed page behavior)
+* **storefront defaults** (catalog behavior, CTA copy, storefront-specific media)
+
+Agents should keep these groups conceptually separate, even when values remain stored in the same WordPress option.
+
 
 
 ### 10. What Agents SHOULD Do
@@ -689,4 +700,3 @@ Establish a regression checklist so Codex can make UI and architecture changes w
 End of file.
 
 If you want, I can also turn this into a **fully merged replacement `agents.md`** instead of just the task section.
-

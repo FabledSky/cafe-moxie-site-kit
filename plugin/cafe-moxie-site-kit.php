@@ -111,6 +111,101 @@ final class Cafe_Moxie_Site_Kit {
 		return wp_parse_args( get_option( self::OPTION, array() ), self::defaults() );
 	}
 
+	public static function settings_groups() {
+		return array(
+			'global_design_tokens' => array(
+				'label' => 'Global Design Tokens',
+				'description' => 'Cross-site visual tokens shared by templates and components.',
+				'keys' => array(
+					'color_ink',
+					'color_midnight',
+					'color_oil',
+					'color_gunmetal',
+					'color_cyan',
+					'color_teal',
+					'color_arcade',
+					'color_magenta',
+					'color_amber',
+					'color_gold',
+					'color_cream',
+					'color_rust',
+					'color_signal_red',
+					'color_warning_yellow',
+					'logo_width',
+					'header_height',
+					'section_max_width',
+					'hero_min_height',
+					'border_radius',
+					'button_scale',
+					'glow_intensity',
+					'mobile_heading_scale',
+					'load_google_fonts',
+					'enable_motion',
+				),
+			),
+			'component_defaults' => array(
+				'label' => 'Component Defaults',
+				'description' => 'Reusable defaults for cards, grids, and shared UI building blocks.',
+				'keys' => array(
+					'card_image_ratio',
+					'card_grid_density',
+					'template_surface',
+					'content_max_width',
+					'content_band_max_width',
+					'archive_columns',
+					'tablet_columns',
+				),
+			),
+			'page_template_defaults' => array(
+				'label' => 'Page Template Defaults',
+				'description' => 'Section composition and layout defaults used by starter and composed pages.',
+				'keys' => array(
+					'layout_behavior',
+					'mobile_layout_mode',
+					'page_section_density',
+					'home_hero_layout',
+					'home_story_layout',
+					'home_trust_layout',
+					'home_featured_layout',
+					'about_intro_layout',
+					'about_calibrate_layout',
+					'show_home_story',
+					'show_home_trust',
+					'show_home_featured',
+					'show_home_closing',
+					'show_about_values',
+					'show_about_calibrate',
+					'composed_page_template',
+					'composed_page_slug',
+					'composed_page_title',
+					'refresh_mode',
+				),
+			),
+			'storefront_defaults' => array(
+				'label' => 'Storefront Defaults',
+				'description' => 'Catalog behavior and commerce-facing defaults for the Edge Tool storefront layer.',
+				'keys' => array(
+					'brand_preset',
+					'site_kicker',
+					'featured_tools_count',
+					'archive_items_per_page',
+					'show_archive_filters',
+					'display_logo_image',
+					'home_hero_image',
+					'home_story_image',
+					'about_story_image',
+					'home_primary_cta',
+					'home_primary_url',
+					'home_secondary_cta',
+					'home_secondary_url',
+					'about_primary_cta',
+					'about_primary_url',
+					'footer_copy',
+				),
+			),
+		);
+	}
+
 	public static function brand_presets() {
 		return array(
 			'cafe_moxie' => array(
@@ -355,7 +450,8 @@ final class Cafe_Moxie_Site_Kit {
 			<p><a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
-				<h2>Storefront Basics</h2>
+				<h2>Storefront Defaults</h2>
+				<p class="description">Catalog behavior and commerce-facing defaults for Edge Tool storefront pages.</p>
 				<table class="form-table" role="presentation">
 					<?php
 					self::text_row( 'brand_preset', 'Brand preset key', 'text', 'Use cafe_moxie (default) or neutral. Filterable via code for additional presets.' );
@@ -375,7 +471,8 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
-				<h2>Layout Behavior</h2>
+				<h2>Page Template Defaults</h2>
+				<p class="description">Control starter-page structure and template composition defaults separately from design tokens.</p>
 				<table class="form-table" role="presentation">
 					<?php
 					self::select_row(
@@ -425,16 +522,6 @@ final class Cafe_Moxie_Site_Kit {
 						'Set layout mode for About list sections.'
 					);
 					self::select_row(
-						'template_surface',
-						'Template surface style',
-						array(
-							'panel' => 'Panel (default)',
-							'soft'  => 'Soft surface',
-							'flat'  => 'Flat surface',
-						),
-						'Adjusts card/panel framing without editing CSS.'
-					);
-					self::select_row(
 						'page_section_density',
 						'Page section spacing',
 						array(
@@ -447,7 +534,7 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
-				<h2>Page Sections (Starter Pages)</h2>
+				<h3>Starter Page Sections</h3>
 				<table class="form-table" role="presentation">
 					<?php
 					self::checkbox_row( 'show_home_story', 'Show Home story section' );
@@ -459,7 +546,7 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
-				<h2>Template Composer (Generate Additional Pages)</h2>
+				<h3>Template Composer (Generate Additional Pages)</h3>
 				<table class="form-table" role="presentation">
 					<?php
 					self::select_row(
@@ -473,11 +560,36 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
-				<h2>Template Defaults + Responsive</h2>
+				<h2>Global Design Tokens</h2>
+				<p class="description">Shared visual primitives used across components and templates.</p>
 				<table class="form-table" role="presentation">
 					<?php
 					self::checkbox_row( 'load_google_fonts', 'Load Google Fonts', 'Turn this off if you plan to self-host Chathura and IBM Plex Sans.' );
 					self::checkbox_row( 'enable_motion', 'Enable motion accents', 'Subtle glow, sign flicker, and tactile hover states.' );
+					self::select_row(
+						'mobile_layout_mode',
+						'Mobile layout mode',
+						array(
+							'stacked'  => 'Stacked sections',
+							'balanced' => 'Balanced sections',
+						),
+						'Stacked is safer for long content and smaller screens.'
+					);
+					self::text_row( 'mobile_heading_scale', 'Mobile heading scale', 'number', 'Use 1.0 for default, lower for tighter headings.' );
+					self::text_row( 'logo_width', 'Brand mark width (px)', 'number' );
+					self::text_row( 'header_height', 'Header minimum height (px)', 'number' );
+					self::text_row( 'section_max_width', 'Section max width (px)', 'number' );
+					self::text_row( 'hero_min_height', 'Hero min height (px)', 'number' );
+					self::text_row( 'glow_intensity', 'Glow intensity', 'number' );
+					self::text_row( 'border_radius', 'Corner radius (px)', 'number' );
+					self::text_row( 'button_scale', 'Button scale', 'number' );
+					?>
+				</table>
+
+				<h2>Component Defaults</h2>
+				<p class="description">Reusable defaults for cards, content bands, and grids that templates inherit.</p>
+				<table class="form-table" role="presentation">
+					<?php
 					self::select_row(
 						'card_grid_density',
 						'Card + grid density',
@@ -489,31 +601,24 @@ final class Cafe_Moxie_Site_Kit {
 						'Tightens or loosens card padding and grid gaps.'
 					);
 					self::select_row(
-						'mobile_layout_mode',
-						'Mobile layout mode',
+						'template_surface',
+						'Template surface style',
 						array(
-							'stacked'  => 'Stacked sections',
-							'balanced' => 'Balanced sections',
+							'panel' => 'Panel (default)',
+							'soft'  => 'Soft surface',
+							'flat'  => 'Flat surface',
 						),
-						'Stacked is safer for long content and smaller screens.'
+						'Adjusts card/panel framing without editing CSS.'
 					);
+					self::text_row( 'card_image_ratio', 'Card image ratio', 'text', 'Example 16:10 or 4:3' );
 					self::text_row( 'archive_columns', 'Desktop archive columns', 'number' );
 					self::text_row( 'tablet_columns', 'Tablet archive columns', 'number' );
-					self::text_row( 'mobile_heading_scale', 'Mobile heading scale', 'number', 'Use 1.0 for default, lower for tighter headings.' );
-					self::text_row( 'logo_width', 'Brand mark width (px)', 'number' );
-					self::text_row( 'header_height', 'Header minimum height (px)', 'number' );
-					self::text_row( 'section_max_width', 'Section max width (px)', 'number' );
 					self::text_row( 'content_band_max_width', 'Full-width band max width (px)', 'number', 'Used by full-width content bands to avoid edge-to-edge crowding.' );
 					self::text_row( 'content_max_width', 'Long-form content max width (px)', 'number', 'Limits paragraph line length to improve readability.' );
-					self::text_row( 'hero_min_height', 'Hero min height (px)', 'number' );
-					self::text_row( 'card_image_ratio', 'Card image ratio', 'text', 'Example 16:10 or 4:3' );
-					self::text_row( 'glow_intensity', 'Glow intensity', 'number' );
-					self::text_row( 'border_radius', 'Corner radius (px)', 'number' );
-					self::text_row( 'button_scale', 'Button scale', 'number' );
 					?>
 				</table>
 
-				<h2>Brand Media</h2>
+				<h3>Storefront Media</h3>
 				<table class="form-table" role="presentation">
 					<?php
 					self::text_row( 'display_logo_image', 'Brand mark image URL', 'url', 'Used in starter pages and tool templates. Set Site Logo separately in WordPress if you want it in the global header.' );
@@ -523,7 +628,7 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
-				<h2>Calls to Action</h2>
+				<h3>Storefront Calls to Action</h3>
 				<table class="form-table" role="presentation">
 					<?php
 					self::text_row( 'home_primary_cta', 'Home primary CTA label' );
@@ -536,7 +641,7 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
-				<h2>Color Tokens</h2>
+				<h3>Color Tokens</h3>
 				<table class="form-table" role="presentation">
 					<?php
 					self::color_row( 'color_ink', 'Ink' );
