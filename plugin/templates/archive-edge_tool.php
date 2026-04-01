@@ -36,7 +36,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 						</div>
 					</div>
 					<div class="cm-filter-actions">
-						<label style="display:inline-flex;align-items:center;gap:8px;color:var(--moxie-cream);font-weight:700;"><input type="checkbox" name="cm_featured" value="1" <?php checked( Cafe_Moxie_Site_Kit::request_value( 'cm_featured' ), '1' ); ?>> Featured only</label>
+						<label class="cm-filter-toggle"><input type="checkbox" name="cm_featured" value="1" <?php checked( Cafe_Moxie_Site_Kit::request_value( 'cm_featured' ), '1' ); ?>> Featured only</label>
 						<button class="cm-button" type="submit">Apply Filters</button>
 						<a class="cm-button cm-button--subtle" href="<?php echo esc_url( get_post_type_archive_link( 'edge_tool' ) ); ?>">Reset</a>
 					</div>

@@ -32,7 +32,7 @@ $featured_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'home_featured_l
 <?php if ( $hero ) : ?>
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $hero ); ?>" alt="<?php echo esc_attr( $brand['name'] ); ?> hero image" /></figure><!-- /wp:image -->
 <?php else : ?>
-<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title" style="font-size:50px;">Hero image slot</h2><p class="cm-subtle">Paste a Media Library image URL into Site System Kit → Brand Media.</p></div><!-- /wp:html -->
+<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title cm-placeholder-title">Hero image slot</h2><p class="cm-subtle">Paste a Media Library image URL into Site System Kit → Brand Media.</p></div><!-- /wp:html -->
 <?php endif; ?>
 <!-- wp:html --><div class="cm-stat-band"><div class="cm-stat"><div class="cm-stat__label">Buy Once</div><div class="cm-stat__value">Own the tool when you want ownership.</div></div><div class="cm-stat"><div class="cm-stat__label">Pay Per Task</div><div class="cm-stat__value">Use compute when setup is not worth it.</div></div><div class="cm-stat"><div class="cm-stat__label">Hybrid</div><div class="cm-stat__value">Keep the local edge. Rent the heavy lift.</div></div><div class="cm-stat"><div class="cm-stat__label">Built For</div><div class="cm-stat__value">Operations, admin, research, writing, cleanup.</div></div></div><!-- /wp:html -->
 </div>
@@ -58,7 +58,7 @@ $featured_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'home_featured_l
 <?php if ( $story ) : ?>
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $story ); ?>" alt="<?php echo esc_attr( $brand['name'] ); ?> story image" /></figure><!-- /wp:image -->
 <?php else : ?>
-<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add story image</span><h2 class="cm-sign-title" style="font-size:50px;">Story image slot</h2><p class="cm-subtle">Use this for a marquee sign, workshop scene, counter photo, or branded storefront art.</p></div><!-- /wp:html -->
+<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add story image</span><h2 class="cm-sign-title cm-placeholder-title">Story image slot</h2><p class="cm-subtle">Use this for a marquee sign, workshop scene, counter photo, or branded storefront art.</p></div><!-- /wp:html -->
 <?php endif; ?>
 </div><!-- /wp:group -->
 </div>
