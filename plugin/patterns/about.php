@@ -29,6 +29,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div>
 <!-- /wp:group -->
 
+<?php if ( ! empty( $s['show_about_values'] ) ) : ?>
 <!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} -->
 <div class="wp-block-group cm-grid-3 cm-section">
 <!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Voice</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Grounded. Capable. Specific.</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">The brand voice should sound like the most competent person in the office if that person opened a software counter and started selling the tools they actually wished existed.</p><!-- /wp:paragraph --></div><!-- /wp:group -->
@@ -36,7 +37,9 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 <!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Commerce</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Own it when you want ownership.</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Buy once for local tools. Pay per task for compute-backed workflows. Keep ownership and control with the worker whenever possible.</p><!-- /wp:paragraph --></div><!-- /wp:group -->
 </div>
 <!-- /wp:group -->
+<?php endif; ?>
 
+<?php if ( ! empty( $s['show_about_calibrate'] ) ) : ?>
 <!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
 <div class="wp-block-group cm-grid-2 cm-section">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
@@ -52,6 +55,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div><!-- /wp:group -->
 </div>
 <!-- /wp:group -->
+<?php endif; ?>
 
 </div>
 <!-- /wp:group -->

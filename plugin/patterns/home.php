@@ -37,6 +37,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div>
 <!-- /wp:group -->
 
+<?php if ( ! empty( $s['show_home_story'] ) ) : ?>
 <!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
 <div class="wp-block-group cm-grid-2 cm-section">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
@@ -58,6 +59,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div><!-- /wp:group -->
 </div>
 <!-- /wp:group -->
+<?php endif; ?>
 
 <!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} -->
 <div class="wp-block-group cm-grid-3 cm-section">
@@ -67,6 +69,8 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div>
 <!-- /wp:group -->
 
+<?php if ( ! empty( $s['show_home_trust'] ) ) : ?>
+<?php if ( ! empty( $s['show_home_featured'] ) ) : ?>
 <!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
 <div class="wp-block-group cm-grid-2 cm-section">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
@@ -101,7 +105,10 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div><!-- /wp:group -->
 </div>
 <!-- /wp:group -->
+<?php endif; ?>
+<?php endif; ?>
 
+<?php if ( ! empty( $s['show_home_closing'] ) ) : ?>
 <!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-panel cm-section">
 <!-- wp:paragraph --><p class="cm-eyebrow">Closing CTA</p><!-- /wp:paragraph -->
@@ -110,6 +117,7 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 <!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Cafe_Moxie_Site_Kit::resolve_url( $s['home_primary_url'] ) ); ?>"><?php echo esc_html( $s['home_primary_cta'] ); ?></a></div><!-- /wp:button --></div><!-- /wp:buttons -->
 </div>
 <!-- /wp:group -->
+<?php endif; ?>
 
 </div>
 <!-- /wp:group -->
