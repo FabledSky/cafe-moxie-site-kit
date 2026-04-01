@@ -23,6 +23,7 @@ final class Cafe_Moxie_Site_Kit {
 		add_filter( 'template_include', array( __CLASS__, 'template_include' ), 99 );
 		add_filter( 'body_class', array( __CLASS__, 'body_classes' ) );
 		add_action( 'admin_post_cafe_moxie_create_starter_pages', array( __CLASS__, 'create_starter_pages' ) );
+		add_action( 'admin_post_cafe_moxie_generate_composed_page', array( __CLASS__, 'generate_composed_page' ) );
 
 		if ( false === get_option( self::OPTION ) ) {
 			update_option( self::OPTION, self::defaults() );
@@ -100,6 +101,9 @@ final class Cafe_Moxie_Site_Kit {
 			'show_home_closing'    => 1,
 			'show_about_values'    => 1,
 			'show_about_calibrate' => 1,
+			'composed_page_template' => 'conversion',
+			'composed_page_slug'     => 'services',
+			'composed_page_title'    => 'Services',
 		);
 	}
 
@@ -216,6 +220,8 @@ final class Cafe_Moxie_Site_Kit {
 		$out['home_secondary_url'] = self::sanitize_url_or_path( $input['home_secondary_url'] ?? $d['home_secondary_url'] );
 		$out['about_primary_cta']  = sanitize_text_field( $input['about_primary_cta'] ?? $d['about_primary_cta'] );
 		$out['about_primary_url']  = self::sanitize_url_or_path( $input['about_primary_url'] ?? $d['about_primary_url'] );
+		$out['composed_page_slug']  = sanitize_title( $input['composed_page_slug'] ?? $d['composed_page_slug'] );
+		$out['composed_page_title'] = sanitize_text_field( $input['composed_page_title'] ?? $d['composed_page_title'] );
 		$choices = array(
 			'layout_behavior'      => array( 'balanced', 'single_column', 'showcase_split' ),
 			'home_hero_layout'     => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
@@ -229,6 +235,7 @@ final class Cafe_Moxie_Site_Kit {
 			'card_grid_density'    => array( 'compact', 'comfortable', 'airy' ),
 			'mobile_layout_mode'   => array( 'stacked', 'balanced' ),
 			'refresh_mode'         => array( 'safe', 'overwrite' ),
+			'composed_page_template' => array_keys( self::composed_page_templates() ),
 		);
 		foreach ( $choices as $key => $allowed ) {
 			$value = sanitize_key( $input[ $key ] ?? $d[ $key ] );
@@ -340,6 +347,7 @@ final class Cafe_Moxie_Site_Kit {
 
 	public static function settings_page() {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
+		$compose_action = admin_url( 'admin-post.php' );
 		?>
 		<div class="wrap">
 			<h1>Site System Kit</h1>
@@ -451,6 +459,20 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 
+				<h2>Template Composer (Generate Additional Pages)</h2>
+				<table class="form-table" role="presentation">
+					<?php
+					self::select_row(
+						'composed_page_template',
+						'Composed page template',
+						self::composed_page_templates(),
+						'Pick a reusable section bundle, then generate a new page from it below.'
+					);
+					self::text_row( 'composed_page_title', 'Default generated page title' );
+					self::text_row( 'composed_page_slug', 'Default generated page slug' );
+					?>
+				</table>
+
 				<h2>Template Defaults + Responsive</h2>
 				<table class="form-table" role="presentation">
 					<?php
@@ -534,6 +556,46 @@ final class Cafe_Moxie_Site_Kit {
 					?>
 				</table>
 				<?php submit_button(); ?>
+			</form>
+			<hr />
+			<h2>Generate Composed Page</h2>
+			<p>Create additional pages from reusable section building blocks. Generated pages are standard WordPress pages and remain editable in the block editor.</p>
+			<form method="post" action="<?php echo esc_url( $compose_action ); ?>">
+				<?php wp_nonce_field( 'cafe_moxie_generate_composed_page' ); ?>
+				<input type="hidden" name="action" value="cafe_moxie_generate_composed_page" />
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><label for="cm-compose-title">Page title</label></th>
+						<td><input id="cm-compose-title" name="page_title" type="text" class="regular-text" value="<?php echo esc_attr( self::settings()['composed_page_title'] ); ?>" required /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="cm-compose-slug">Page slug</label></th>
+						<td><input id="cm-compose-slug" name="page_slug" type="text" class="regular-text" value="<?php echo esc_attr( self::settings()['composed_page_slug'] ); ?>" required /></td>
+					</tr>
+					<tr>
+						<th scope="row"><label for="cm-compose-template">Template preset</label></th>
+						<td>
+							<select id="cm-compose-template" name="template_key">
+								<?php foreach ( self::composed_page_templates() as $key => $label ) : ?>
+									<option value="<?php echo esc_attr( $key ); ?>" <?php selected( self::settings()['composed_page_template'], $key ); ?>><?php echo esc_html( $label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">Sections</th>
+						<td>
+							<?php foreach ( self::composed_sections() as $section_key => $section ) : ?>
+								<label style="display:block;margin-bottom:6px;">
+									<input type="checkbox" name="sections[]" value="<?php echo esc_attr( $section_key ); ?>" checked />
+									<?php echo esc_html( $section['label'] ); ?>
+								</label>
+							<?php endforeach; ?>
+							<p class="description">Pick the sections you want included. If none are selected, the template preset defaults are used.</p>
+						</td>
+					</tr>
+				</table>
+				<?php submit_button( 'Generate Page from Sections', 'secondary', 'submit', false ); ?>
 			</form>
 		</div>
 		<?php
@@ -845,6 +907,77 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return ob_get_clean();
 	}
 
+	public static function composed_page_templates() {
+		return array(
+			'conversion' => 'Conversion page (hero → features → CTA)',
+			'story'      => 'Story page (hero → split story → trust)',
+			'catalog'    => 'Catalog page (hero → product feed → content)',
+		);
+	}
+
+	public static function composed_sections() {
+		return array(
+			'hero' => array( 'label' => 'Hero' ),
+			'story_split' => array( 'label' => 'Story split' ),
+			'feature_grid' => array( 'label' => 'Feature grid' ),
+			'cta_band' => array( 'label' => 'CTA band' ),
+			'trust_section' => array( 'label' => 'Trust section' ),
+			'product_feed' => array( 'label' => 'Product feed' ),
+			'content_section' => array( 'label' => 'Content section' ),
+		);
+	}
+
+	public static function template_sections( $template_key ) {
+		$map = array(
+			'conversion' => array( 'hero', 'feature_grid', 'cta_band' ),
+			'story'      => array( 'hero', 'story_split', 'trust_section', 'cta_band' ),
+			'catalog'    => array( 'hero', 'product_feed', 'content_section', 'cta_band' ),
+		);
+		return $map[ $template_key ] ?? $map['conversion'];
+	}
+
+	public static function compose_page_content( $section_keys = array(), $args = array() ) {
+		$template_key = sanitize_key( $args['template_key'] ?? 'conversion' );
+		$requested = is_array( $section_keys ) ? array_values( array_filter( array_map( 'sanitize_key', $section_keys ) ) ) : array();
+		$sequence = ! empty( $requested ) ? $requested : self::template_sections( $template_key );
+		$sections = self::composed_sections();
+		$brand = self::brand_profile();
+		$s = self::settings();
+
+		ob_start();
+		echo '<!-- wp:group {"className":"cm-wrap","layout":{"type":"constrained"}} --><div class="wp-block-group cm-wrap">';
+		foreach ( $sequence as $section_key ) {
+			if ( ! isset( $sections[ $section_key ] ) ) {
+				continue;
+			}
+			echo self::render_composed_section( $section_key, $s, $brand );
+		}
+		echo '</div><!-- /wp:group -->';
+		return ob_get_clean();
+	}
+
+	private static function render_composed_section( $section_key, $s, $brand ) {
+		switch ( $section_key ) {
+			case 'hero':
+				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose">' . self::render_brand_mark() . '<!-- wp:paragraph --><p class="cm-eyebrow">Template Composer</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">' . esc_html( $brand['name'] ) . ' page template</h1><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Start with a focused hero and then add only the sections this page needs.</p><!-- /wp:paragraph --></div><!-- /wp:group -->';
+			case 'story_split':
+				$layout = self::section_layout_classes( 'home_story_layout', 'media_right_split' );
+				return '<!-- wp:group {"className":"' . esc_attr( $layout ) . '","layout":{"type":"default"}} --><div class="wp-block-group ' . esc_attr( $layout ) . '"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Story split</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Explain what this page does.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Use this split to pair explanatory copy with supporting media or an image block.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel"><!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Replace media</span><p class="cm-subtle">Drop in an image, logo treatment, or proof point.</p></div><!-- /wp:html --></div><!-- /wp:group --></div><!-- /wp:group -->';
+			case 'feature_grid':
+				return '<!-- wp:group {"className":"cm-grid-3 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-3 cm-section"><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Fast setup</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Keep the first value block clear and practical.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Clear ownership</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Define what users control and what stays simple.</p><!-- /wp:paragraph --></div><!-- /wp:group --><!-- wp:group {"className":"cm-card","layout":{"type":"constrained"}} --><div class="wp-block-group cm-card"><!-- wp:paragraph --><p class="cm-badge">Feature</p><!-- /wp:paragraph --><!-- wp:heading {"level":3,"className":"cm-sign-title"} --><h3 class="wp-block-heading cm-sign-title">Real-world outcomes</h3><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Show what gets easier after the workflow changes.</p><!-- /wp:paragraph --></div><!-- /wp:group --></div><!-- /wp:group -->';
+			case 'cta_band':
+				return '<!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section"><!-- wp:paragraph --><p class="cm-eyebrow">Next step</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Move from explanation to action.</h2><!-- /wp:heading --><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( self::resolve_url( $s['home_primary_url'] ) ) . '">' . esc_html( $s['home_primary_cta'] ) . '</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->';
+			case 'trust_section':
+				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Trust section</p><!-- /wp:paragraph --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>State what you do not do.</li><li>Set expectations for edge cases and limits.</li><li>Keep promises specific and verifiable.</li></ul><!-- /wp:list --></div><!-- /wp:group -->';
+			case 'product_feed':
+				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Product feed</p><!-- /wp:paragraph --><!-- wp:shortcode -->[cafe_moxie_featured_edge_tools count="' . esc_attr( $s['featured_tools_count'] ) . '"]<!-- /wp:shortcode --></div><!-- /wp:group -->';
+			case 'content_section':
+				return '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Content section</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Add your long-form detail here.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">This section is intentionally generic so the page stays editable and reusable for new site contexts.</p><!-- /wp:paragraph --></div><!-- /wp:group -->';
+		}
+
+		return '';
+	}
+
 	public static function create_or_update_page( $slug, $title, $content, $overwrite = true ) {
 		$existing = get_page_by_path( $slug, OBJECT, 'page' );
 		$data = array(
@@ -868,12 +1001,26 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		check_admin_referer( 'cafe_moxie_create_starter_pages' );
 		$s = self::settings();
 		$overwrite = ( 'overwrite' === ( $s['refresh_mode'] ?? 'safe' ) );
-		foreach ( array( 'home' => 'Home', 'about' => 'About' ) as $slug => $title ) {
-			ob_start();
-			include plugin_dir_path( __FILE__ ) . 'patterns/' . $slug . '.php';
-			self::create_or_update_page( $slug, $title, ob_get_clean(), $overwrite );
-		}
+		ob_start();
+		include plugin_dir_path( __FILE__ ) . 'patterns/home.php';
+		self::create_or_update_page( 'home', 'Home', ob_get_clean(), $overwrite );
+		ob_start();
+		include plugin_dir_path( __FILE__ ) . 'patterns/about.php';
+		self::create_or_update_page( 'about', 'About', ob_get_clean(), $overwrite );
 		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&created=1' ) );
+		exit;
+	}
+
+	public static function generate_composed_page() {
+		check_admin_referer( 'cafe_moxie_generate_composed_page' );
+		$s = self::settings();
+		$template_key = sanitize_key( $_POST['template_key'] ?? $s['composed_page_template'] );
+		$page_title = sanitize_text_field( $_POST['page_title'] ?? $s['composed_page_title'] );
+		$page_slug = sanitize_title( $_POST['page_slug'] ?? $s['composed_page_slug'] );
+		$sections = isset( $_POST['sections'] ) && is_array( $_POST['sections'] ) ? $_POST['sections'] : array();
+		$content = self::compose_page_content( $sections, array( 'template_key' => $template_key ) );
+		self::create_or_update_page( $page_slug, $page_title, $content, false );
+		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&composed=1' ) );
 		exit;
 	}
 
