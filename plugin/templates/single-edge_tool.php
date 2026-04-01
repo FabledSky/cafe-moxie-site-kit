@@ -5,7 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 get_header();
 while ( have_posts() ) :
 	the_post();
-	$data = Cafe_Moxie_Site_Kit::tool_data( get_the_ID() );
+	$data = Cafe_Moxie_Site_Kit::edge_tool_data( get_the_ID() );
+	$content_label = Cafe_Moxie_Site_Kit::module_content_label( 'edge_tool' );
 	$who_deals = ! empty( $data['best_for'] ) ? $data['best_for'] : $data['taxonomies']['workflow_area'];
 	$what_in   = array_values( array_unique( array_merge( $data['input_formats'], $data['taxonomies']['input_type'] ) ) );
 	$what_out  = array_values( array_unique( array_merge( $data['output_formats'], $data['taxonomies']['output_type'] ) ) );
@@ -61,7 +62,7 @@ while ( have_posts() ) :
 			<section class="cm-grid-2 cm-section">
 				<div class="cm-panel">
 					<div class="cm-chip-list cm-chip-list--tight">
-						<span class="cm-badge">Edge Tool</span>
+						<span class="cm-badge"><?php echo esc_html( $content_label ); ?></span>
 						<?php if ( $data['buying_model'] ) : ?><span class="cm-status cm-status--warm"><?php echo esc_html( $data['buying_model'] ); ?></span><?php endif; ?>
 						<?php if ( $data['execution_mode'] ) : ?><span class="cm-status <?php echo false !== stripos( $data['execution_mode'], 'Compute' ) ? 'cm-status--compute' : ''; ?>"><?php echo esc_html( $data['execution_mode'] ); ?></span><?php endif; ?>
 						<?php if ( $data['release_status'] ) : ?><span class="cm-chip"><?php echo esc_html( $data['release_status'] ); ?></span><?php endif; ?>

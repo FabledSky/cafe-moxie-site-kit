@@ -976,6 +976,46 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		add_shortcode( 'cafe_moxie_featured_edge_tools', array( __CLASS__, 'featured_edge_tools_shortcode' ) );
 	}
 
+	public static function content_modules() {
+		return array(
+			'edge_tool' => array(
+				'post_type'                 => 'edge_tool',
+				'archive_query_filter'      => 'cafe_moxie_edge_tool_archive_query_args',
+				'data_filter'               => 'cafe_moxie_tool_data',
+				'singular_template'         => 'templates/single-edge_tool.php',
+				'archive_template'          => 'templates/archive-edge_tool.php',
+				'archive_filters'           => array(
+					'tool_type'       => 'Tool Type',
+					'workflow_area'   => 'Workflow Area',
+					'platform'        => 'Platform',
+					'execution_model' => 'Execution Model',
+				),
+				'content_label'            => 'Edge Tool',
+				'default_archive_headline' => 'Tools for people who actually do the work.',
+			),
+		);
+	}
+
+	public static function content_module( $module_key = 'edge_tool' ) {
+		$modules = self::content_modules();
+		return $modules[ $module_key ] ?? $modules['edge_tool'];
+	}
+
+	public static function module_archive_link( $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		return get_post_type_archive_link( $module['post_type'] );
+	}
+
+	public static function module_archive_headline( $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		return $module['default_archive_headline'];
+	}
+
+	public static function module_content_label( $module_key = 'edge_tool' ) {
+		$module = self::content_module( $module_key );
+		return $module['content_label'] ?? 'Content';
+	}
+
 	public static function featured_edge_tools_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
@@ -986,9 +1026,11 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		);
 
 		$count = max( 1, min( 12, intval( $atts['count'] ) ) );
+		$module = self::content_module( 'edge_tool' );
+		$post_type = $module['post_type'];
 		$query = new WP_Query(
 			array(
-				'post_type'      => 'edge_tool',
+				'post_type'      => $post_type,
 				'post_status'    => 'publish',
 				'posts_per_page' => $count,
 				'meta_key'       => 'featured_tool',
@@ -999,7 +1041,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		if ( ! $query->have_posts() ) {
 			$query = new WP_Query(
 				array(
-					'post_type'      => 'edge_tool',
+					'post_type'      => $post_type,
 					'post_status'    => 'publish',
 					'posts_per_page' => $count,
 				)
@@ -1147,14 +1189,15 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	}
 
 	public static function template_include( $template ) {
-		if ( is_singular( 'edge_tool' ) ) {
-			$file = plugin_dir_path( __FILE__ ) . 'templates/single-edge_tool.php';
+		$module = self::content_module( 'edge_tool' );
+		if ( is_singular( $module['post_type'] ) ) {
+			$file = plugin_dir_path( __FILE__ ) . $module['singular_template'];
 			if ( file_exists( $file ) ) {
 				return $file;
 			}
 		}
-		if ( is_post_type_archive( 'edge_tool' ) ) {
-			$file = plugin_dir_path( __FILE__ ) . 'templates/archive-edge_tool.php';
+		if ( is_post_type_archive( $module['post_type'] ) ) {
+			$file = plugin_dir_path( __FILE__ ) . $module['archive_template'];
 			if ( file_exists( $file ) ) {
 				return $file;
 			}
@@ -1318,7 +1361,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return '<div class="cm-brand-mark"><span class="cm-brand-mark__fallback">' . esc_html( $s['site_kicker'] ) . '</span></div>';
 	}
 
-	public static function tool_data( $post_id ) {
+	public static function edge_tool_data( $post_id ) {
 		$post_id = intval( $post_id );
 		$featured_image = get_the_post_thumbnail_url( $post_id, 'large' );
 		$hero_image     = self::image_url( self::get_field( 'hero_image', $post_id ), 'large' );
@@ -1409,7 +1452,12 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$data['trust_cue']      = self::derive_trust_cue( $data );
 		$data['platform_line']  = self::derive_platform_line( $data );
 
-		return apply_filters( 'cafe_moxie_tool_data', $data, $post_id );
+		$module = self::content_module( 'edge_tool' );
+		return apply_filters( $module['data_filter'], $data, $post_id );
+	}
+
+	public static function tool_data( $post_id ) {
+		return self::edge_tool_data( $post_id );
 	}
 
 	private static function derive_execution_mode( $data ) {
@@ -1489,8 +1537,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return '<div class="cm-meta-row"><div class="cm-meta-label">' . esc_html( $label ) . '</div><div class="cm-meta-value">' . $value . '</div></div>';
 	}
 
-	public static function render_tool_card( $post_id ) {
-		$d = self::tool_data( $post_id );
+	public static function render_edge_tool_card( $post_id ) {
+		$d = self::edge_tool_data( $post_id );
 		$meta = array();
 		if ( $d['buying_model'] ) {
 			$meta[] = $d['buying_model'];
@@ -1538,13 +1586,13 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return $html;
 	}
 
+	public static function render_tool_card( $post_id ) {
+		return self::render_edge_tool_card( $post_id );
+	}
+
 	public static function archive_filters() {
-		return array(
-			'tool_type'       => 'Tool Type',
-			'workflow_area'   => 'Workflow Area',
-			'platform'        => 'Platform',
-			'execution_model' => 'Execution Model',
-		);
+		$module = self::content_module( 'edge_tool' );
+		return $module['archive_filters'];
 	}
 
 	public static function request_value( $key ) {
@@ -1555,7 +1603,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$s     = self::settings();
 		$paged = max( 1, intval( get_query_var( 'paged' ) ?: get_query_var( 'page' ) ?: 1 ) );
 		$args  = array(
-			'post_type'      => 'edge_tool',
+			'post_type'      => self::content_module( 'edge_tool' )['post_type'],
 			'post_status'    => 'publish',
 			'paged'          => $paged,
 			'posts_per_page' => intval( $s['archive_items_per_page'] ),
@@ -1627,7 +1675,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			$args['meta_query'] = $meta_query;
 		}
 
-		return new WP_Query( apply_filters( 'cafe_moxie_edge_tool_archive_query_args', $args ) );
+		$module = self::content_module( 'edge_tool' );
+		return new WP_Query( apply_filters( $module['archive_query_filter'], $args ) );
 	}
 
 	public static function archive_filter_select( $taxonomy, $label ) {
