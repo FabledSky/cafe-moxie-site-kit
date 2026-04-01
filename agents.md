@@ -1288,6 +1288,63 @@ Audit Tasks 13–20 against the actual shipped code and convert “baseline exis
   * `agents.md`
   * `docs/IMPLEMENTATION-GUIDE.md`
 
+
+#### Task 21 audit results (2026-04-01)
+
+Classification scale used:
+
+- **Structurally present**: architecture/scaffolding exists, but polish or end-to-end quality is not yet validated.
+- **Partially polished**: user-facing behavior exists and is usable, but still has notable quality or completeness gaps.
+- **Fully verified**: shipped behavior + visual QA on a clean Twenty Twenty-Five install with only this plugin has passed.
+
+| Task | Current classification | What is implemented | Material gaps still open |
+|---|---|---|---|
+| 13 (settings architecture) | **Partially polished** | Central `settings_registry()` drives defaults/sanitization/admin rendering + CSS/class output hooks. | Preset system is still metadata-heavy; no true Cafe Moxie preset map applies holistic defaults yet. |
+| 14 (admin IA) | **Partially polished** | Native tabbed IA + summary panel + separated action areas exist. | IA is functional but not yet fully polished for non-technical first-run clarity and guided setup flow. |
+| 15 (header/footer system) | **Partially polished** | Managed template-part generation/routing and marker-protected updates exist. | Generated header composition still has crowding risk (brand/nav/CTA density) and needs visual QA hardening. |
+| 16 (layout/spacing controls) | **Partially polished** | Density, width, spacing, rail and breakpoint controls are wired to CSS variables/classes. | Responsive/media behavior is broadly covered but not yet validated as production-grade across starter/composed outputs. |
+| 17 (modular composition architecture) | **Partially polished** | Shared section/template registry path is in place and Home/About route through composition rendering. | Starter/composed content quality still includes generic placeholders and limited polished page-template depth. |
+| 18 (content module architecture) | **Structurally present** | Config-driven module definitions + template resolution seams + Edge Tool defaults exist. | Edge Tool is strong, but generalized multi-module renderer ergonomics and parity QA remain unverified. |
+| 19 (plugin-first presentation control) | **Partially polished** | Setup state panel + guarded front-page write-through + core-screen links are implemented. | Setup remains distributed across tabs/actions; one-click polished setup path is not yet present. |
+| 20 (AI deterministic contract) | **Structurally present** | Plan models, registry snapshots, safe-action boundaries, and architecture docs exist. | Contract is ready as scaffolding, but intentionally unverified for real visual outcomes until future integrations and QA loops. |
+
+### Task 21 follow-up punch list (narrow PR-sized items)
+
+#### Task 21.1 — True preset defaults map
+Implement a real preset-default layer so `brand_preset` applies complete Cafe Moxie vs neutral default bundles (not just field-level defaults + participation metadata).
+
+#### Task 21.2 — Header crowding + responsive QA fix
+Refine generated header markup/layout tokens to prevent brand/nav/CTA overlap, with explicit tablet/mobile behavior validation.
+
+#### Task 21.3 — Starter pack expansion to canonical six pages
+Extend starter generation beyond Home/About to a polished six-page baseline using the shared section/template registry.
+
+#### Task 21.4 — Replace generic section placeholders
+Audit section templates and replace intentionally generic placeholder copy/blocks with brand-guide-aligned production starter content.
+
+#### Task 21.5 — Orientation-aware media frames
+Upgrade starter/composed media handling from raw image blocks to adaptive frame/layout behavior for portrait/landscape assets.
+
+#### Task 21.6 — One-click polished setup action
+Add a guarded “polished setup” action that orchestrates starter pages, front-page assignment, and managed header/footer generation in one deterministic flow.
+
+#### Task 21.7 — Content-module parity QA checklist
+Add a concrete verification checklist for module-driven archive/single rendering parity and sparse-data fallbacks before calling module architecture “advanced”.
+
+### Mandatory verification rule for future task status updates
+
+Effective immediately, no task may be marked **“baseline delivered”**, **“advanced”**, or equivalent completion language unless it has passed **visual QA on a clean WordPress install using Twenty Twenty-Five with only this plugin active**.
+
+Required minimum evidence for status updates:
+
+1. Exact environment declaration (WordPress version, theme = Twenty Twenty-Five, active plugins list).
+2. Action path used (fresh install steps + plugin actions invoked).
+3. Visual checks performed (desktop + tablet + mobile at minimum).
+4. Regression notes covering header/footer, starter/composed pages, Edge Tool archive/single, and setup panel actions.
+5. Explicit pass/fail statement; if any critical item fails, task remains “structurally present” or “partially polished,” not “delivered.”
+
+---
+
 ---
 
 ### Task 22

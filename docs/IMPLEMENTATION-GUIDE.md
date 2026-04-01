@@ -125,3 +125,15 @@ The deterministic pre-integration contract is documented in `docs/ai-architectur
 ## Visual expectation
 
 This kit is intentionally plugin-light and block-theme-native, so it will not copy Elementor’s exact authoring model. What it does give you is a cleaner, more maintainable path to a similarly polished storefront feel using native patterns, CSS tokens, SCF data, and reusable templates instead of a page-builder dependency.
+
+## Task status verification policy
+
+For task tracking in `agents.md`, architecture scaffolding alone is not considered “delivered.”
+
+A task should only be marked baseline-delivered/advanced after visual QA passes on a **clean WordPress install** with:
+
+- Twenty Twenty-Five as the active theme
+- only this plugin active (plus required SCF data import)
+- desktop, tablet, and mobile checks for header/footer, starter/composed pages, Edge Tool archive/single templates, and setup actions
+
+Until that QA pass is documented, status should remain “structurally present” or “partially polished.”
