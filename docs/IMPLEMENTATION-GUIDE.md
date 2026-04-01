@@ -145,3 +145,13 @@ Required evidence for any “baseline-delivered/advanced” status update:
 5. Explicit pass/fail statement.
 
 Until that QA pass is documented with the evidence above, status should remain “structurally present” or “partially polished.”
+
+## Content-module parity QA checklist (Task 21.7)
+
+Before marking content-module architecture as polished, verify:
+
+1. **Archive parity:** `archive-edge_tool.php` renders identical card metadata and empty-state behavior with/without filters.
+2. **Single parity:** `single-edge_tool.php` renders all registered module sections and degrades gracefully when sparse SCF fields are missing.
+3. **Starter-page parity:** generated starter pages keep composed section structure and CTA/action cluster spacing after refresh.
+4. **Managed shell parity:** generated header/footer continue to work after preset re-apply and polished setup flow.
+5. **Responsive parity:** viewport checks at 1440, 1280, 1024, 782, 640, and 390 show no overlap in nav/button/action clusters.
