@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Cafe_Moxie_Site_Kit {
 	const OPTION  = 'cafe_moxie_site_kit_settings';
 	const VERSION = '2.0.0';
+	const META_GENERATED_MARKER = '_cm_site_kit_generated';
+	const META_GENERATED_TYPE   = '_cm_site_kit_generated_type';
+	const META_GENERATED_AT     = '_cm_site_kit_generated_at';
+	const META_GENERATED_HASH   = '_cm_site_kit_generated_hash';
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
@@ -443,10 +447,14 @@ final class Cafe_Moxie_Site_Kit {
 	public static function settings_page() {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
 		$compose_action = admin_url( 'admin-post.php' );
+		$starter_summary = self::starter_generation_summary_from_request();
 		?>
 		<div class="wrap">
 			<h1>Site System Kit</h1>
 			<p>Configure layout behavior, section visibility, template defaults, and responsive output using native WordPress controls.</p>
+			<?php if ( ! empty( $starter_summary ) ) : ?>
+				<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $starter_summary ); ?></p></div>
+			<?php endif; ?>
 			<p><a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
@@ -466,7 +474,7 @@ final class Cafe_Moxie_Site_Kit {
 							'safe'      => 'Safe (create if missing)',
 							'overwrite' => 'Overwrite existing pages',
 						),
-						'Safe mode protects edited Home/About pages during refresh.'
+						'Safe mode protects edited pages. Overwrite mode creates a revision before regeneration and only updates marked starter pages.'
 					);
 					?>
 				</table>
@@ -1161,17 +1169,155 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return wp_insert_post( $data, true );
 	}
 
+	public static function starter_page_definitions() {
+		return array(
+			array(
+				'slug' => 'home',
+				'title' => 'Home',
+				'pattern' => 'home.php',
+			),
+			array(
+				'slug' => 'about',
+				'title' => 'About',
+				'pattern' => 'about.php',
+			),
+		);
+	}
+
+	private static function load_pattern_content( $pattern_file ) {
+		ob_start();
+		include plugin_dir_path( __FILE__ ) . 'patterns/' . $pattern_file;
+		return ob_get_clean();
+	}
+
+	private static function set_generated_markers( $post_id, $type, $content ) {
+		update_post_meta( $post_id, self::META_GENERATED_MARKER, 1 );
+		update_post_meta( $post_id, self::META_GENERATED_TYPE, sanitize_key( $type ) );
+		update_post_meta( $post_id, self::META_GENERATED_AT, current_time( 'mysql', true ) );
+		update_post_meta( $post_id, self::META_GENERATED_HASH, md5( (string) $content ) );
+	}
+
+	private static function is_marked_generated_page( $post_id, $expected_type = '' ) {
+		$marked = (bool) get_post_meta( $post_id, self::META_GENERATED_MARKER, true );
+		if ( ! $marked ) {
+			return false;
+		}
+		if ( '' === $expected_type ) {
+			return true;
+		}
+		return sanitize_key( $expected_type ) === sanitize_key( (string) get_post_meta( $post_id, self::META_GENERATED_TYPE, true ) );
+	}
+
+	private static function generate_or_update_page( $args ) {
+		$defaults = array(
+			'slug' => '',
+			'title' => '',
+			'content' => '',
+			'type' => 'starter',
+			'overwrite' => false,
+		);
+		$args = wp_parse_args( $args, $defaults );
+		$slug = sanitize_title( $args['slug'] );
+		$title = sanitize_text_field( $args['title'] );
+		$content = (string) $args['content'];
+		$type = sanitize_key( $args['type'] );
+		$overwrite = ! empty( $args['overwrite'] );
+
+		$existing = get_page_by_path( $slug, OBJECT, 'page' );
+		if ( ! $existing ) {
+			$post_id = self::create_or_update_page( $slug, $title, $content, true );
+			if ( ! is_wp_error( $post_id ) ) {
+				self::set_generated_markers( $post_id, $type, $content );
+			}
+			return array( 'status' => 'created', 'post_id' => $post_id );
+		}
+
+		if ( ! $overwrite ) {
+			return array( 'status' => 'skipped_existing', 'post_id' => $existing->ID );
+		}
+
+		if ( ! self::is_marked_generated_page( $existing->ID, $type ) ) {
+			return array( 'status' => 'skipped_unmanaged', 'post_id' => $existing->ID );
+		}
+
+		if ( function_exists( 'wp_save_post_revision' ) ) {
+			wp_save_post_revision( $existing->ID );
+		}
+
+		$post_id = self::create_or_update_page( $slug, $title, $content, true );
+		if ( ! is_wp_error( $post_id ) ) {
+			self::set_generated_markers( $post_id, $type, $content );
+		}
+		return array( 'status' => 'updated', 'post_id' => $post_id );
+	}
+
+	private static function starter_generation_summary_from_request() {
+		$created = isset( $_GET['starter_created'] ) ? intval( $_GET['starter_created'] ) : 0;
+		$updated = isset( $_GET['starter_updated'] ) ? intval( $_GET['starter_updated'] ) : 0;
+		$skipped_existing = isset( $_GET['starter_skipped_existing'] ) ? intval( $_GET['starter_skipped_existing'] ) : 0;
+		$skipped_unmanaged = isset( $_GET['starter_skipped_unmanaged'] ) ? intval( $_GET['starter_skipped_unmanaged'] ) : 0;
+		$errors = isset( $_GET['starter_errors'] ) ? intval( $_GET['starter_errors'] ) : 0;
+		$ran = isset( $_GET['starter_ran'] ) ? intval( $_GET['starter_ran'] ) : 0;
+
+		if ( $ran < 1 ) {
+			return '';
+		}
+
+		return sprintf(
+			'Starter page generation complete: %1$d created, %2$d updated, %3$d skipped (already exists), %4$d skipped (not generated by Site Kit), %5$d errors.',
+			$created,
+			$updated,
+			$skipped_existing,
+			$skipped_unmanaged,
+			$errors
+		);
+	}
+
 	public static function create_starter_pages() {
 		check_admin_referer( 'cafe_moxie_create_starter_pages' );
 		$s = self::settings();
 		$overwrite = ( 'overwrite' === ( $s['refresh_mode'] ?? 'safe' ) );
-		ob_start();
-		include plugin_dir_path( __FILE__ ) . 'patterns/home.php';
-		self::create_or_update_page( 'home', 'Home', ob_get_clean(), $overwrite );
-		ob_start();
-		include plugin_dir_path( __FILE__ ) . 'patterns/about.php';
-		self::create_or_update_page( 'about', 'About', ob_get_clean(), $overwrite );
-		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&created=1' ) );
+
+		$counts = array(
+			'created' => 0,
+			'updated' => 0,
+			'skipped_existing' => 0,
+			'skipped_unmanaged' => 0,
+			'errors' => 0,
+		);
+
+		foreach ( self::starter_page_definitions() as $definition ) {
+			$content = self::load_pattern_content( $definition['pattern'] );
+			$result = self::generate_or_update_page(
+				array(
+					'slug' => $definition['slug'],
+					'title' => $definition['title'],
+					'content' => $content,
+					'type' => 'starter',
+					'overwrite' => $overwrite,
+				)
+			);
+			$status = $result['status'] ?? 'errors';
+			if ( isset( $counts[ $status ] ) ) {
+				$counts[ $status ]++;
+			} else {
+				$counts['errors']++;
+			}
+		}
+
+		$redirect_url = add_query_arg(
+			array(
+				'page' => 'cafe-moxie-site-kit',
+				'starter_ran' => 1,
+				'starter_created' => $counts['created'],
+				'starter_updated' => $counts['updated'],
+				'starter_skipped_existing' => $counts['skipped_existing'],
+				'starter_skipped_unmanaged' => $counts['skipped_unmanaged'],
+				'starter_errors' => $counts['errors'],
+			),
+			admin_url( 'admin.php' )
+		);
+		wp_safe_redirect( $redirect_url );
 		exit;
 	}
 
@@ -1183,7 +1329,15 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$page_slug = sanitize_title( $_POST['page_slug'] ?? $s['composed_page_slug'] );
 		$sections = isset( $_POST['sections'] ) && is_array( $_POST['sections'] ) ? $_POST['sections'] : array();
 		$content = self::compose_page_content( $sections, array( 'template_key' => $template_key ) );
-		self::create_or_update_page( $page_slug, $page_title, $content, false );
+		self::generate_or_update_page(
+			array(
+				'slug' => $page_slug,
+				'title' => $page_title,
+				'content' => $content,
+				'type' => 'composed',
+				'overwrite' => false,
+			)
+		);
 		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&composed=1' ) );
 		exit;
 	}
