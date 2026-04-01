@@ -63,6 +63,17 @@ Use GitHub repository variables for non-secret defaults if you prefer:
 4. Set `PLUGIN_REMOTE_PATH_PRODUCTION` to the live plugin directory.
 5. Push to `main` to deploy live.
 
+## Presentation setup console (plugin admin)
+- Use **Site System Kit → Overview + Setup** as the default presentation-control console.
+- The **Presentation setup state** panel reports readiness for:
+  - front page assignment
+  - starter page presence (Home/About)
+  - managed header/footer availability
+  - primary navigation assignment
+  - logo/media readiness
+  - Edge Tool archive/storefront readiness
+- Where WordPress owns canonical values, the panel links directly to core screens (Reading settings, menus, Site Editor, Customizer) instead of creating duplicate plugin-only state.
+
 ## Packaging a manual ZIP
 Run:
 ```bash

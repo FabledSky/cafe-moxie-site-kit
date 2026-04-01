@@ -1129,6 +1129,10 @@ Make the plugin the main presentation-control layer for the site so common visua
   * `README.md`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline advanced: the plugin Overview + Setup tab now includes a presentation setup state panel that reports front-page assignment, starter page presence, managed header/footer readiness, navigation assignment, logo/media readiness, and Edge Tool archive/storefront readiness. The panel includes guarded write-through front-page assignment for WordPress core options and links directly to the relevant core admin screens instead of duplicating core-owned state.
+
 ---
 
 ### Task 20

@@ -29,6 +29,7 @@ final class Cafe_Moxie_Site_Kit {
 		add_action( 'admin_post_cafe_moxie_create_starter_pages', array( __CLASS__, 'create_starter_pages' ) );
 		add_action( 'admin_post_cafe_moxie_generate_composed_page', array( __CLASS__, 'generate_composed_page' ) );
 		add_action( 'admin_post_cafe_moxie_generate_template_parts', array( __CLASS__, 'generate_template_parts' ) );
+		add_action( 'admin_post_cafe_moxie_assign_front_page', array( __CLASS__, 'assign_front_page' ) );
 		add_filter( 'render_block_data', array( __CLASS__, 'filter_template_part_blocks' ), 10, 2 );
 
 		if ( false === get_option( self::OPTION ) ) {
@@ -565,11 +566,120 @@ final class Cafe_Moxie_Site_Kit {
 		echo '</tbody></table>';
 	}
 
+	private static function setup_notice_from_request() {
+		if ( empty( $_GET['cm_setup_notice'] ) ) {
+			return '';
+		}
+		return sanitize_text_field( wp_unslash( $_GET['cm_setup_notice'] ) );
+	}
+
+	private static function presentation_state_rows() {
+		$s = self::settings();
+		$front_page_id = (int) get_option( 'page_on_front' );
+		$show_on_front = get_option( 'show_on_front' );
+		$home_page = get_page_by_path( 'home' );
+		$about_page = get_page_by_path( 'about' );
+		$nav_locations = get_nav_menu_locations();
+		$primary_menu_id = (int) ( $nav_locations['primary'] ?? 0 );
+		$has_logo = has_custom_logo() || ! empty( $s['display_logo_image'] );
+		$header_part = self::find_template_part( 'cm-site-kit-header' );
+		$footer_part = self::find_template_part( 'cm-site-kit-footer' );
+		$module = self::content_modules()['edge_tool'] ?? array();
+		$archive_query = new WP_Query(
+			array(
+				'post_type' => sanitize_key( $module['post_type'] ?? 'edge_tool' ),
+				'post_status' => 'publish',
+				'posts_per_page' => 1,
+				'fields' => 'ids',
+				'no_found_rows' => true,
+			)
+		);
+		$storefront_ready = $archive_query->have_posts();
+		wp_reset_postdata();
+		$assign_home_url = $home_page ? wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_assign_front_page&page_id=' . intval( $home_page->ID ) ), 'cafe_moxie_assign_front_page' ) : '';
+		$rows = array(
+			array(
+				'label' => 'Front page assignment',
+				'status' => ( 'page' === $show_on_front && $front_page_id > 0 ) ? 'Ready' : 'Needs attention',
+				'detail' => ( 'page' === $show_on_front && $front_page_id > 0 ) ? sprintf( 'Static front page set to: %s.', get_the_title( $front_page_id ) ) : 'Site is not configured to use a static front page.',
+				'actions' => array_filter(
+					array(
+						$assign_home_url ? '<a class="button button-small" href="' . esc_url( $assign_home_url ) . '">Assign Home as front page</a>' : '',
+						'<a class="button-link" href="' . esc_url( admin_url( 'options-reading.php' ) ) . '">Open Reading settings</a>',
+					)
+				),
+			),
+			array(
+				'label' => 'Key starter pages',
+				'status' => ( $home_page && $about_page ) ? 'Ready' : 'Needs attention',
+				'detail' => ( $home_page && $about_page ) ? 'Home and About pages are available.' : 'Missing one or more starter pages (Home/About).',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit#generation-actions' ) ) . '">Run starter page generation</a>',
+					'<a class="button-link" href="' . esc_url( admin_url( 'edit.php?post_type=page' ) ) . '">Open Pages list</a>',
+				),
+			),
+			array(
+				'label' => 'Header/footer assignment',
+				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && $header_part && $footer_part ) ? 'Ready' : 'Needs attention',
+				'detail' => ( ! empty( $s['enable_managed_header_footer'] ) && $header_part && $footer_part ) ? 'Managed header/footer is enabled and generated template parts exist.' : 'Managed header/footer is disabled or generated parts are missing.',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit&tab=header_footer' ) ) . '">Open Header + Footer tab</a>',
+					'<a class="button-link" href="' . esc_url( admin_url( 'site-editor.php?path=%2Fwp_template_part%2Fall' ) ) . '">Open Site Editor template parts</a>',
+				),
+			),
+			array(
+				'label' => 'Navigation readiness',
+				'status' => $primary_menu_id > 0 ? 'Ready' : 'Needs attention',
+				'detail' => $primary_menu_id > 0 ? 'Primary navigation location has an assigned menu.' : 'Primary navigation location is not assigned yet.',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'nav-menus.php' ) ) . '">Open Navigation menus</a>',
+				),
+			),
+			array(
+				'label' => 'Logo/media readiness',
+				'status' => $has_logo ? 'Ready' : 'Needs attention',
+				'detail' => $has_logo ? 'Brand logo configured via custom logo or plugin logo URL.' : 'No logo configured yet for header branding.',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit&tab=header_footer' ) ) . '">Open brand image controls</a>',
+					'<a class="button-link" href="' . esc_url( admin_url( 'customize.php?autofocus%5Bcontrol%5D=custom_logo' ) ) . '">Open Customizer logo control</a>',
+				),
+			),
+			array(
+				'label' => 'Archive/storefront readiness',
+				'status' => $storefront_ready ? 'Ready' : 'Needs attention',
+				'detail' => $storefront_ready ? 'Edge Tool content exists for storefront/archive rendering.' : 'No published Edge Tool entries found for archive storefront views.',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'edit.php?post_type=edge_tool' ) ) . '">Open Edge Tools</a>',
+				),
+			),
+		);
+		return $rows;
+	}
+
+	private static function render_presentation_state_panel() {
+		$notice = self::setup_notice_from_request();
+		if ( ! empty( $notice ) ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $notice ) . '</p></div>';
+		}
+		echo '<h2>Presentation setup state</h2>';
+		echo '<p class="description">Use this panel as the primary control console for routine presentation setup. It reports live state and links directly to core screens when needed.</p>';
+		echo '<table class="widefat striped" style="max-width:1100px"><thead><tr><th style="width:220px">Area</th><th style="width:140px">Status</th><th>Details + actions</th></tr></thead><tbody>';
+		foreach ( self::presentation_state_rows() as $row ) {
+			$status_class = 'Ready' === $row['status'] ? 'cm-state-ready' : 'cm-state-needs-attention';
+			echo '<tr><th>' . esc_html( $row['label'] ) . '</th><td><strong class="' . esc_attr( $status_class ) . '">' . esc_html( $row['status'] ) . '</strong></td><td><p>' . esc_html( $row['detail'] ) . '</p>';
+			if ( ! empty( $row['actions'] ) ) {
+				echo '<div style="display:flex;flex-wrap:wrap;gap:10px;">' . implode( '', $row['actions'] ) . '</div>';
+			}
+			echo '</td></tr>';
+		}
+		echo '</tbody></table>';
+	}
+
 	private static function render_generation_actions() {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
 		$compose_action = admin_url( 'admin-post.php' );
 		?>
-		<hr />
+		<hr id="generation-actions" />
 		<h2>Generation + Assignment Actions</h2>
 		<p>These actions create or refresh content. They are separate from normal settings save actions.</p>
 		<p><a class="button button-secondary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
@@ -674,6 +784,7 @@ final class Cafe_Moxie_Site_Kit {
 			</h2>
 			<p class="description" style="margin:12px 0 18px;"><?php echo esc_html( $tabs[ $current_tab ]['description'] ); ?></p>
 			<?php if ( 'overview' === $current_tab ) : ?>
+				<?php self::render_presentation_state_panel(); ?>
 				<?php self::render_status_summary(); ?>
 				<?php self::render_generation_actions(); ?>
 				<?php return; ?>
@@ -1639,6 +1750,51 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			admin_url( 'admin.php' )
 		);
 		wp_safe_redirect( $redirect_url );
+		exit;
+	}
+
+	public static function assign_front_page() {
+		check_admin_referer( 'cafe_moxie_assign_front_page' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to manage presentation settings.', 'cafe-moxie-site-kit' ) );
+		}
+		$page_id = isset( $_GET['page_id'] ) ? intval( $_GET['page_id'] ) : 0;
+		if ( $page_id < 1 ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'page' => 'cafe-moxie-site-kit',
+						'cm_setup_notice' => 'Could not assign front page: missing page ID.',
+					),
+					admin_url( 'admin.php' )
+				)
+			);
+			exit;
+		}
+		$page = get_post( $page_id );
+		if ( ! $page || 'page' !== $page->post_type ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'page' => 'cafe-moxie-site-kit',
+						'cm_setup_notice' => 'Could not assign front page: selected content is not a page.',
+					),
+					admin_url( 'admin.php' )
+				)
+			);
+			exit;
+		}
+		update_option( 'show_on_front', 'page' );
+		update_option( 'page_on_front', $page_id );
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page' => 'cafe-moxie-site-kit',
+					'cm_setup_notice' => sprintf( 'Front page assigned to %s.', get_the_title( $page_id ) ),
+				),
+				admin_url( 'admin.php' )
+			)
+		);
 		exit;
 	}
 
