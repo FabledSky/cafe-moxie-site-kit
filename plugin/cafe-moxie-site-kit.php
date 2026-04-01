@@ -78,10 +78,18 @@ final class Cafe_Moxie_Site_Kit {
 			'about_primary_url'    => '/edge-tools/',
 
 			'layout_behavior'      => 'balanced',
+			'home_hero_layout'     => 'balanced_two_column',
+			'home_story_layout'    => 'media_right_split',
+			'home_trust_layout'    => 'balanced_two_column',
+			'home_featured_layout' => 'stacked_on_tablet',
+			'about_intro_layout'   => 'media_right_split',
+			'about_calibrate_layout' => 'balanced_two_column',
 			'page_section_density' => 'comfortable',
 			'template_surface'     => 'panel',
 			'card_grid_density'    => 'comfortable',
 			'mobile_layout_mode'   => 'stacked',
+			'content_max_width'    => 760,
+			'content_band_max_width' => 1120,
 			'archive_columns'      => 3,
 			'tablet_columns'       => 2,
 			'mobile_heading_scale' => 1.0,
@@ -210,6 +218,12 @@ final class Cafe_Moxie_Site_Kit {
 		$out['about_primary_url']  = self::sanitize_url_or_path( $input['about_primary_url'] ?? $d['about_primary_url'] );
 		$choices = array(
 			'layout_behavior'      => array( 'balanced', 'single_column', 'showcase_split' ),
+			'home_hero_layout'     => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
+			'home_story_layout'    => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
+			'home_trust_layout'    => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
+			'home_featured_layout' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
+			'about_intro_layout'   => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
+			'about_calibrate_layout' => array( 'single_column', 'balanced_two_column', 'media_left_split', 'media_right_split', 'stacked_on_tablet', 'full_width_band' ),
 			'page_section_density' => array( 'compact', 'comfortable', 'airy' ),
 			'template_surface'     => array( 'panel', 'soft', 'flat' ),
 			'card_grid_density'    => array( 'compact', 'comfortable', 'airy' ),
@@ -220,6 +234,8 @@ final class Cafe_Moxie_Site_Kit {
 			$value = sanitize_key( $input[ $key ] ?? $d[ $key ] );
 			$out[ $key ] = in_array( $value, $allowed, true ) ? $value : $d[ $key ];
 		}
+		$out['content_max_width']      = max( 540, min( 980, intval( $input['content_max_width'] ?? $d['content_max_width'] ) ) );
+		$out['content_band_max_width'] = max( 860, min( 1600, intval( $input['content_band_max_width'] ?? $d['content_band_max_width'] ) ) );
 
 		return $out;
 	}
@@ -295,6 +311,33 @@ final class Cafe_Moxie_Site_Kit {
 		echo '</td></tr>';
 	}
 
+	public static function layout_mode_choices() {
+		return array(
+			'single_column'      => 'Single column',
+			'balanced_two_column'=> 'Balanced two-column',
+			'media_left_split'   => 'Media left / text right',
+			'media_right_split'  => 'Text left / media right',
+			'stacked_on_tablet'  => 'Stacked on tablet',
+			'full_width_band'    => 'Full-width content band',
+		);
+	}
+
+	public static function section_layout_classes( $setting_key, $fallback = 'balanced_two_column', $extra = '' ) {
+		$s = self::settings();
+		$mode = sanitize_key( $s[ $setting_key ] ?? $fallback );
+		$map = array(
+			'single_column'       => 'cm-layout--single-column',
+			'balanced_two_column' => 'cm-layout--balanced-two-column',
+			'media_left_split'    => 'cm-layout--media-left-split',
+			'media_right_split'   => 'cm-layout--media-right-split',
+			'stacked_on_tablet'   => 'cm-layout--balanced-two-column cm-layout--stacked-on-tablet',
+			'full_width_band'     => 'cm-layout--single-column cm-layout--full-width-content-band',
+		);
+		$mode_classes = $map[ $mode ] ?? $map[ $fallback ];
+		$classes = trim( 'cm-layout cm-section ' . $mode_classes . ' ' . $extra );
+		return preg_replace( '/\s+/', ' ', $classes );
+	}
+
 	public static function settings_page() {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
 		?>
@@ -336,6 +379,42 @@ final class Cafe_Moxie_Site_Kit {
 							'showcase_split'=> 'Showcase split',
 						),
 						'Controls how the 2-column layout classes render across pages.'
+					);
+					self::select_row(
+						'home_hero_layout',
+						'Home hero layout mode',
+						self::layout_mode_choices(),
+						'Choose how the hero section balances long text and media.'
+					);
+					self::select_row(
+						'home_story_layout',
+						'Home story layout mode',
+						self::layout_mode_choices(),
+						'Set the default split for the Home story section.'
+					);
+					self::select_row(
+						'home_trust_layout',
+						'Home trust layout mode',
+						self::layout_mode_choices(),
+						'Set layout mode for the Home trust section.'
+					);
+					self::select_row(
+						'home_featured_layout',
+						'Home featured layout mode',
+						self::layout_mode_choices(),
+						'Set layout mode for the Home featured tools section.'
+					);
+					self::select_row(
+						'about_intro_layout',
+						'About intro layout mode',
+						self::layout_mode_choices(),
+						'Set layout mode for About intro copy/media.'
+					);
+					self::select_row(
+						'about_calibrate_layout',
+						'About calibration layout mode',
+						self::layout_mode_choices(),
+						'Set layout mode for About list sections.'
 					);
 					self::select_row(
 						'template_surface',
@@ -402,6 +481,8 @@ final class Cafe_Moxie_Site_Kit {
 					self::text_row( 'logo_width', 'Brand mark width (px)', 'number' );
 					self::text_row( 'header_height', 'Header minimum height (px)', 'number' );
 					self::text_row( 'section_max_width', 'Section max width (px)', 'number' );
+					self::text_row( 'content_band_max_width', 'Full-width band max width (px)', 'number', 'Used by full-width content bands to avoid edge-to-edge crowding.' );
+					self::text_row( 'content_max_width', 'Long-form content max width (px)', 'number', 'Limits paragraph line length to improve readability.' );
 					self::text_row( 'hero_min_height', 'Hero min height (px)', 'number' );
 					self::text_row( 'card_image_ratio', 'Card image ratio', 'text', 'Example 16:10 or 4:3' );
 					self::text_row( 'glow_intensity', 'Glow intensity', 'number' );
@@ -537,6 +618,8 @@ final class Cafe_Moxie_Site_Kit {
 --moxie-logo-width:{$s['logo_width']}px;
 --moxie-header-height:{$s['header_height']}px;
 --moxie-wrap:min({$s['section_max_width']}px,calc(100% - 32px));
+--moxie-band-wrap:min({$s['content_band_max_width']}px,calc(100% - 24px));
+--moxie-content-max:{$s['content_max_width']}px;
 --moxie-radius:{$s['border_radius']}px;
 --moxie-card-ratio:{$ratio};
 --moxie-section-gap:{$section_gap};
@@ -587,6 +670,14 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-grid-2{display:grid;grid-template-columns:1.1fr .9fr;gap:var(--moxie-card-gap)}
 .cm-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--moxie-card-gap)}
 .cm-grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--moxie-card-gap)}
+.cm-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--moxie-card-gap)}
+.cm-layout--single-column{grid-template-columns:minmax(0,1fr)}
+.cm-layout--balanced-two-column{grid-template-columns:repeat(2,minmax(0,1fr))}
+.cm-layout--media-left-split{grid-template-columns:.95fr 1.05fr}
+.cm-layout--media-right-split{grid-template-columns:1.05fr .95fr}
+.cm-layout--full-width-content-band{width:var(--moxie-band-wrap);margin-inline:auto}
+.cm-layout--full-width-content-band > *{max-width:var(--moxie-content-max)}
+.cm-copy-prose p,.cm-copy-prose li{max-width:var(--moxie-content-max)}
 .cm-hero{min-height:{$s['hero_min_height']}px;align-items:stretch}
 .cm-placeholder{min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:28px;border:1px dashed rgba(53,214,255,.28);border-radius:18px;background:rgba(53,214,255,.04)}
 .cm-kv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -643,7 +734,7 @@ body.cm-surface-flat .cm-panel,body.cm-surface-flat .cm-card{background:rgba(14,
 body.cm-layout-single_column .cm-grid-2{grid-template-columns:1fr}
 body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 @media (max-width:1160px){.cm-filter-bar{grid-template-columns:1fr 1fr 1fr}.cm-grid-4,.cm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-archive-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:920px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}}
+@media (max-width:920px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--stacked-on-tablet{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}}
 @media (max-width:640px){body.cm-moxie-site h1{font-size:calc(46px * var(--moxie-mobile-heading-scale))}body.cm-moxie-site h2{font-size:calc(42px * var(--moxie-mobile-heading-scale))}body.cm-moxie-site h3{font-size:calc(38px * var(--moxie-mobile-heading-scale))}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:280px}}
 @media (max-width:640px){body.cm-mobile-balanced .cm-panel,body.cm-mobile-balanced .cm-card{padding:calc(var(--moxie-card-pad) - 4px)}}
 ";
