@@ -2,14 +2,16 @@
 $s = Cafe_Moxie_Site_Kit::settings();
 $story = Cafe_Moxie_Site_Kit::resolve_url( $s['about_story_image'] );
 $brand = Cafe_Moxie_Site_Kit::brand_profile();
+$intro_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'about_intro_layout', 'media_right_split' );
+$calibrate_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'about_calibrate_layout', 'balanced_two_column' );
 ?>
 <!-- wp:group {"className":"cm-wrap","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-wrap">
 
-<!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
-<div class="wp-block-group cm-grid-2 cm-section">
+<!-- wp:group {"className":"<?php echo esc_attr( $intro_layout ); ?>","layout":{"type":"default"}} -->
+<div class="wp-block-group <?php echo esc_attr( $intro_layout ); ?>">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <?php echo Cafe_Moxie_Site_Kit::render_brand_mark(); ?>
 <!-- wp:paragraph --><p class="cm-eyebrow">About <?php echo esc_html( $brand['name'] ); ?></p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">A worker refuge with sharper tools.</h1><!-- /wp:heading -->
@@ -40,8 +42,8 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 <?php endif; ?>
 
 <?php if ( ! empty( $s['show_about_calibrate'] ) ) : ?>
-<!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
-<div class="wp-block-group cm-grid-2 cm-section">
+<!-- wp:group {"className":"<?php echo esc_attr( $calibrate_layout ); ?>","layout":{"type":"default"}} -->
+<div class="wp-block-group <?php echo esc_attr( $calibrate_layout ); ?>">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-panel">
 <!-- wp:paragraph --><p class="cm-eyebrow">What This Brand Is Not</p><!-- /wp:paragraph -->

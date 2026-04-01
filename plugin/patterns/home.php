@@ -3,15 +3,19 @@ $s = Cafe_Moxie_Site_Kit::settings();
 $hero  = Cafe_Moxie_Site_Kit::resolve_url( $s['home_hero_image'] );
 $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
 $brand = Cafe_Moxie_Site_Kit::brand_profile();
+$hero_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'home_hero_layout', 'balanced_two_column', 'cm-hero' );
+$story_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'home_story_layout', 'media_right_split' );
+$trust_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'home_trust_layout', 'balanced_two_column' );
+$featured_layout = Cafe_Moxie_Site_Kit::section_layout_classes( 'home_featured_layout', 'stacked_on_tablet' );
 ?>
 <!-- wp:group {"className":"cm-wrap","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-wrap">
 
-<!-- wp:group {"className":"cm-grid-2 cm-hero cm-section","layout":{"type":"default"}} -->
-<div class="wp-block-group cm-grid-2 cm-hero cm-section">
+<!-- wp:group {"className":"<?php echo esc_attr( $hero_layout ); ?>","layout":{"type":"default"}} -->
+<div class="wp-block-group <?php echo esc_attr( $hero_layout ); ?>">
 
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <?php echo Cafe_Moxie_Site_Kit::render_brand_mark(); ?>
 <!-- wp:paragraph --><p class="cm-badge">Tools for people who actually do the work.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">Tools for people who actually do the work.</h1><!-- /wp:heading -->
@@ -39,9 +43,9 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 
 <?php if ( ! empty( $s['show_home_story'] ) ) : ?>
 <!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
-<div class="wp-block-group cm-grid-2 cm-section">
+<div class="wp-block-group <?php echo esc_attr( $story_layout ); ?>">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <!-- wp:paragraph --><p class="cm-eyebrow">What This System Is</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">A counter, not a corporation.</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">This site system showcases small, practical software tools for people whose jobs happen on computers.</p><!-- /wp:paragraph -->
@@ -71,17 +75,17 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 
 <?php if ( ! empty( $s['show_home_trust'] ) ) : ?>
 <?php if ( ! empty( $s['show_home_featured'] ) ) : ?>
-<!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
-<div class="wp-block-group cm-grid-2 cm-section">
+<!-- wp:group {"className":"<?php echo esc_attr( $trust_layout ); ?>","layout":{"type":"default"}} -->
+<div class="wp-block-group <?php echo esc_attr( $trust_layout ); ?>">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <!-- wp:paragraph --><p class="cm-eyebrow">Built for the People Who Keep Everything Running</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">For the person everyone asks for help.</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Designed for operations people, assistants, researchers, analysts, editors, coordinators, and digital workers who spend their days inside files, emails, forms, folders, spreadsheets, and documents.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">If your job includes repetitive computer work, messy inputs, manual cleanup, or digital admin labor, and you have built real instincts about how to handle it, this shop is for you.</p><!-- /wp:paragraph -->
 </div><!-- /wp:group -->
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <!-- wp:paragraph --><p class="cm-eyebrow">Workers Should Own the Leverage</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">AI is happening. Workers should own the leverage.</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">AI is not going away. That does not mean workers should become dependent on bloated platforms or wait for enterprise software to decide how their jobs should function.</p><!-- /wp:paragraph -->
@@ -90,15 +94,15 @@ $brand = Cafe_Moxie_Site_Kit::brand_profile();
 </div>
 <!-- /wp:group -->
 
-<!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} -->
-<div class="wp-block-group cm-grid-2 cm-section">
+<!-- wp:group {"className":"<?php echo esc_attr( $featured_layout ); ?>","layout":{"type":"default"}} -->
+<div class="wp-block-group <?php echo esc_attr( $featured_layout ); ?>">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <!-- wp:paragraph --><p class="cm-eyebrow">What We Won't Do</p><!-- /wp:paragraph -->
 <!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>We won't harvest your documents to train models.</li><li>We won't gate basic functionality behind a subscription.</li><li>We won't pretend AI replaces your judgment.</li><li>Every product page tells you what still needs a human eye.</li><li>If a tool is not right for your task, we will say so.</li></ul><!-- /wp:list -->
 </div><!-- /wp:group -->
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
-<div class="wp-block-group cm-panel">
+<div class="wp-block-group cm-panel cm-copy-prose">
 <!-- wp:paragraph --><p class="cm-eyebrow">Product Counter</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Featured tools below read directly from your <strong>Edge Tools</strong> custom post type and the Secure Custom Fields schema powering it.</p><!-- /wp:paragraph -->
 <!-- wp:shortcode -->[cafe_moxie_featured_edge_tools count="<?php echo esc_attr( $s['featured_tools_count'] ); ?>"]<!-- /wp:shortcode -->
