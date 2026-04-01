@@ -935,6 +935,10 @@ Status note (2026-04-01 baseline):
   * `docs/IMPLEMENTATION-GUIDE.md`
   * `agents.md`
 
+#### Status update (2026-04-01)
+
+Baseline delivered: plugin-managed header/footer controls now exist in the Site Kit settings UI, managed template parts can be generated/refreshed through a dedicated action, generated header/footer parts are marker-protected to avoid overwriting unmanaged user parts, and core `header`/`footer` template-part block rendering can be routed to managed parts when the feature is enabled.
+
 ---
 
 ### Task 16

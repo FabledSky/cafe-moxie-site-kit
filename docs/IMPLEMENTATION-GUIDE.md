@@ -57,6 +57,13 @@ The public template intentionally excludes the Internal Ops Metadata group from 
 - about CTA
 - footer line
 
+### Header and footer architecture
+- enable or disable plugin-managed header/footer routing
+- choose a managed header/footer preset
+- configure brand treatment, navigation source, and header CTA
+- configure footer content areas, utility copy, and legal/meta behavior
+- generate or refresh managed `wp_template_part` header/footer assets with marker-safe updates
+
 ### Color tokens
 All primary brand tokens from the guide are exposed as overrideable settings.
 
