@@ -2,6 +2,7 @@
 $s = Cafe_Moxie_Site_Kit::settings();
 $hero  = Cafe_Moxie_Site_Kit::resolve_url( $s['home_hero_image'] );
 $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
+$brand = Cafe_Moxie_Site_Kit::brand_profile();
 ?>
 <!-- wp:group {"className":"cm-wrap","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-wrap">
@@ -14,7 +15,7 @@ $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
 <?php echo Cafe_Moxie_Site_Kit::render_brand_mark(); ?>
 <!-- wp:paragraph --><p class="cm-badge">Tools for people who actually do the work.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">Tools for people who actually do the work.</h1><!-- /wp:heading -->
-<!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Cafe Moxie is Fabled Sky's worker-first software shop: focused desktop tools and compute-backed utilities for the repetitive, annoying, real-world tasks that fill modern work.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle"><?php echo esc_html( $brand['name'] ); ?> is a worker-first software shop: focused desktop tools and compute-backed utilities for repetitive, real-world digital tasks.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">No bloated platforms. No forced subscriptions. Just useful leverage.</p><!-- /wp:paragraph -->
 <!-- wp:html --><div class="cm-chip-list"><span class="cm-chip">Worker-first</span><span class="cm-chip">Buy once</span><span class="cm-chip">Pay per task</span><span class="cm-chip">No platform bloat</span></div><!-- /wp:html -->
 <!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="<?php echo esc_url( Cafe_Moxie_Site_Kit::resolve_url( $s['home_primary_url'] ) ); ?>"><?php echo esc_html( $s['home_primary_cta'] ); ?></a></div><!-- /wp:button --><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button cm-button--secondary" href="<?php echo esc_url( Cafe_Moxie_Site_Kit::resolve_url( $s['home_secondary_url'] ) ); ?>"><?php echo esc_html( $s['home_secondary_cta'] ); ?></a></div><!-- /wp:button --></div><!-- /wp:buttons -->
@@ -25,9 +26,9 @@ $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-panel">
 <?php if ( $hero ) : ?>
-<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $hero ); ?>" alt="Cafe Moxie hero image" /></figure><!-- /wp:image -->
+<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $hero ); ?>" alt="<?php echo esc_attr( $brand['name'] ); ?> hero image" /></figure><!-- /wp:image -->
 <?php else : ?>
-<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title" style="font-size:50px;">Hero image slot</h2><p class="cm-subtle">Paste a Media Library image URL into Cafe Moxie → Brand Media.</p></div><!-- /wp:html -->
+<!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title" style="font-size:50px;">Hero image slot</h2><p class="cm-subtle">Paste a Media Library image URL into Site System Kit → Brand Media.</p></div><!-- /wp:html -->
 <?php endif; ?>
 <!-- wp:html --><div class="cm-stat-band"><div class="cm-stat"><div class="cm-stat__label">Buy Once</div><div class="cm-stat__value">Own the tool when you want ownership.</div></div><div class="cm-stat"><div class="cm-stat__label">Pay Per Task</div><div class="cm-stat__value">Use compute when setup is not worth it.</div></div><div class="cm-stat"><div class="cm-stat__label">Hybrid</div><div class="cm-stat__value">Keep the local edge. Rent the heavy lift.</div></div><div class="cm-stat"><div class="cm-stat__label">Built For</div><div class="cm-stat__value">Operations, admin, research, writing, cleanup.</div></div></div><!-- /wp:html -->
 </div>
@@ -40,9 +41,9 @@ $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
 <div class="wp-block-group cm-grid-2 cm-section">
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-panel">
-<!-- wp:paragraph --><p class="cm-eyebrow">What Cafe Moxie Is</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p class="cm-eyebrow">What This System Is</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">A counter, not a corporation.</h2><!-- /wp:heading -->
-<!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Cafe Moxie sells small, practical software tools for people whose jobs happen on computers.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">This site system showcases small, practical software tools for people whose jobs happen on computers.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">That includes document cleanup, file conversion, extraction, formatting, packaging, writing support, image fixes, repetitive admin tasks, and all the tiny digital chores that somehow take half the day.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Some tools run on your machine. Some tasks run on compute. Either way, the point is the same: help you move faster without handing over control.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">We do not sell a platform. We sell tools, one at a time, each one useful on its own.</p><!-- /wp:paragraph -->
@@ -50,7 +51,7 @@ $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->
 <div class="wp-block-group cm-panel">
 <?php if ( $story ) : ?>
-<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $story ); ?>" alt="Cafe Moxie story image" /></figure><!-- /wp:image -->
+<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="<?php echo esc_url( $story ); ?>" alt="<?php echo esc_attr( $brand['name'] ); ?> story image" /></figure><!-- /wp:image -->
 <?php else : ?>
 <!-- wp:html --><div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add story image</span><h2 class="cm-sign-title" style="font-size:50px;">Story image slot</h2><p class="cm-subtle">Use this for a marquee sign, workshop scene, counter photo, or branded storefront art.</p></div><!-- /wp:html -->
 <?php endif; ?>
@@ -72,7 +73,7 @@ $story = Cafe_Moxie_Site_Kit::resolve_url( $s['home_story_image'] );
 <div class="wp-block-group cm-panel">
 <!-- wp:paragraph --><p class="cm-eyebrow">Built for the People Who Keep Everything Running</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">For the person everyone asks for help.</h2><!-- /wp:heading -->
-<!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Cafe Moxie is for operations people, assistants, researchers, analysts, editors, coordinators, and digital workers of all kinds who spend their days inside files, emails, forms, folders, spreadsheets, and documents.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Designed for operations people, assistants, researchers, analysts, editors, coordinators, and digital workers who spend their days inside files, emails, forms, folders, spreadsheets, and documents.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">If your job includes repetitive computer work, messy inputs, manual cleanup, or digital admin labor, and you have built real instincts about how to handle it, this shop is for you.</p><!-- /wp:paragraph -->
 </div><!-- /wp:group -->
 <!-- wp:group {"className":"cm-panel","layout":{"type":"constrained"}} -->

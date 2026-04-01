@@ -210,8 +210,7 @@ trim(array) → fatal error
 
 #### Branches
 
-* main → staging
-* production → live
+* main → live
 
 #### Deployment
 
@@ -221,7 +220,7 @@ trim(array) → fatal error
 
 * Never edit production directly
 * All changes via PR
-* Always test on staging
+* Always test on a live-safe verification checklist before and after deploy
 
 
 

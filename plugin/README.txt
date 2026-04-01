@@ -1,4 +1,4 @@
-Cafe Moxie Site Kit v2.0.0
+Site System Kit (Cafe Moxie preset) v2.0.0
 
 Use with:
 - Twenty Twenty-Five active
@@ -6,7 +6,7 @@ Use with:
 - Edge Tool post type and taxonomies imported from your SCF JSON export
 
 What this version does
-- Applies the Cafe Moxie brand system with color token overrides, layout controls, motion toggles, and optional Google Font loading
+- Applies a reusable site-system brand layer with Cafe Moxie as the default preset with color token overrides, layout controls, motion toggles, and optional Google Font loading
 - Uses the brand guide copy structure for starter Home and About pages
 - Creates editable starter pages without locking you out of the block editor
 - Renders Featured Tools on the homepage from the Edge Tool custom post type
@@ -18,7 +18,7 @@ Install
 1. Activate Twenty Twenty-Five.
 2. Import your Secure Custom Fields JSON so Edge Tool, taxonomies, and field groups are registered.
 3. Upload and activate this plugin ZIP.
-4. Go to Cafe Moxie in wp-admin.
+4. Go to Site System Kit in wp-admin.
 5. Set brand media, CTA destinations, and any design token overrides.
 6. Click Create / Refresh Starter Pages.
 7. Set Home as the homepage in Settings > Reading if needed.

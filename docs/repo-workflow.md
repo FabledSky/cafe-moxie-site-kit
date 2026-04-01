@@ -5,9 +5,7 @@
 2. Ask Codex to work against that branch / PR
 3. Review code in GitHub
 4. Merge to `main`
-5. Validate on staging
-6. Merge to `production`
-7. Validate on live
+5. Validate on live
 
 ## Good PR sizes
 Prefer focused PRs:

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Cafe Moxie Site Kit
- * Description: Enterprise-ready brand and storefront kit for Twenty Twenty-Five with Cafe Moxie design tokens, reusable patterns, and Secure Custom Fields powered Edge Tool templates.
+ * Description: Reusable site system kit for Twenty Twenty-Five with brand presets, editable patterns, and Secure Custom Fields powered Edge Tool templates.
  * Version: 2.0.0
  * Author: Fabled Sky Research
  */
@@ -66,6 +66,7 @@ final class Cafe_Moxie_Site_Kit {
 			'home_story_image'   => '',
 			'about_story_image'  => '',
 
+			'brand_preset'         => 'cafe_moxie',
 			'site_kicker'          => 'Cafe Moxie',
 			'footer_copy'          => 'Tools for people who actually do the work.',
 			'home_primary_cta'     => 'Browse the Counter',
@@ -81,10 +82,32 @@ final class Cafe_Moxie_Site_Kit {
 		return wp_parse_args( get_option( self::OPTION, array() ), self::defaults() );
 	}
 
+	public static function brand_presets() {
+		return array(
+			'cafe_moxie' => array(
+				'label' => 'Cafe Moxie',
+				'archive_intro' => "Cafe Moxie is Fabled Sky's worker-first software counter for local tools and compute-backed utilities built for real digital work.",
+			),
+			'neutral' => array(
+				'label' => 'Generic Site System',
+				'archive_intro' => 'This catalog highlights practical tools and utilities with clear execution, compatibility, and trust details.',
+			),
+		);
+	}
+
+	public static function brand_profile() {
+		$s = self::settings();
+		$presets = self::brand_presets();
+		$key = $s['brand_preset'] ?? 'cafe_moxie';
+		$profile = $presets[ $key ] ?? $presets['cafe_moxie'];
+		$profile['name'] = ! empty( $s['site_kicker'] ) ? $s['site_kicker'] : $profile['label'];
+		return $profile;
+	}
+
 	public static function admin_menu() {
 		add_menu_page(
-			'Cafe Moxie',
-			'Cafe Moxie',
+			'Site System Kit',
+			'Site System Kit',
 			'manage_options',
 			'cafe-moxie-site-kit',
 			array( __CLASS__, 'settings_page' ),
@@ -147,6 +170,10 @@ final class Cafe_Moxie_Site_Kit {
 		$out['home_story_image']   = self::sanitize_url_or_path( $input['home_story_image'] ?? '' );
 		$out['about_story_image']  = self::sanitize_url_or_path( $input['about_story_image'] ?? '' );
 
+		$out['brand_preset']       = sanitize_key( $input['brand_preset'] ?? $d['brand_preset'] );
+		if ( ! isset( self::brand_presets()[ $out['brand_preset'] ] ) ) {
+			$out['brand_preset'] = 'cafe_moxie';
+		}
 		$out['site_kicker']        = sanitize_text_field( $input['site_kicker'] ?? $d['site_kicker'] );
 		$out['footer_copy']        = sanitize_text_field( $input['footer_copy'] ?? $d['footer_copy'] );
 		$out['home_primary_cta']   = sanitize_text_field( $input['home_primary_cta'] ?? $d['home_primary_cta'] );
@@ -219,14 +246,15 @@ final class Cafe_Moxie_Site_Kit {
 		$url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
 		?>
 		<div class="wrap">
-			<h1>Cafe Moxie Site Kit</h1>
-			<p>Enterprise-ready storefront layer for Twenty Twenty-Five. The design system stays lean, the templates stay editable, and the Edge Tool storefront reads directly from Secure Custom Fields.</p>
+			<h1>Site System Kit</h1>
+			<p>Reusable storefront and site system layer for Twenty Twenty-Five. Keep templates editable, keep SCF data-driven rendering deterministic, and keep brand defaults configurable.</p>
 			<p><a class="button button-primary" href="<?php echo esc_url( $url ); ?>">Create / Refresh Starter Pages</a></p>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
 				<h2>Storefront</h2>
 				<table class="form-table" role="presentation">
 					<?php
+					self::text_row( 'brand_preset', 'Brand preset key', 'text', 'Use cafe_moxie (default) or neutral. Filterable via code for additional presets.' );
 					self::text_row( 'site_kicker', 'Brand kicker' );
 					self::text_row( 'featured_tools_count', 'Featured tools on home', 'number' );
 					self::text_row( 'archive_items_per_page', 'Archive items per page', 'number' );
@@ -544,9 +572,10 @@ body.cm-motion-on .cm-sign-flicker{animation:cmSignFlicker " . ( $motion ? '6.2s
 		ob_start();
 		echo '<section class="cm-section">';
 		echo '<div class="cm-panel">';
-		echo '<div class="cm-eyebrow">Fresh at the counter</div>';
+		$brand = self::brand_profile();
+		echo '<div class="cm-eyebrow">Featured tools</div>';
 		echo '<h2 class="cm-sign-title">Featured tools</h2>';
-		echo '<p class="cm-subtle">Built to feel like a storefront, not a plugin pile. Featured tools pull directly from your Edge Tool posts and Secure Custom Fields.</p>';
+		echo '<p class="cm-subtle">Built to feel like a storefront, not a plugin pile. Featured tools for ' . esc_html( $brand['name'] ) . ' pull directly from your Edge Tool posts and Secure Custom Fields.</p>';
 		echo '</div>';
 		if ( $query->have_posts() ) {
 			echo '<div class="cm-archive-tools">';
@@ -755,8 +784,9 @@ body.cm-motion-on .cm-sign-flicker{animation:cmSignFlicker " . ( $motion ? '6.2s
 	public static function render_brand_mark() {
 		$s = self::settings();
 		$image = self::resolve_url( $s['display_logo_image'] );
+		$brand = self::brand_profile();
 		if ( $image ) {
-			return '<div class="cm-brand-mark cm-sign-flicker"><img src="' . esc_url( $image ) . '" alt="Cafe Moxie"></div>';
+			return '<div class="cm-brand-mark cm-sign-flicker"><img src="' . esc_url( $image ) . '" alt="' . esc_attr( $brand['name'] ) . '"></div>';
 		}
 		return '<div class="cm-brand-mark"><span class="cm-brand-mark__fallback">' . esc_html( $s['site_kicker'] ) . '</span></div>';
 	}
