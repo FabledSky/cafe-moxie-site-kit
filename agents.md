@@ -154,6 +154,8 @@ It is the **single operational contract** for development.
   * [Task 27](https://github.com/FabledSky/cafe-moxie-site-kit/blob/main/agents.md#task-27)
     * [Implementation Steps](https://github.com/FabledSky/cafe-moxie-site-kit/blob/main/agents.md#implementation-steps-26)
     * [Definition of done / Constraints / Files to modify / etc.](https://github.com/FabledSky/cafe-moxie-site-kit/blob/main/agents.md#definition-of-done--constraints--files-to-modify--etc-26)
+  * [Task 28](#task-28)
+  * [Task 29](#task-29)
 <!-- END AUTO TOC -->
 ---
 ## Overview & Background
@@ -2075,5 +2077,131 @@ If you want, I can also:
 * generate the **exact Codex prompt for Task 28**
 * or design the **log schema + DB table structure** before implementation (recommended for performance)
 ---
+### Task 29
 
+Goals
+
+Perform a visual quality and layout stabilization pass so the plugin’s default Cafe Moxie output is presentable, readable, and polished out of the box.
+
+The current system has many of the right architectural pieces, but the default front-end output still suffers from brittle layout choices, oversized text, clipped headings, awkward card alignment, unreliable media/header behavior, and an overuse of two-column defaults that make the site feel broken even when the design language itself is promising.
+
+This task is to fix the default presentation quality layer.
+
+#### Implementation Steps
+
+1. Audit the current default Cafe Moxie front-end output across all plugin-managed surfaces, including at minimum:
+
+   * homepage hero
+   * homepage composed sections
+   * starter/default generated pages
+   * managed header
+   * managed footer
+   * cards / panel groupings
+   * archive listing surfaces
+   * common button/action clusters
+   * media/image blocks
+
+2. Treat the current default two-column/split-layout behavior as a design-risk pattern, not a safe default. Update the plugin so the default Cafe Moxie page/layout behavior becomes **single-column first** unless a section explicitly proves it can support a split layout without clipping, crowding, or weak balance.
+
+3. Change all Cafe Moxie default layout settings that currently encourage brittle split compositions so the polished default experience prefers:
+
+   * single-column
+   * stacked sections
+   * full-width content bands
+   * media-top or media-below treatment
+   * earlier stacking on tablet/mobile
+
+   rather than side-by-side text/media by default.
+
+4. Audit all typography scales used in plugin-managed surfaces and reduce brittle oversized heading behavior. At minimum:
+
+   * reduce default heading sizes where they cause clipping or awkward wrapping
+   * improve heading line-height and max-width behavior
+   * prevent oversized text from dominating narrow cards/panels
+   * ensure long headings wrap cleanly without being cut off
+   * introduce safer responsive typography scaling where needed
+
+5. Audit panel/card/section alignment and fix visual instability caused by mismatched heights, inconsistent padding, weak internal spacing, and brittle layout assumptions.
+
+6. Add stronger guardrails for front-end text rendering, including:
+
+   * long-title handling
+   * long CTA label handling
+   * badge/chip wrapping
+   * paragraph width control
+   * section intro width limits
+   * prevention of headline clipping inside cards or narrow columns
+
+7. Improve plugin-managed media behavior wherever current output feels broken or unfinished, including:
+
+   * weak image placement
+   * tiny images in oversized columns
+   * inconsistent media framing
+   * poor fallback behavior when media is missing or undersized
+
+   Prefer stable, elegant media framing over ambitious split-layout compositions.
+
+8. Audit the managed header implementation and fix any layout or behavior issues that make it feel unreliable, crowded, or visually broken. At minimum verify:
+
+   * brand/title area sizing
+   * nav spacing
+   * CTA spacing
+   * wrapping behavior
+   * mobile behavior
+   * dynamic title/logo handling
+   * graceful degradation when assets/content are missing
+
+9. Add safer default constraints so user-configurable values cannot easily produce bad-looking output, especially for:
+
+   * heading scale
+   * button scale
+   * panel padding
+   * section density
+   * image framing
+   * split-layout usage
+   * content width
+
+10. Add a dedicated visual QA pass for the Cafe Moxie default preset and treat the following as failures:
+
+   * clipped titles
+   * unreadable or oversized headings
+   * broken/wonky split layouts
+   * tiny media floating in large empty columns
+   * uneven or awkward card alignment
+   * crowded button groups
+   * header/footer crowding
+   * obviously unfinished or placeholder-looking default output
+
+11. Update the default generated Cafe Moxie experience so it aims for:
+
+   * elegant
+   * readable
+   * calm
+   * stacked
+   * balanced
+   * polished
+   * resilient under imperfect content
+
+   rather than “visually ambitious but brittle.”
+
+12. Document any new layout-safety rules in `agents.md` and/or `docs/IMPLEMENTATION-GUIDE.md` so future agents understand that visual stability and polished defaults take priority over showing off multi-column composition.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a fresh Cafe Moxie default install looks presentable and polished without the user needing to fix text scale, broken split layouts, or awkward card/media behavior manually.
+* The default Cafe Moxie layout direction must be **single-column first**.
+* Do not introduce a page builder, visual editor, or heavy CSS/JS framework.
+* Do not solve the issue by hiding content or making everything tiny.
+* Prefer stable defaults and bounded layout decisions over clever but brittle visual compositions.
+* If a two-column layout cannot be made consistently good, it should not be the default.
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * `plugin/templates/*.php`
+  * possibly `plugin/includes/style-system.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
 End of file.
