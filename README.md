@@ -65,10 +65,16 @@ Use GitHub repository variables for non-secret defaults if you prefer:
 
 ## Presentation setup console (plugin admin)
 - Use **Site System Kit → Overview + Setup** as the default presentation-control console.
+- Start with the **Quick actions (first-run + refresh)** card for one-click operational actions:
+  - Apply Cafe Moxie polished defaults
+  - Generate / Refresh Cafe Moxie Starter Set
+  - Generate / Refresh Managed Header + Footer
+  - Assign Home as Front Page
+  - Preview Site
 - The **Presentation setup state** panel reports readiness for:
   - front page assignment
-  - starter page presence (Home/About)
-  - managed header/footer availability
+  - plugin-managed generated starter pages vs unmanaged/user-edited vs missing
+  - plugin-managed template parts vs unmanaged/user-edited vs missing
   - primary navigation assignment
   - logo/media readiness
   - Edge Tool archive/storefront readiness

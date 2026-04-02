@@ -616,6 +616,119 @@ final class Cafe_Moxie_Site_Kit {
 		);
 	}
 
+	private static function admin_tab_panels() {
+		return array(
+			'brand_presets' => array(
+				array(
+					'title' => 'Brand identity + media defaults',
+					'description' => 'Recommended for Cafe Moxie: set this first so generated pages and managed shell content inherit the right brand context.',
+					'keys' => array( 'brand_preset', 'site_kicker', 'display_logo_image', 'logo_width', 'brand_mark_width' ),
+					'recommended' => true,
+				),
+				array(
+					'title' => 'Primary call-to-action defaults',
+					'description' => 'Default CTA URLs and labels used by starter and composed templates.',
+					'keys' => array( 'home_primary_cta_label', 'home_primary_cta_url', 'home_secondary_cta_label', 'home_secondary_cta_url', 'about_primary_cta_label', 'about_primary_cta_url' ),
+				),
+			),
+			'layout_spacing' => array(
+				array(
+					'title' => 'Global design tokens',
+					'description' => 'Recommended for Cafe Moxie: keep comfortable spacing and balanced typography for the polished default shell.',
+					'keys' => array( 'hero_min_height', 'content_max_width', 'content_band_max_width', 'brand_mark_width', 'header_height', 'panel_padding', 'section_gap' ),
+					'recommended' => true,
+				),
+				array(
+					'title' => 'Motion + responsive defaults',
+					'description' => 'Controls animation behavior and responsive breakpoints used across plugin-managed surfaces.',
+					'keys' => array( 'button_scale', 'mobile_heading_scale', 'responsive_breakpoint_mode', 'card_grid_density', 'card_image_ratio', 'tablet_columns' ),
+				),
+			),
+			'header_footer' => array(
+				array(
+					'title' => 'Managed shell behavior',
+					'description' => 'Recommended for Cafe Moxie: enable managed header/footer and use the counter preset for the default polished shell.',
+					'keys' => array( 'enable_managed_header_footer', 'header_footer_preset', 'header_brand_treatment', 'header_nav_source', 'header_cta_label', 'header_cta_url' ),
+					'recommended' => true,
+				),
+				array(
+					'title' => 'Footer copy + legal',
+					'description' => 'Footer content blocks and legal/meta display behavior.',
+					'keys' => array( 'footer_content_primary', 'footer_content_secondary', 'footer_copy', 'footer_utility_copy', 'footer_meta_behavior', 'footer_legal_text' ),
+				),
+			),
+			'pages_templates' => array(
+				array(
+					'title' => 'Starter page behavior',
+					'description' => 'Recommended for Cafe Moxie: keep starter defaults on and refresh mode set intentionally before generation.',
+					'keys' => array( 'show_home_trust', 'show_home_featured', 'show_about_values', 'refresh_mode', 'composed_page_template' ),
+					'recommended' => true,
+				),
+				array(
+					'title' => 'Section layout defaults',
+					'description' => 'Per-section composition defaults used in generated starter and composed templates.',
+					'keys' => array( 'home_story_layout', 'home_trust_layout', 'home_featured_layout', 'about_intro_layout', 'about_calibrate_layout', 'template_surface', 'page_section_density', 'site_density_preset' ),
+				),
+			),
+			'content_modules' => array(
+				array(
+					'title' => 'Composed page defaults',
+					'description' => 'Recommended for Cafe Moxie: keep practical defaults and compose only sections needed for each page.',
+					'keys' => array( 'composed_page_template', 'composed_page_slug', 'composed_page_title', 'template_surface', 'content_max_width', 'content_band_max_width' ),
+					'recommended' => true,
+				),
+			),
+			'storefront' => array(
+				array(
+					'title' => 'Archive behavior',
+					'description' => 'Recommended for Cafe Moxie: use filters and a moderate page size so the counter remains easy to scan.',
+					'keys' => array( 'archive_items_per_page', 'show_archive_filters', 'archive_columns', 'tablet_columns', 'featured_tools_count' ),
+					'recommended' => true,
+				),
+				array(
+					'title' => 'Card presentation',
+					'description' => 'Tool-card density and visual framing defaults.',
+					'keys' => array( 'card_grid_density', 'card_image_ratio', 'panel_padding', 'radius', 'glow_intensity' ),
+				),
+			),
+		);
+	}
+
+	private static function render_tab_panels( $tab_key ) {
+		$registry = self::settings_registry();
+		$panels = self::admin_tab_panels();
+		if ( empty( $panels[ $tab_key ] ) ) {
+			self::render_tab_fields( $tab_key );
+			return;
+		}
+		foreach ( $panels[ $tab_key ] as $panel ) {
+			$keys = array_values(
+				array_filter(
+					(array) ( $panel['keys'] ?? array() ),
+					static function( $key ) use ( $registry ) {
+						return isset( $registry[ $key ] );
+					}
+				)
+			);
+			if ( empty( $keys ) ) {
+				continue;
+			}
+			echo '<div class="cm-admin-panel-card">';
+			echo '<h3>' . esc_html( $panel['title'] ?? 'Settings panel' ) . '</h3>';
+			if ( ! empty( $panel['recommended'] ) ) {
+				echo '<p class="description"><strong>Recommended for Cafe Moxie:</strong> ' . esc_html( $panel['description'] ?? '' ) . '</p>';
+			} elseif ( ! empty( $panel['description'] ) ) {
+				echo '<p class="description">' . esc_html( $panel['description'] ) . '</p>';
+			}
+			echo '<table class="form-table" role="presentation">';
+			foreach ( $keys as $key ) {
+				self::render_registry_row( $key, $registry[ $key ] );
+			}
+			echo '</table>';
+			echo '</div>';
+		}
+	}
+
 	private static function render_tab_fields( $tab_key ) {
 		$registry = self::settings_registry();
 		$keys = self::get_tab_fields( $tab_key );
@@ -627,6 +740,53 @@ final class Cafe_Moxie_Site_Kit {
 			self::render_registry_row( $key, $registry[ $key ] );
 		}
 		echo '</table>';
+	}
+
+	private static function starter_generation_state() {
+		$definitions = self::starter_page_definitions();
+		$state = array(
+			'total' => count( $definitions ),
+			'managed_generated' => 0,
+			'unmanaged_existing' => 0,
+			'missing' => 0,
+		);
+		foreach ( $definitions as $definition ) {
+			$slug = sanitize_title( $definition['slug'] ?? '' );
+			$page = $slug ? get_page_by_path( $slug, OBJECT, 'page' ) : null;
+			if ( ! $page ) {
+				$state['missing']++;
+				continue;
+			}
+			if ( self::is_marked_generated_page( $page->ID, 'starter' ) ) {
+				$state['managed_generated']++;
+			} else {
+				$state['unmanaged_existing']++;
+			}
+		}
+		return $state;
+	}
+
+	private static function template_part_generation_state() {
+		$slugs = array( 'cm-site-kit-header', 'cm-site-kit-footer' );
+		$state = array(
+			'total' => count( $slugs ),
+			'managed_generated' => 0,
+			'unmanaged_existing' => 0,
+			'missing' => 0,
+		);
+		foreach ( $slugs as $slug ) {
+			$part = self::find_template_part( $slug );
+			if ( ! $part ) {
+				$state['missing']++;
+				continue;
+			}
+			if ( self::is_marked_generated_page( $part->ID, 'template_part' ) ) {
+				$state['managed_generated']++;
+			} else {
+				$state['unmanaged_existing']++;
+			}
+		}
+		return $state;
 	}
 
 	private static function render_status_summary() {
@@ -668,13 +828,8 @@ final class Cafe_Moxie_Site_Kit {
 		$front_page_id = (int) get_option( 'page_on_front' );
 		$show_on_front = get_option( 'show_on_front' );
 		$home_page = get_page_by_path( 'home' );
-		$starter_pages = array( 'home', 'about', 'browse-the-counter', 'how-it-works', 'who-its-for', 'trust-faq' );
-		$existing_starters = 0;
-		foreach ( $starter_pages as $starter_slug ) {
-			if ( get_page_by_path( $starter_slug ) ) {
-				$existing_starters++;
-			}
-		}
+		$starter_state = self::starter_generation_state();
+		$template_part_state = self::template_part_generation_state();
 		$nav_locations = get_nav_menu_locations();
 		$primary_menu_id = (int) ( $nav_locations['primary'] ?? 0 );
 		$has_logo = has_custom_logo() || ! empty( $s['display_logo_image'] );
@@ -706,18 +861,31 @@ final class Cafe_Moxie_Site_Kit {
 				),
 			),
 			array(
-				'label' => 'Key starter pages',
-				'status' => ( 6 === $existing_starters ) ? 'Ready' : 'Needs attention',
-				'detail' => sprintf( '%1$d of 6 canonical starter pages exist.', $existing_starters ),
+				'label' => 'Plugin-managed generated pages',
+				'status' => ( 0 === $starter_state['missing'] ) ? 'Ready' : 'Needs attention',
+				'detail' => sprintf(
+					'%1$d/%2$d plugin-managed pages, %3$d unmanaged/user-edited pages, %4$d missing.',
+					$starter_state['managed_generated'],
+					$starter_state['total'],
+					$starter_state['unmanaged_existing'],
+					$starter_state['missing']
+				),
 				'actions' => array(
 					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit#generation-actions' ) ) . '">Run starter page generation</a>',
 					'<a class="button-link" href="' . esc_url( admin_url( 'edit.php?post_type=page' ) ) . '">Open Pages list</a>',
 				),
 			),
 			array(
-				'label' => 'Header/footer assignment',
-				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && $header_part && $footer_part ) ? 'Ready' : 'Needs attention',
-				'detail' => ( ! empty( $s['enable_managed_header_footer'] ) && $header_part && $footer_part ) ? 'Managed header/footer is enabled and generated template parts exist.' : 'Managed header/footer is disabled or generated parts are missing.',
+				'label' => 'Template part ownership',
+				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && 0 === $template_part_state['missing'] ) ? 'Ready' : 'Needs attention',
+				'detail' => sprintf(
+					'%1$d/%2$d plugin-managed template parts, %3$d unmanaged/user-edited, %4$d missing. Managed routing is %5$s.',
+					$template_part_state['managed_generated'],
+					$template_part_state['total'],
+					$template_part_state['unmanaged_existing'],
+					$template_part_state['missing'],
+					! empty( $s['enable_managed_header_footer'] ) ? 'enabled' : 'disabled'
+				),
 				'actions' => array(
 					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit&tab=header_footer' ) ) . '">Open Header + Footer tab</a>',
 					'<a class="button-link" href="' . esc_url( admin_url( 'site-editor.php?path=%2Fwp_template_part%2Fall' ) ) . '">Open Site Editor template parts</a>',
@@ -750,6 +918,30 @@ final class Cafe_Moxie_Site_Kit {
 			),
 		);
 		return $rows;
+	}
+
+	private static function render_quick_actions_panel() {
+		$home_page = get_page_by_path( 'home' );
+		$preset_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_apply_preset&preset=cafe_moxie' ), 'cafe_moxie_apply_preset' );
+		$starter_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
+		$template_part_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_generate_template_parts' ), 'cafe_moxie_generate_template_parts' );
+		$assign_home_url = $home_page ? wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_assign_front_page&page_id=' . intval( $home_page->ID ) ), 'cafe_moxie_assign_front_page' ) : '';
+		echo '<div class="cm-admin-panel-card">';
+		echo '<h2>Quick actions (first-run + refresh)</h2>';
+		echo '<p class="description"><strong>Recommended for Cafe Moxie:</strong> run these in order on a clean install to reach a polished shell without jumping between multiple admin screens.</p>';
+		echo '<div class="cm-admin-action-cluster">';
+		echo '<a class="button button-secondary" href="' . esc_url( $preset_url ) . '">Apply Cafe Moxie polished defaults</a>';
+		echo '<a class="button button-secondary" href="' . esc_url( $starter_url ) . '">Generate / Refresh Cafe Moxie Starter Set</a>';
+		echo '<a class="button button-secondary" href="' . esc_url( $template_part_url ) . '">Generate / Refresh Managed Header + Footer</a>';
+		if ( $assign_home_url ) {
+			echo '<a class="button button-secondary" href="' . esc_url( $assign_home_url ) . '">Assign Home as Front Page</a>';
+		}
+		echo '<a class="button button-primary" href="' . esc_url( home_url( '/' ) ) . '" target="_blank" rel="noopener noreferrer">Preview Site</a>';
+		echo '</div>';
+		if ( ! $home_page ) {
+			echo '<p class="description">Home page is currently missing. Generate starter pages first, then assign Home as front page.</p>';
+		}
+		echo '</div>';
 	}
 
 	private static function render_presentation_state_panel() {
@@ -864,7 +1056,7 @@ final class Cafe_Moxie_Site_Kit {
 		<div class="wrap">
 			<h1>Site System Kit</h1>
 			<p>Use this control console to manage brand presets, layout defaults, composed page behavior, and storefront presentation using native WordPress settings patterns.</p>
-			<style>.cm-admin-action-cluster{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.cm-admin-action-cluster .button{margin:0}.cm-admin-action-cluster .button-link{display:inline-flex;align-items:center;min-height:34px}</style>
+			<style>.cm-admin-action-cluster{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.cm-admin-action-cluster .button{margin:0}.cm-admin-action-cluster .button-link{display:inline-flex;align-items:center;min-height:34px}.cm-admin-panel-card{margin:14px 0;padding:14px 16px;border:1px solid #dcdcde;border-radius:8px;background:#fff;max-width:1200px}.cm-admin-panel-card h3{margin:0 0 8px}.cm-admin-panel-card .form-table{margin-top:8px}</style>
 			<?php if ( ! empty( $starter_summary ) ) : ?>
 				<div class="notice notice-info is-dismissible"><p><?php echo esc_html( $starter_summary ); ?></p></div>
 			<?php endif; ?>
@@ -887,6 +1079,7 @@ final class Cafe_Moxie_Site_Kit {
 			</h2>
 			<p class="description" style="margin:12px 0 18px;"><?php echo esc_html( $tabs[ $current_tab ]['description'] ); ?></p>
 			<?php if ( 'overview' === $current_tab ) : ?>
+				<?php self::render_quick_actions_panel(); ?>
 				<?php self::render_presentation_state_panel(); ?>
 				<?php self::render_status_summary(); ?>
 				<?php self::render_generation_actions(); ?>
@@ -894,7 +1087,7 @@ final class Cafe_Moxie_Site_Kit {
 			<?php endif; ?>
 			<form method="post" action="options.php">
 				<?php settings_fields( 'cafe_moxie_site_kit_group' ); ?>
-				<?php self::render_tab_fields( $current_tab ); ?>
+				<?php self::render_tab_panels( $current_tab ); ?>
 				<?php submit_button( 'Save settings', 'primary', 'submit', false ); ?>
 			</form>
 			<?php self::render_generation_actions(); ?>
