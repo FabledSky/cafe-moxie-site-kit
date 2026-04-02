@@ -7,7 +7,7 @@ This package upgrades the original site kit into a lean storefront plugin for Tw
 The original kit had strong raw ingredients but it was still closer to a styled proof of concept than a reusable storefront layer. The biggest changes in this upgrade are:
 
 - the design system is now driven by real settings and CSS tokens rather than a few partially wired knobs
-- the Home and About starter pages now follow the brand guide structure much more closely
+- the canonical six-page Cafe Moxie starter set (Home, About Cafe Moxie, Browse the Counter, How It Works, Who It’s For, Trust + FAQ) now follows the brand guide structure
 - the homepage can showcase live Edge Tool content using a shortcode-backed featured tools section
 - the Edge Tool archive is now filterable and presentable as a storefront rather than a basic card list
 - the single Edge Tool template now exposes the public SCF field groups in a structured, product-page-like layout
@@ -110,7 +110,7 @@ That gives you a clean path to extend behavior in a mu-plugin, child plugin, or 
 To support future AI-assisted editing safely, the plugin now keeps composed page behavior in structured registries before rendering:
 
 - composed section metadata lives in array-based registries (labels, template identifiers, supported content primitives)
-- page templates (including starter Home/About) resolve from one shared template registry instead of a parallel starter architecture
+- page templates (including the six-page Cafe Moxie starter set) resolve from one shared template registry instead of a parallel starter architecture
 - section markup is mapped by template key with token placeholders
 - a dedicated context map resolves runtime values (brand name, CTA URL, feature counts, layout classes)
 - rendering applies visibility rules and token replacement before final block markup output
