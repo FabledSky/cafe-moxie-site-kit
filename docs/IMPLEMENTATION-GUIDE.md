@@ -77,6 +77,29 @@ The public template intentionally excludes the Internal Ops Metadata group from 
 - includes a guarded write-through action to assign the Home page as the static front page using WordPress core options (`show_on_front`, `page_on_front`)
 - links directly to relevant core screens (Reading settings, Pages, Navigation, Site Editor template parts, Customizer logo control) so canonical values stay in core
 
+### Plugin logging (Task 28)
+- a dedicated **Logs** admin tab now provides:
+  - logging level selector (`Advanced` default, optional `Basic`)
+  - recent log viewer with type/status/time-range filters
+  - clear logs action (confirmed) and downloadable text export
+  - AI-ready copy/export format (`timestamp + type + status + message + JSON context`)
+- logs are stored in a bounded WordPress option ring buffer (max 500 entries) to avoid unbounded growth and keep storage deterministic/lightweight
+- use centralized helpers in plugin code:
+  - `cm_log_event( $type, $message, $context = [] )`
+  - `cm_log_error( $message, $context = [] )`
+  - `cm_log_action( $action, $status, $context = [] )`
+- context is sanitized, JSON-serializable, and size-limited; sensitive keys (tokens/passwords/nonces/cookies/api keys) are redacted
+- logging failure is non-fatal: if storage fails, logging silently returns without breaking plugin flows
+- required instrumentation coverage includes:
+  - settings save/update
+  - preset apply/reset + polished setup actions
+  - starter page generation
+  - header/footer generation
+  - composed page/template rendering paths
+  - content module rendering
+  - SCF normalization edge cases
+  - media fallback decisions
+
 ### Color tokens
 All primary brand tokens from the guide are exposed as overrideable settings.
 

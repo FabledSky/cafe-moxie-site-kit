@@ -13,6 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Cafe_Moxie_Site_Kit {
 	const OPTION  = 'cafe_moxie_site_kit_settings';
 	const VERSION = '2.0.0';
+	const LOG_OPTION = 'cafe_moxie_site_kit_logs';
+	const LOG_MAX_ENTRIES = 500;
+	const LOG_MAX_CONTEXT_CHARS = 1800;
 	const META_GENERATED_MARKER = '_cm_site_kit_generated';
 	const META_GENERATED_TYPE   = '_cm_site_kit_generated_type';
 	const META_GENERATED_AT     = '_cm_site_kit_generated_at';
@@ -32,6 +35,8 @@ final class Cafe_Moxie_Site_Kit {
 		add_action( 'admin_post_cafe_moxie_assign_front_page', array( __CLASS__, 'assign_front_page' ) );
 		add_action( 'admin_post_cafe_moxie_apply_preset', array( __CLASS__, 'apply_brand_preset_action' ) );
 		add_action( 'admin_post_cafe_moxie_polished_setup', array( __CLASS__, 'run_polished_setup' ) );
+		add_action( 'admin_post_cafe_moxie_clear_logs', array( __CLASS__, 'clear_logs_action' ) );
+		add_action( 'admin_post_cafe_moxie_export_logs', array( __CLASS__, 'export_logs_action' ) );
 		add_filter( 'render_block_data', array( __CLASS__, 'filter_template_part_blocks' ), 10, 2 );
 
 		if ( false === get_option( self::OPTION ) ) {
@@ -245,6 +250,7 @@ final class Cafe_Moxie_Site_Kit {
 		$layout_modes = self::layout_mode_choices();
 		$registry = array(
 			'brand_preset' => array( 'label' => 'Brand preset', 'description' => 'Preset used as a baseline visual profile.', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'cafe_moxie' => 'Cafe Moxie', 'neutral' => 'Generic Site System' ), 'sanitize' => 'preset_key', 'default' => 'cafe_moxie', 'preset_participation' => true ),
+			'logging_level' => array( 'label' => 'Plugin logging level', 'description' => 'Basic logs critical failures and major actions. Advanced logs full plugin actions and rendering diagnostics.', 'group' => 'storefront_defaults', 'type' => 'select', 'allowed_values' => array( 'advanced' => 'Advanced', 'basic' => 'Basic' ), 'sanitize' => 'choice', 'default' => 'advanced' ),
 			'site_kicker' => array( 'label' => 'Brand kicker', 'description' => 'Displayed short brand label used in templates.', 'group' => 'storefront_defaults', 'type' => 'text', 'sanitize' => 'text', 'default' => 'Cafe Moxie', 'preset_participation' => true ),
 			'featured_tools_count' => array( 'label' => 'Featured tools on home', 'group' => 'storefront_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 12, 'default' => 3 ),
 			'archive_items_per_page' => array( 'label' => 'Archive items per page', 'group' => 'storefront_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 3, 'max' => 24, 'default' => 9 ),
@@ -385,6 +391,7 @@ final class Cafe_Moxie_Site_Kit {
 		$d = self::defaults();
 		$out = array();
 		$input = is_array( $input ) ? $input : array();
+		$before = self::settings();
 		foreach ( self::settings_registry() as $key => $field ) {
 			$value = $input[ $key ] ?? $d[ $key ];
 			switch ( $field['sanitize'] ) {
@@ -425,6 +432,22 @@ final class Cafe_Moxie_Site_Kit {
 					break;
 			}
 		}
+		$changed_keys = array();
+		foreach ( $out as $key => $value ) {
+			$old = $before[ $key ] ?? null;
+			if ( (string) $old !== (string) $value ) {
+				$changed_keys[] = $key;
+			}
+		}
+		self::cm_log_action(
+			'settings_save',
+			'success',
+			array(
+				'major' => true,
+				'changed_keys' => $changed_keys,
+				'changed_count' => count( $changed_keys ),
+			)
+		);
 		return $out;
 	}
 
@@ -454,6 +477,164 @@ final class Cafe_Moxie_Site_Kit {
 			return esc_url( home_url( $value ) );
 		}
 		return esc_url( home_url( '/' . ltrim( $value, '/' ) ) );
+	}
+
+	private static function cm_log_level() {
+		$s = self::settings();
+		$level = sanitize_key( $s['logging_level'] ?? 'advanced' );
+		return in_array( $level, array( 'basic', 'advanced' ), true ) ? $level : 'advanced';
+	}
+
+	private static function cm_sensitive_context_keys() {
+		return array( 'password', 'passwd', 'secret', 'token', 'api_key', 'apikey', 'authorization', 'cookie', '_wpnonce', 'nonce' );
+	}
+
+	private static function cm_context_to_safe_json( $context ) {
+		$sanitized = self::cm_sanitize_context( $context );
+		$json = wp_json_encode( $sanitized );
+		if ( ! is_string( $json ) ) {
+			return '{}';
+		}
+		if ( strlen( $json ) > self::LOG_MAX_CONTEXT_CHARS ) {
+			return substr( $json, 0, self::LOG_MAX_CONTEXT_CHARS ) . '…(truncated)';
+		}
+		return $json;
+	}
+
+	private static function cm_sanitize_context( $value, $depth = 0 ) {
+		if ( $depth > 4 ) {
+			return '[depth-limited]';
+		}
+		if ( is_bool( $value ) || is_null( $value ) || is_int( $value ) || is_float( $value ) ) {
+			return $value;
+		}
+		if ( is_string( $value ) ) {
+			$value = sanitize_text_field( $value );
+			return mb_substr( $value, 0, 300 );
+		}
+		if ( is_object( $value ) ) {
+			if ( $value instanceof WP_Error ) {
+				return array(
+					'wp_error' => true,
+					'code' => sanitize_key( $value->get_error_code() ),
+					'message' => sanitize_text_field( $value->get_error_message() ),
+				);
+			}
+			return self::cm_sanitize_context( (array) $value, $depth + 1 );
+		}
+		if ( is_array( $value ) ) {
+			$out = array();
+			$items = array_slice( $value, 0, 20, true );
+			foreach ( $items as $key => $item ) {
+				$key_string = sanitize_key( is_int( $key ) ? 'item_' . $key : (string) $key );
+				if ( in_array( $key_string, self::cm_sensitive_context_keys(), true ) ) {
+					$out[ $key_string ] = '[redacted]';
+					continue;
+				}
+				$out[ $key_string ] = self::cm_sanitize_context( $item, $depth + 1 );
+			}
+			return $out;
+		}
+		return '[unsupported]';
+	}
+
+	private static function cm_should_log_event( $type, $status, $context = array() ) {
+		$level = self::cm_log_level();
+		if ( 'advanced' === $level ) {
+			return true;
+		}
+		if ( in_array( $type, array( 'error', 'warning' ), true ) ) {
+			return true;
+		}
+		if ( 'failure' === $status ) {
+			return true;
+		}
+		return ! empty( $context['major'] );
+	}
+
+	public static function cm_log_event( $type, $message, $context = array() ) {
+		try {
+			$type = sanitize_key( $type );
+			$status = sanitize_key( $context['status'] ?? '' );
+			if ( ! in_array( $type, array( 'info', 'warning', 'error', 'action' ), true ) ) {
+				$type = 'info';
+			}
+			if ( ! in_array( $status, array( 'success', 'failure', '' ), true ) ) {
+				$status = '';
+			}
+			if ( ! self::cm_should_log_event( $type, $status, (array) $context ) ) {
+				return;
+			}
+			$entry = array(
+				'timestamp' => gmdate( 'Y-m-d H:i:s' ),
+				'type' => $type,
+				'status' => $status,
+				'message' => sanitize_text_field( (string) $message ),
+				'context_json' => self::cm_context_to_safe_json( $context ),
+			);
+			$logs = get_option( self::LOG_OPTION, array() );
+			if ( ! is_array( $logs ) ) {
+				$logs = array();
+			}
+			$logs[] = $entry;
+			if ( count( $logs ) > self::LOG_MAX_ENTRIES ) {
+				$logs = array_slice( $logs, -1 * self::LOG_MAX_ENTRIES );
+			}
+			update_option( self::LOG_OPTION, $logs, false );
+		} catch ( Throwable $throwable ) {
+			return;
+		}
+	}
+
+	public static function cm_log_error( $message, $context = array() ) {
+		$context['status'] = $context['status'] ?? 'failure';
+		self::cm_log_event( 'error', $message, $context );
+	}
+
+	public static function cm_log_action( $action, $status, $context = array() ) {
+		$context['action'] = sanitize_key( (string) $action );
+		$context['status'] = sanitize_key( (string) $status );
+		self::cm_log_event( 'action', 'Action: ' . sanitize_text_field( (string) $action ), $context );
+	}
+
+	private static function cm_all_logs() {
+		$logs = get_option( self::LOG_OPTION, array() );
+		return is_array( $logs ) ? $logs : array();
+	}
+
+	private static function cm_recent_failures( $limit = 3 ) {
+		$matches = array();
+		foreach ( array_reverse( self::cm_all_logs() ) as $entry ) {
+			$type = sanitize_key( $entry['type'] ?? '' );
+			$status = sanitize_key( $entry['status'] ?? '' );
+			if ( 'error' === $type || 'failure' === $status ) {
+				$matches[] = $entry;
+			}
+			if ( count( $matches ) >= $limit ) {
+				break;
+			}
+		}
+		return $matches;
+	}
+
+	private static function cm_formatted_log_export( $entries ) {
+		$lines = array();
+		foreach ( $entries as $entry ) {
+			$timestamp = sanitize_text_field( (string) ( $entry['timestamp'] ?? '' ) );
+			$type = strtoupper( sanitize_key( $entry['type'] ?? 'info' ) );
+			$status = sanitize_key( $entry['status'] ?? '' );
+			$message = sanitize_text_field( (string) ( $entry['message'] ?? '' ) );
+			$context = (string) ( $entry['context_json'] ?? '{}' );
+			$line = '[' . $timestamp . '] ' . $type;
+			if ( $status ) {
+				$line .= ' | status: ' . $status;
+			}
+			$lines[] = $line;
+			$lines[] = 'Message: ' . $message;
+			$lines[] = 'Context: ' . $context;
+			$lines[] = '';
+		}
+		return implode( "\n", $lines );
 	}
 
 	private static function text_row( $key, $label, $type = 'text', $hint = '' ) {
@@ -578,6 +759,11 @@ final class Cafe_Moxie_Site_Kit {
 				'description' => 'Archive/query behavior and tool-catalog presentation defaults.',
 				'groups' => array( 'storefront_defaults', 'component_defaults' ),
 				'keys' => array( 'featured_tools_count', 'archive_items_per_page', 'show_archive_filters', 'archive_columns', 'tablet_columns', 'card_grid_density', 'card_image_ratio' ),
+			),
+			'logs' => array(
+				'label' => 'Logs',
+				'description' => 'Recent plugin events, failures, and debug context optimized for AI-assisted diagnosis.',
+				'groups' => array(),
 			),
 		);
 	}
@@ -961,6 +1147,94 @@ final class Cafe_Moxie_Site_Kit {
 			echo '</td></tr>';
 		}
 		echo '</tbody></table>';
+		self::render_recent_failure_panel();
+	}
+
+	private static function render_recent_failure_panel() {
+		$failures = self::cm_recent_failures( 3 );
+		if ( empty( $failures ) ) {
+			return;
+		}
+		$logs_url = add_query_arg(
+			array(
+				'page' => 'cafe-moxie-site-kit',
+				'tab' => 'logs',
+			),
+			admin_url( 'admin.php' )
+		);
+		echo '<div class="cm-admin-panel-card">';
+		echo '<h3>Recent critical failures</h3>';
+		echo '<ul>';
+		foreach ( $failures as $entry ) {
+			echo '<li><strong>' . esc_html( $entry['timestamp'] ?? '' ) . '</strong> — ' . esc_html( $entry['message'] ?? '' ) . '</li>';
+		}
+		echo '</ul>';
+		echo '<p><a class="button button-secondary" href="' . esc_url( $logs_url ) . '">Open Logs tab</a></p>';
+		echo '</div>';
+	}
+
+	private static function render_logs_tab() {
+		$s = self::settings();
+		$logs = self::cm_all_logs();
+		$type = isset( $_GET['log_type'] ) ? sanitize_key( wp_unslash( $_GET['log_type'] ) ) : '';
+		$status = isset( $_GET['log_status'] ) ? sanitize_key( wp_unslash( $_GET['log_status'] ) ) : '';
+		$range = isset( $_GET['log_range'] ) ? sanitize_key( wp_unslash( $_GET['log_range'] ) ) : 'all';
+		$hours_map = array( '24h' => 24, '7d' => 168, '30d' => 720 );
+		$from_ts = 0;
+		if ( isset( $hours_map[ $range ] ) ) {
+			$from_ts = time() - ( $hours_map[ $range ] * HOUR_IN_SECONDS );
+		}
+		$filtered = array_values(
+			array_filter(
+				$logs,
+				static function( $entry ) use ( $type, $status, $from_ts ) {
+					if ( $type && sanitize_key( $entry['type'] ?? '' ) !== $type ) {
+						return false;
+					}
+					if ( $status && sanitize_key( $entry['status'] ?? '' ) !== $status ) {
+						return false;
+					}
+					if ( $from_ts > 0 ) {
+						$ts = strtotime( (string) ( $entry['timestamp'] ?? '' ) . ' UTC' );
+						if ( ! $ts || $ts < $from_ts ) {
+							return false;
+						}
+					}
+					return true;
+				}
+			)
+		);
+		$filtered = array_reverse( array_slice( $filtered, -150 ) );
+		$export = self::cm_formatted_log_export( $filtered );
+		$clear_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_clear_logs' ), 'cafe_moxie_clear_logs' );
+		$export_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_export_logs' ), 'cafe_moxie_export_logs' );
+		echo '<div class="cm-admin-panel-card"><h2>Logs</h2><p class="description">Use this tab to diagnose plugin behavior. Copy the export block into Codex/ChatGPT for targeted troubleshooting.</p>';
+		echo '<form method="post" action="options.php">';
+		settings_fields( 'cafe_moxie_site_kit_group' );
+		echo '<table class="form-table"><tbody>';
+		self::render_registry_row( 'logging_level', self::settings_registry()['logging_level'] );
+		echo '</tbody></table>';
+		submit_button( 'Save logging level', 'secondary', 'submit', false );
+		echo '</form></div>';
+		echo '<div class="cm-admin-panel-card"><h3>Filter logs</h3><form method="get">';
+		echo '<input type="hidden" name="page" value="cafe-moxie-site-kit"/><input type="hidden" name="tab" value="logs"/>';
+		echo '<select name="log_type"><option value="">All types</option><option value="error" ' . selected( $type, 'error', false ) . '>Error</option><option value="warning" ' . selected( $type, 'warning', false ) . '>Warning</option><option value="info" ' . selected( $type, 'info', false ) . '>Info</option><option value="action" ' . selected( $type, 'action', false ) . '>Action</option></select> ';
+		echo '<select name="log_status"><option value="">All statuses</option><option value="success" ' . selected( $status, 'success', false ) . '>Success</option><option value="failure" ' . selected( $status, 'failure', false ) . '>Failure</option></select> ';
+		echo '<select name="log_range"><option value="all" ' . selected( $range, 'all', false ) . '>All time</option><option value="24h" ' . selected( $range, '24h', false ) . '>Last 24h</option><option value="7d" ' . selected( $range, '7d', false ) . '>Last 7d</option><option value="30d" ' . selected( $range, '30d', false ) . '>Last 30d</option></select> ';
+		submit_button( 'Apply filters', 'secondary', '', false );
+		echo '</form>';
+		echo '<p><a class="button button-link-delete" href="' . esc_url( $clear_url ) . '" onclick="return confirm(\'Clear all plugin logs?\');">Clear logs</a> <a class="button button-secondary" href="' . esc_url( $export_url ) . '">Download export (.txt)</a></p>';
+		echo '</div>';
+		echo '<div class="cm-admin-panel-card"><h3>Recent entries (' . intval( count( $filtered ) ) . ')</h3><table class="widefat striped"><thead><tr><th style="width:170px">Timestamp (UTC)</th><th style="width:90px">Type</th><th style="width:90px">Status</th><th style="width:220px">Message</th><th>Context</th></tr></thead><tbody>';
+		if ( empty( $filtered ) ) {
+			echo '<tr><td colspan="5">No logs match the current filter.</td></tr>';
+		} else {
+			foreach ( $filtered as $entry ) {
+				echo '<tr><td>' . esc_html( $entry['timestamp'] ?? '' ) . '</td><td>' . esc_html( strtoupper( $entry['type'] ?? '' ) ) . '</td><td>' . esc_html( $entry['status'] ?? '' ) . '</td><td>' . esc_html( $entry['message'] ?? '' ) . '</td><td><code style="display:block;white-space:pre-wrap;">' . esc_html( $entry['context_json'] ?? '{}' ) . '</code></td></tr>';
+			}
+		}
+		echo '</tbody></table></div>';
+		echo '<div class="cm-admin-panel-card"><h3>Copy/export format for AI debugging</h3><textarea readonly style="width:100%;min-height:260px;">' . esc_textarea( $export ) . '</textarea></div>';
 	}
 
 	private static function render_generation_actions() {
@@ -1083,6 +1357,10 @@ final class Cafe_Moxie_Site_Kit {
 				<?php self::render_presentation_state_panel(); ?>
 				<?php self::render_status_summary(); ?>
 				<?php self::render_generation_actions(); ?>
+				<?php return; ?>
+			<?php endif; ?>
+			<?php if ( 'logs' === $current_tab ) : ?>
+				<?php self::render_logs_tab(); ?>
 				<?php return; ?>
 			<?php endif; ?>
 			<form method="post" action="options.php">
@@ -2228,11 +2506,13 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$sections = self::composed_sections();
 		$brand = self::brand_profile();
 		$s = self::settings();
+		self::cm_log_action( 'compose_page_content', 'success', array( 'template_key' => $template_key, 'requested_sections' => $requested ) );
 
 		ob_start();
 		echo '<!-- wp:group {"className":"cm-wrap","layout":{"type":"constrained"}} --><div class="wp-block-group cm-wrap">';
 		foreach ( $sequence as $section_key ) {
 			if ( ! isset( $sections[ $section_key ] ) ) {
+				self::cm_log_event( 'warning', 'Compose page skipped unknown section key.', array( 'template_key' => $template_key, 'section_key' => $section_key, 'status' => 'failure' ) );
 				continue;
 			}
 			echo self::render_composed_section( $section_key, $s, $brand );
@@ -2351,6 +2631,9 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$url = self::image_url( $source, $size );
 		if ( $url && ! $attachment_id ) {
 			$attachment_id = attachment_url_to_postid( $url );
+			if ( ! $attachment_id ) {
+				self::cm_log_event( 'info', 'Media metadata resolved from URL fallback only.', array( 'source_type' => is_string( $source ) ? 'string' : gettype( $source ) ) );
+			}
 		}
 
 		$resolved['attachment_id'] = $attachment_id > 0 ? $attachment_id : 0;
@@ -2411,6 +2694,16 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$has_weak_media = ! empty( $args['weak_media_fallback'] ) && ! empty( $meta['is_tiny'] );
 
 		if ( empty( $meta['url'] ) || $has_weak_media ) {
+			self::cm_log_event(
+				'warning',
+				'Media frame fallback used.',
+				array(
+					'frame_mode' => $frame_mode,
+					'orientation' => $orientation,
+					'status' => $has_weak_media ? 'failure' : 'success',
+					'fallback_reason' => $has_weak_media ? 'weak_media' : 'missing_media',
+				)
+			);
 			$detail = $has_weak_media ? 'Image is too small for this layout. Add a higher resolution media asset.' : (string) $args['placeholder_detail'];
 			return '<div class="' . esc_attr( $classes ) . ' cm-media-frame--placeholder"><span class="cm-badge cm-status--warm">' . esc_html( $args['placeholder_badge'] ) . '</span><h2 class="cm-sign-title cm-placeholder-title">' . esc_html( $args['placeholder_title'] ) . '</h2><p class="cm-subtle">' . esc_html( $detail ) . '</p></div>';
 		}
@@ -2429,6 +2722,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	private static function render_composed_section( $section_key, $s, $brand ) {
 		$sections = self::composed_sections();
 		if ( ! isset( $sections[ $section_key ]['template'] ) ) {
+			self::cm_log_event( 'warning', 'Missing composed section template mapping.', array( 'section_key' => $section_key, 'status' => 'failure' ) );
 			return '';
 		}
 		$visibility = $sections[ $section_key ]['visibility_rules'] ?? array();
@@ -2437,15 +2731,18 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			$expected = isset( $visibility['truthy'] ) ? (bool) $visibility['truthy'] : true;
 			$current = ! empty( $s[ $setting_key ] );
 			if ( $expected !== $current ) {
+				self::cm_log_event( 'info', 'Composed section hidden by visibility rule.', array( 'section_key' => $section_key, 'setting_key' => $setting_key ) );
 				return '';
 			}
 		}
 		$templates = self::composed_section_markup();
 		$template_key = $sections[ $section_key ]['template'];
 		if ( ! isset( $templates[ $template_key ] ) ) {
+			self::cm_log_event( 'warning', 'Composed section template key not found.', array( 'section_key' => $section_key, 'template_key' => $template_key, 'status' => 'failure' ) );
 			return '';
 		}
 		$context = self::composed_section_context( $s, $brand );
+		self::cm_log_action( 'composed_section_render', 'success', array( 'section_key' => $section_key, 'template_key' => $template_key ) );
 		return self::replace_markup_tokens( $templates[ $template_key ], $context );
 	}
 
@@ -2547,6 +2844,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			$post_id = self::create_or_update_page( $slug, $title, $content, true );
 			if ( ! is_wp_error( $post_id ) ) {
 				self::set_generated_markers( $post_id, $type, $content );
+			} else {
+				self::cm_log_error( 'Page creation failed.', array( 'page_slug' => $slug, 'generation_type' => $type, 'error' => $post_id ) );
 			}
 			return array( 'status' => 'created', 'post_id' => $post_id );
 		}
@@ -2566,6 +2865,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$post_id = self::create_or_update_page( $slug, $title, $content, true );
 		if ( ! is_wp_error( $post_id ) ) {
 			self::set_generated_markers( $post_id, $type, $content );
+		} else {
+			self::cm_log_error( 'Page update failed.', array( 'page_slug' => $slug, 'generation_type' => $type, 'error' => $post_id ) );
 		}
 		return array( 'status' => 'updated', 'post_id' => $post_id );
 	}
@@ -2610,10 +2911,35 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		);
 	}
 
+	public static function clear_logs_action() {
+		check_admin_referer( 'cafe_moxie_clear_logs' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to clear logs.', 'cafe-moxie-site-kit' ) );
+		}
+		update_option( self::LOG_OPTION, array(), false );
+		self::cm_log_action( 'logs_clear', 'success', array( 'major' => true ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&tab=logs' ) );
+		exit;
+	}
+
+	public static function export_logs_action() {
+		check_admin_referer( 'cafe_moxie_export_logs' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to export logs.', 'cafe-moxie-site-kit' ) );
+		}
+		$export = self::cm_formatted_log_export( self::cm_all_logs() );
+		$filename = 'cafe-moxie-site-kit-logs-' . gmdate( 'Ymd-His' ) . '.txt';
+		header( 'Content-Type: text/plain; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=' . $filename );
+		echo $export; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		exit;
+	}
+
 	public static function create_starter_pages() {
 		check_admin_referer( 'cafe_moxie_create_starter_pages' );
 		$s = self::settings();
 		$overwrite = ( 'overwrite' === ( $s['refresh_mode'] ?? 'safe' ) );
+		self::cm_log_action( 'starter_generation_request', 'success', array( 'major' => true, 'overwrite' => $overwrite ) );
 		$counts = self::generate_starter_pages( $overwrite );
 		$redirect_url = add_query_arg(
 			array(
@@ -2654,12 +2980,30 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				)
 			);
 			$status = $result['status'] ?? 'errors';
+			self::cm_log_action(
+				'starter_page_generate',
+				( 'errors' === $status ) ? 'failure' : 'success',
+				array(
+					'major' => true,
+					'page_slug' => $definition['slug'],
+					'result_status' => $status,
+				)
+			);
 			if ( isset( $counts[ $status ] ) ) {
 				$counts[ $status ]++;
 			} else {
 				$counts['errors']++;
 			}
 		}
+		self::cm_log_action(
+			'starter_generation_complete',
+			$counts['errors'] > 0 ? 'failure' : 'success',
+			array(
+				'major' => true,
+				'counts' => $counts,
+				'overwrite' => $overwrite,
+			)
+		);
 		return $counts;
 	}
 
@@ -2670,6 +3014,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		}
 		$page_id = isset( $_GET['page_id'] ) ? intval( $_GET['page_id'] ) : 0;
 		if ( $page_id < 1 ) {
+			self::cm_log_action( 'assign_front_page', 'failure', array( 'major' => true, 'reason' => 'missing_page_id' ) );
 			wp_safe_redirect(
 				add_query_arg(
 					array(
@@ -2683,6 +3028,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		}
 		$page = get_post( $page_id );
 		if ( ! $page || 'page' !== $page->post_type ) {
+			self::cm_log_action( 'assign_front_page', 'failure', array( 'major' => true, 'reason' => 'invalid_page', 'page_id' => $page_id ) );
 			wp_safe_redirect(
 				add_query_arg(
 					array(
@@ -2696,6 +3042,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		}
 		update_option( 'show_on_front', 'page' );
 		update_option( 'page_on_front', $page_id );
+		self::cm_log_action( 'assign_front_page', 'success', array( 'major' => true, 'page_id' => $page_id, 'page_slug' => $page->post_name ) );
 		wp_safe_redirect(
 			add_query_arg(
 				array(
@@ -2717,6 +3064,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$current = self::settings();
 		$updated = self::apply_brand_preset_to_settings( $current, $preset );
 		update_option( self::OPTION, $updated );
+		self::cm_log_action( 'apply_preset', 'success', array( 'major' => true, 'preset' => $preset ) );
 		wp_safe_redirect(
 			add_query_arg(
 				array(
@@ -2736,13 +3084,16 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		}
 		$updated = self::apply_brand_preset_to_settings( self::settings(), 'cafe_moxie', true );
 		update_option( self::OPTION, $updated );
+		self::cm_log_action( 'polished_setup', 'success', array( 'major' => true, 'phase' => 'preset_applied' ) );
 		$counts = self::generate_starter_pages( true );
 		self::generate_template_parts_internal();
 		$home_page = get_page_by_path( 'home', OBJECT, 'page' );
 		if ( $home_page ) {
 			update_option( 'show_on_front', 'page' );
 			update_option( 'page_on_front', (int) $home_page->ID );
+			self::cm_log_action( 'polished_setup', 'success', array( 'major' => true, 'phase' => 'front_page_assigned', 'page_id' => (int) $home_page->ID ) );
 		}
+		self::cm_log_action( 'polished_setup', $counts['errors'] > 0 ? 'failure' : 'success', array( 'major' => true, 'starter_counts' => $counts ) );
 		$msg = sprintf( 'Polished setup complete: %1$d created, %2$d updated starter pages.', $counts['created'], $counts['updated'] );
 		wp_safe_redirect( add_query_arg( array( 'page' => 'cafe-moxie-site-kit', 'cm_setup_notice' => $msg ), admin_url( 'admin.php' ) ) );
 		exit;
@@ -2760,9 +3111,11 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		if ( 'header' === $slug && self::find_template_part( 'cm-site-kit-header' ) ) {
 			$parsed_block['attrs']['slug'] = 'cm-site-kit-header';
 			$parsed_block['attrs']['theme'] = get_stylesheet();
+			self::cm_log_event( 'info', 'Managed header template part injected.', array( 'template_part_slug' => 'cm-site-kit-header' ) );
 		} elseif ( 'footer' === $slug && self::find_template_part( 'cm-site-kit-footer' ) ) {
 			$parsed_block['attrs']['slug'] = 'cm-site-kit-footer';
 			$parsed_block['attrs']['theme'] = get_stylesheet();
+			self::cm_log_event( 'info', 'Managed footer template part injected.', array( 'template_part_slug' => 'cm-site-kit-footer' ) );
 		}
 		return $parsed_block;
 	}
@@ -2834,7 +3187,11 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			) . '<!-- /wp:html --><!-- wp:site-title {"level":0} /--></div><!-- /wp:group -->';
 		}
 		$nav_markup = $nav_ref ? '<!-- wp:navigation {"ref":' . intval( $nav_ref ) . ',"overlayMenu":"mobile","className":"cm-managed-header__nav-items"} /-->' : '';
+		if ( ! $nav_ref ) {
+			self::cm_log_event( 'warning', 'Managed header generated without navigation reference.', array( 'status' => 'failure', 'nav_source' => $s['header_nav_source'] ?? 'primary_navigation' ) );
+		}
 		$header_class = 'counter' === ( $s['header_footer_preset'] ?? '' ) ? 'cm-managed-header is-counter' : 'cm-managed-header is-utility';
+		self::cm_log_action( 'render_managed_header_markup', 'success', array( 'preset' => $s['header_footer_preset'] ?? 'counter', 'brand_treatment' => $s['header_brand_treatment'] ?? '' ) );
 		return '<!-- cm-site-kit:managed-header --><!-- wp:group {"tagName":"header","className":"' . esc_attr( $header_class ) . '","layout":{"type":"constrained"}} --><header class="wp-block-group ' . esc_attr( $header_class ) . '"><!-- wp:group {"className":"cm-managed-header__shell","layout":{"type":"default"}} --><div class="wp-block-group cm-managed-header__shell"><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--left cm-managed-header__brand","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--left cm-managed-header__brand">' . $brand_markup . '</div><!-- /wp:group --><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--center cm-managed-header__nav","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--center cm-managed-header__nav">' . $nav_markup . '</div><!-- /wp:group --><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--right cm-managed-header__actions cm-action-cluster","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--right cm-managed-header__actions cm-action-cluster"><!-- wp:buttons {"className":"cm-action-buttons"} --><div class="wp-block-buttons cm-action-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $cta_url ) . '">' . esc_html( $cta_label ) . '</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --></div><!-- /wp:group --></header><!-- /wp:group -->';
 	}
 
@@ -2846,6 +3203,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		} elseif ( 'copyright' === ( $s['footer_meta_behavior'] ?? '' ) ) {
 			$meta = sprintf( '© %1$s %2$s', gmdate( 'Y' ), get_bloginfo( 'name' ) );
 		}
+		self::cm_log_action( 'render_managed_footer_markup', 'success', array( 'meta_behavior' => $s['footer_meta_behavior'] ?? '' ) );
 		return '<!-- cm-site-kit:managed-footer --><!-- wp:group {"tagName":"footer","className":"cm-managed-footer","layout":{"type":"constrained"}} --><footer class="wp-block-group cm-managed-footer"><!-- wp:columns {"className":"cm-managed-footer__columns"} --><div class="wp-block-columns cm-managed-footer__columns"><!-- wp:column {"className":"cm-managed-footer__column"} --><div class="wp-block-column cm-managed-footer__column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_copy'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_primary'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column {"className":"cm-managed-footer__column"} --><div class="wp-block-column cm-managed-footer__column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_secondary'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_utility_copy'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->' . ( $meta ? '<!-- wp:paragraph {"className":"cm-managed-footer__meta"} --><p class="cm-managed-footer__meta">' . esc_html( $meta ) . '</p><!-- /wp:paragraph -->' : '' ) . '</footer><!-- /wp:group -->';
 	}
 
@@ -2865,6 +3223,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				true
 			);
 			if ( is_wp_error( $updated ) ) {
+				self::cm_log_error( 'Template part update failed.', array( 'template_part_slug' => $slug, 'error' => $updated ) );
 				return 'errors';
 			}
 			wp_set_post_terms( $existing->ID, array( $area ), 'wp_template_part_area', false );
@@ -2882,6 +3241,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			true
 		);
 		if ( is_wp_error( $post_id ) || ! $post_id ) {
+			self::cm_log_error( 'Template part insert failed.', array( 'template_part_slug' => $slug, 'error' => $post_id ) );
 			return 'errors';
 		}
 		wp_set_post_terms( $post_id, array( $area ), 'wp_template_part_area', false );
@@ -2891,6 +3251,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 
 	public static function generate_template_parts() {
 		check_admin_referer( 'cafe_moxie_generate_template_parts' );
+		self::cm_log_action( 'template_part_generation_request', 'success', array( 'major' => true ) );
 		$counts = self::generate_template_parts_internal();
 		$redirect_url = add_query_arg(
 			array(
@@ -2924,6 +3285,14 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				$counts[ $result ]++;
 			}
 		}
+		self::cm_log_action(
+			'template_part_generation_complete',
+			$counts['errors'] > 0 ? 'failure' : 'success',
+			array(
+				'major' => true,
+				'counts' => $counts,
+			)
+		);
 		return $counts;
 	}
 
@@ -2935,13 +3304,24 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$page_slug = sanitize_title( $_POST['page_slug'] ?? $s['composed_page_slug'] );
 		$sections = isset( $_POST['sections'] ) && is_array( $_POST['sections'] ) ? $_POST['sections'] : array();
 		$content = self::compose_page_content( $sections, array( 'template_key' => $template_key ) );
-		self::generate_or_update_page(
+		$result = self::generate_or_update_page(
 			array(
 				'slug' => $page_slug,
 				'title' => $page_title,
 				'content' => $content,
 				'type' => 'composed',
 				'overwrite' => false,
+			)
+		);
+		self::cm_log_action(
+			'composed_page_generate',
+			( isset( $result['status'] ) && 'errors' === $result['status'] ) ? 'failure' : 'success',
+			array(
+				'major' => true,
+				'page_slug' => $page_slug,
+				'template_key' => $template_key,
+				'section_count' => count( (array) $sections ),
+				'result' => $result,
 			)
 		);
 		wp_safe_redirect( admin_url( 'admin.php?page=cafe-moxie-site-kit&composed=1' ) );
@@ -3134,6 +3514,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 
 	public static function normalize_scalar_text( $value ) {
 		if ( is_array( $value ) || is_object( $value ) ) {
+			self::cm_log_event( 'warning', 'SCF normalization received non-scalar text value.', array( 'status' => 'failure', 'value_type' => is_object( $value ) ? 'object' : 'array' ) );
 			return '';
 		}
 		return trim( (string) $value );
@@ -3151,6 +3532,9 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				$list[] = $normalized;
 			}
 		}
+		if ( count( $list ) < count( (array) $values ) ) {
+			self::cm_log_event( 'info', 'SCF normalization dropped empty/invalid list values.', array( 'input_count' => count( (array) $values ), 'output_count' => count( $list ) ) );
+		}
 		return array_values( array_unique( $list ) );
 	}
 
@@ -3158,8 +3542,10 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$module = self::content_module( $module_key );
 		$builder = $module['data_builder'] ?? '';
 		if ( $builder && is_callable( array( __CLASS__, $builder ) ) ) {
+			self::cm_log_action( 'module_data_build', 'success', array( 'module_key' => $module_key, 'post_id' => intval( $post_id ) ) );
 			return call_user_func( array( __CLASS__, $builder ), $post_id );
 		}
+		self::cm_log_event( 'warning', 'Module data builder missing. Using fallback.', array( 'module_key' => $module_key, 'post_id' => intval( $post_id ) ) );
 		return array(
 			'post_id' => intval( $post_id ),
 			'title' => get_the_title( $post_id ),
@@ -3354,6 +3740,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		foreach ( $sections as $section_key ) {
 			$html .= self::render_edge_tool_single_section( $section_key, $data );
 		}
+		self::cm_log_action( 'module_sections_render', 'success', array( 'module_key' => $module_key, 'section_count' => count( $sections ), 'post_id' => intval( $data['post_id'] ?? 0 ) ) );
 		return $html;
 	}
 
@@ -3372,6 +3759,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 
 	public static function render_edge_tool_card( $post_id ) {
 		$d = self::edge_tool_data( $post_id );
+		self::cm_log_action( 'module_card_render', 'success', array( 'module_key' => 'edge_tool', 'post_id' => intval( $post_id ) ) );
 		$meta = array();
 		if ( $d['buying_model'] ) {
 			$meta[] = $d['buying_model'];
