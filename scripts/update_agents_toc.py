@@ -10,7 +10,7 @@ from collections import defaultdict
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[1]
 AGENTS_PATH = REPO_ROOT / "agents.md"
-BASE_LINK = "https://github.com/FabledSky/cafe-moxie-site-kit/edit/main/agents.md#"
+BASE_LINK = "https://github.com/FabledSky/cafe-moxie-site-kit/blob/main/agents.md#"
 BEGIN = "<!-- BEGIN AUTO TOC -->"
 END = "<!-- END AUTO TOC -->"
 HEADER_RE = re.compile(r"^(#{2,4})\s+(.+?)\s*$")
