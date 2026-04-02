@@ -2692,18 +2692,24 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		}
 		$classes = trim( 'cm-media-frame cm-media-frame--' . $frame_mode . ' cm-media-frame--' . $orientation . ' ' . implode( ' ', $extra_classes ) );
 		$has_weak_media = ! empty( $args['weak_media_fallback'] ) && ! empty( $meta['is_tiny'] );
+		static $media_fallback_log_once = array();
 
 		if ( empty( $meta['url'] ) || $has_weak_media ) {
-			self::cm_log_event(
-				'warning',
-				'Media frame fallback used.',
-				array(
-					'frame_mode' => $frame_mode,
-					'orientation' => $orientation,
-					'status' => $has_weak_media ? 'failure' : 'success',
-					'fallback_reason' => $has_weak_media ? 'weak_media' : 'missing_media',
-				)
-			);
+			$fallback_reason = $has_weak_media ? 'weak_media' : 'missing_media';
+			$log_key = $frame_mode . '|' . $orientation . '|' . $fallback_reason;
+			if ( empty( $media_fallback_log_once[ $log_key ] ) ) {
+				$media_fallback_log_once[ $log_key ] = true;
+				self::cm_log_event(
+					$has_weak_media ? 'warning' : 'info',
+					'Media frame fallback used.',
+					array(
+						'frame_mode' => $frame_mode,
+						'orientation' => $orientation,
+						'status' => $has_weak_media ? 'failure' : '',
+						'fallback_reason' => $fallback_reason,
+					)
+				);
+			}
 			$detail = $has_weak_media ? 'Image is too small for this layout. Add a higher resolution media asset.' : (string) $args['placeholder_detail'];
 			return '<div class="' . esc_attr( $classes ) . ' cm-media-frame--placeholder"><span class="cm-badge cm-status--warm">' . esc_html( $args['placeholder_badge'] ) . '</span><h2 class="cm-sign-title cm-placeholder-title">' . esc_html( $args['placeholder_title'] ) . '</h2><p class="cm-subtle">' . esc_html( $detail ) . '</p></div>';
 		}
