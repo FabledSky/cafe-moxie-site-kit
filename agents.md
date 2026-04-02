@@ -1645,6 +1645,15 @@ Status note (2026-04-01 baseline):
   * `docs/IMPLEMENTATION-GUIDE.md`
   * `agents.md`
 
+#### Status update (2026-04-02)
+
+Task 30 shell-ownership closure is now implemented in plugin code with a deterministic shell bootstrap flow:
+
+* Added a plugin-owned **Stand Up Cafe Moxie Site Shell** action that orchestrates preset apply, starter pages, managed navigation provisioning, managed header/footer generation, and front-page assignment.
+* Added plugin-managed fallback `wp_navigation` provisioning (`cm-site-kit-primary-nav` and `cm-site-kit-footer-nav`) and wired header/footer rendering to use these fallbacks when theme menu-location mapping is missing.
+* Expanded setup diagnostics so header template part, footer template part, primary nav, footer nav, logo readiness, front-page assignment, and starter-page pack status are each explicitly reported.
+* Added shell-bootstrap logging coverage for provisioning actions, fallback navigation behavior, and bootstrap completion/failure context.
+
 ---
 
 ### Task 23
