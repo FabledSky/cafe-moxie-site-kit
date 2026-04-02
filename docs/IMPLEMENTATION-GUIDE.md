@@ -156,6 +156,18 @@ The deterministic pre-integration contract is documented in `docs/ai-architectur
 
 This kit is intentionally plugin-light and block-theme-native, so it will not copy Elementor’s exact authoring model. What it does give you is a cleaner, more maintainable path to a similarly polished storefront feel using native patterns, CSS tokens, SCF data, and reusable templates instead of a page-builder dependency.
 
+## Visual stability defaults policy (Task 29)
+
+The Cafe Moxie preset now treats **single-column, stacked composition as the safe baseline** for starter/composed sections and major template surfaces.
+
+Guardrail rules:
+
+- Default section layouts should prefer `single_column` and stack earlier on tablet/mobile.
+- Two-column/split modes are opt-in and should only be used where they stay balanced with real-world (imperfect) content.
+- Heading and CTA defaults must be bounded to prevent clipping, crowding, and dominant text in narrow cards/panels.
+- Media framing should degrade gracefully when missing, portrait, or undersized instead of forcing brittle side-by-side layouts.
+- Managed header composition must remain readable with long labels, optional navigation, and missing logo assets.
+
 ## Task status verification policy
 
 For task tracking in `agents.md`, architecture scaffolding alone is not considered “delivered.”

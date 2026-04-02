@@ -454,6 +454,7 @@ Native plugin UX explicitly does **not** mean:
 * Improve rendering clarity
 * Add reusable helpers
 * Expand templates based on SCF
+* Prefer visually stable defaults over ambitious split layouts: single-column first, calm heading scale, and graceful media/header fallback behavior.
 * Treat the `## Table of Contents` block as generated content between `<!-- BEGIN AUTO TOC -->` and `<!-- END AUTO TOC -->`.
 * Re-run `python3 scripts/update_agents_toc.py` whenever headings or task titles are added, renamed, or removed.
 * Do not hand-edit links inside the auto-generated TOC marker block.

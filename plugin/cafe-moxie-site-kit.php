@@ -78,29 +78,29 @@ final class Cafe_Moxie_Site_Kit {
 				'footer_vertical_padding' => 24,
 				'section_max_width' => 1240,
 				'outer_wrapper_gutter' => 28,
-				'hero_min_height' => 620,
+				'hero_min_height' => 540,
 				'hero_section_spacing' => 36,
 				'border_radius' => 16,
-				'button_scale' => 0.96,
-				'mobile_heading_scale' => 0.94,
+				'button_scale' => 0.94,
+				'mobile_heading_scale' => 0.92,
 				'card_image_ratio' => '4:3',
 				'grid_gap' => 24,
-				'panel_padding' => 26,
-				'content_max_width' => 720,
-				'content_band_max_width' => 1160,
+				'panel_padding' => 24,
+				'content_max_width' => 700,
+				'content_band_max_width' => 1080,
 				'archive_rail_max_width' => 1280,
 				'single_rail_max_width' => 1120,
 				'responsive_breakpoint_mode' => 'early_stack',
 				'page_section_density' => 'comfortable',
 				'site_density_preset' => 'comfortable',
-				'archive_columns' => 3,
+				'archive_columns' => 2,
 				'tablet_columns' => 2,
-				'home_hero_layout' => 'media_right_split',
-				'home_story_layout' => 'media_right_split',
-				'home_trust_layout' => 'stacked_on_tablet',
-				'home_featured_layout' => 'stacked_on_tablet',
-				'about_intro_layout' => 'media_right_split',
-				'about_calibrate_layout' => 'stacked_on_tablet',
+				'home_hero_layout' => 'single_column',
+				'home_story_layout' => 'single_column',
+				'home_trust_layout' => 'single_column',
+				'home_featured_layout' => 'single_column',
+				'about_intro_layout' => 'single_column',
+				'about_calibrate_layout' => 'single_column',
 			),
 			'neutral' => array(
 				'enable_managed_header_footer' => 0,
@@ -269,27 +269,27 @@ final class Cafe_Moxie_Site_Kit {
 			'glow_intensity' => array( 'label' => 'Glow intensity', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.2, 'max' => 2.5, 'default' => 1.0 ),
 			'border_radius' => array( 'label' => 'Corner radius (px)', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 8, 'max' => 40, 'default' => 22, 'css_var' => '--moxie-radius', 'css_unit' => 'px' ),
 			'button_scale' => array( 'label' => 'Button scale', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.8, 'max' => 1.4, 'default' => 1.0, 'css_var' => '--moxie-button-scale' ),
-			'mobile_heading_scale' => array( 'label' => 'Mobile heading scale', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.85, 'max' => 1.2, 'default' => 1.0, 'css_var' => '--moxie-mobile-heading-scale' ),
+			'mobile_heading_scale' => array( 'label' => 'Mobile heading scale', 'group' => 'global_design_tokens', 'type' => 'number', 'sanitize' => 'float_range', 'min' => 0.82, 'max' => 1.08, 'default' => 0.92, 'css_var' => '--moxie-mobile-heading-scale' ),
 			'mobile_layout_mode' => array( 'label' => 'Mobile layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'stacked' => 'Stacked sections', 'balanced' => 'Balanced sections' ), 'sanitize' => 'choice', 'default' => 'stacked', 'class_output' => 'cm-mobile-{value}' ),
 			'card_image_ratio' => array( 'label' => 'Card image ratio', 'group' => 'component_defaults', 'type' => 'text', 'sanitize' => 'ratio', 'default' => '16:10' ),
 			'card_grid_density' => array( 'label' => 'Card + grid density', 'group' => 'component_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable', 'class_output' => 'cm-density-{value}' ),
 			'template_surface' => array( 'label' => 'Template surface style', 'group' => 'component_defaults', 'type' => 'select', 'allowed_values' => array( 'panel' => 'Panel (default)', 'soft' => 'Soft surface', 'flat' => 'Flat surface' ), 'sanitize' => 'choice', 'default' => 'panel', 'class_output' => 'cm-surface-{value}' ),
-			'content_max_width' => array( 'label' => 'Long-form content max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 540, 'max' => 980, 'default' => 760, 'css_var' => '--moxie-content-max', 'css_unit' => 'px' ),
-			'content_band_max_width' => array( 'label' => 'Full-width band max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 860, 'max' => 1600, 'default' => 1120 ),
+			'content_max_width' => array( 'label' => 'Long-form content max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 540, 'max' => 900, 'default' => 700, 'css_var' => '--moxie-content-max', 'css_unit' => 'px' ),
+			'content_band_max_width' => array( 'label' => 'Full-width band max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 860, 'max' => 1320, 'default' => 1080 ),
 			'grid_gap' => array( 'label' => 'Grid gap baseline (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 8, 'max' => 48, 'default' => 20 ),
-			'panel_padding' => array( 'label' => 'Panel/card padding baseline (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 14, 'max' => 48, 'default' => 24 ),
+			'panel_padding' => array( 'label' => 'Panel/card padding baseline (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 16, 'max' => 40, 'default' => 24 ),
 			'archive_rail_max_width' => array( 'label' => 'Archive rail max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 900, 'max' => 1800, 'default' => 1320 ),
 			'single_rail_max_width' => array( 'label' => 'Single template rail max width (px)', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 860, 'max' => 1600, 'default' => 1180 ),
-			'archive_columns' => array( 'label' => 'Desktop archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 4, 'default' => 3, 'css_var' => '--moxie-archive-cols' ),
+			'archive_columns' => array( 'label' => 'Desktop archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 3, 'default' => 2, 'css_var' => '--moxie-archive-cols' ),
 			'tablet_columns' => array( 'label' => 'Tablet archive columns', 'group' => 'component_defaults', 'type' => 'number', 'sanitize' => 'int_range', 'min' => 1, 'max' => 3, 'default' => 2, 'css_var' => '--moxie-tablet-cols' ),
-			'layout_behavior' => array( 'label' => 'Default layout behavior', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'balanced' => 'Balanced split', 'single_column' => 'Single column focus', 'showcase_split' => 'Showcase split' ), 'sanitize' => 'choice', 'default' => 'balanced', 'class_output' => 'cm-layout-{value}' ),
-			'home_hero_layout' => array( 'label' => 'Home hero layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
-			'home_story_layout' => array( 'label' => 'Home story layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'media_right_split' ),
-			'home_trust_layout' => array( 'label' => 'Home trust layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
-			'home_featured_layout' => array( 'label' => 'Home featured layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'stacked_on_tablet' ),
-			'about_intro_layout' => array( 'label' => 'About intro layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'media_right_split' ),
-			'about_calibrate_layout' => array( 'label' => 'About calibration layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'balanced_two_column' ),
-			'responsive_breakpoint_mode' => array( 'label' => 'Responsive breakpoint mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'early_stack' => 'Early stack (tablet-first)', 'balanced' => 'Balanced', 'late_stack' => 'Late stack (wider layouts persist)' ), 'sanitize' => 'choice', 'default' => 'balanced', 'class_output' => 'cm-breakpoints-{value}' ),
+			'layout_behavior' => array( 'label' => 'Default layout behavior', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'balanced' => 'Balanced split', 'single_column' => 'Single column focus', 'showcase_split' => 'Showcase split' ), 'sanitize' => 'choice', 'default' => 'single_column', 'class_output' => 'cm-layout-{value}' ),
+			'home_hero_layout' => array( 'label' => 'Home hero layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'single_column' ),
+			'home_story_layout' => array( 'label' => 'Home story layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'single_column' ),
+			'home_trust_layout' => array( 'label' => 'Home trust layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'single_column' ),
+			'home_featured_layout' => array( 'label' => 'Home featured layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'single_column' ),
+			'about_intro_layout' => array( 'label' => 'About intro layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'single_column' ),
+			'about_calibrate_layout' => array( 'label' => 'About calibration layout mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => $layout_modes, 'sanitize' => 'choice', 'default' => 'single_column' ),
+			'responsive_breakpoint_mode' => array( 'label' => 'Responsive breakpoint mode', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'early_stack' => 'Early stack (tablet-first)', 'balanced' => 'Balanced', 'late_stack' => 'Late stack (wider layouts persist)' ), 'sanitize' => 'choice', 'default' => 'early_stack', 'class_output' => 'cm-breakpoints-{value}' ),
 			'page_section_density' => array( 'label' => 'Page section spacing', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable' ),
 			'site_density_preset' => array( 'label' => 'Site density preset', 'description' => 'Sets the base rhythm for spacing and padding across plugin-managed surfaces.', 'group' => 'page_template_defaults', 'type' => 'select', 'allowed_values' => array( 'compact' => 'Compact', 'comfortable' => 'Comfortable', 'airy' => 'Airy' ), 'sanitize' => 'choice', 'default' => 'comfortable', 'class_output' => 'cm-site-density-{value}' ),
 			'display_logo_image' => array( 'label' => 'Brand mark image URL', 'group' => 'storefront_defaults', 'type' => 'url', 'sanitize' => 'url_or_path', 'default' => '' ),
@@ -1305,7 +1305,7 @@ final class Cafe_Moxie_Site_Kit {
 		);
 	}
 
-	public static function section_layout_classes( $setting_key, $fallback = 'balanced_two_column', $extra = '' ) {
+	public static function section_layout_classes( $setting_key, $fallback = 'single_column', $extra = '' ) {
 		$s = self::settings();
 		$mode = sanitize_key( $s[ $setting_key ] ?? $fallback );
 		$map = array(
@@ -1476,8 +1476,8 @@ html{scroll-behavior:smooth}
 *,*::before,*::after{box-sizing:border-box}
 body.cm-moxie-site{background:radial-gradient(circle at top right, rgba(31,184,178,.08), transparent 24%),radial-gradient(circle at top left, rgba(53,214,255,.09), transparent 18%),linear-gradient(180deg,var(--moxie-ink) 0%,var(--moxie-midnight) 42%,var(--moxie-oil) 100%);color:var(--moxie-text)}
 body.cm-moxie-site,body.cm-moxie-site button,body.cm-moxie-site input,body.cm-moxie-site select,body.cm-moxie-site textarea,body.cm-moxie-site .wp-block-button__link{font-family:'IBM Plex Sans',system-ui,sans-serif}
-body.cm-moxie-site h1,body.cm-moxie-site h2,body.cm-moxie-site h3,body.cm-moxie-site h4,body.cm-moxie-site h5,body.cm-moxie-site h6,body.cm-moxie-site .cm-sign-title,body.cm-moxie-site .wp-block-site-title{font-family:'Chathura','IBM Plex Sans Condensed','IBM Plex Sans',sans-serif;color:var(--moxie-cream);font-weight:700;letter-spacing:.02em;line-height:.92;overflow-wrap:anywhere}
-body.cm-moxie-site h1{font-size:56px}body.cm-moxie-site h2{font-size:50px}body.cm-moxie-site h3{font-size:44px}body.cm-moxie-site h4{font-size:40px}body.cm-moxie-site h5{font-size:36px}body.cm-moxie-site h6{font-size:32px}
+body.cm-moxie-site h1,body.cm-moxie-site h2,body.cm-moxie-site h3,body.cm-moxie-site h4,body.cm-moxie-site h5,body.cm-moxie-site h6,body.cm-moxie-site .cm-sign-title,body.cm-moxie-site .wp-block-site-title{font-family:'Chathura','IBM Plex Sans Condensed','IBM Plex Sans',sans-serif;color:var(--moxie-cream);font-weight:700;letter-spacing:.012em;line-height:1.04;overflow-wrap:anywhere;hyphens:auto}
+body.cm-moxie-site h1{font-size:clamp(2.4rem,6.4vw,3.2rem)}body.cm-moxie-site h2{font-size:clamp(2rem,5.4vw,2.8rem)}body.cm-moxie-site h3{font-size:clamp(1.7rem,4.2vw,2.3rem)}body.cm-moxie-site h4{font-size:clamp(1.45rem,3.4vw,2rem)}body.cm-moxie-site h5{font-size:clamp(1.25rem,3vw,1.65rem)}body.cm-moxie-site h6{font-size:clamp(1.1rem,2.4vw,1.35rem)}
 body.cm-moxie-site p,body.cm-moxie-site li,body.cm-moxie-site td,body.cm-moxie-site th{color:var(--moxie-text);overflow-wrap:anywhere}
 body.cm-moxie-site a{color:var(--moxie-cyan)}
 body.cm-moxie-site a:hover,body.cm-moxie-site a:focus{color:var(--moxie-amber)}
@@ -1490,16 +1490,20 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-managed-header{padding:var(--moxie-header-pad) 0}
 .cm-managed-header.is-counter{border-bottom:1px solid var(--moxie-line)}
 .cm-managed-header.is-utility{background:rgba(5,7,13,.25);border-radius:0 0 12px 12px}
-.cm-managed-header__shell{display:grid;grid-template-columns:minmax(180px,1fr) minmax(200px,1.2fr) minmax(160px,auto);align-items:center;gap:18px}
+.cm-managed-header__shell{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,1.4fr) auto;align-items:center;gap:14px}
+.cm-managed-header.cm-managed-header--no-nav .cm-managed-header__shell{grid-template-columns:minmax(220px,1fr) auto}
 .cm-managed-header__region,.cm-managed-header__brand,.cm-managed-header__nav,.cm-managed-header__actions{min-width:0}
 .cm-managed-header__region--left{justify-self:start}
 .cm-managed-header__region--center{justify-self:center;width:100%}
 .cm-managed-header__region--right{justify-self:end}
-.cm-managed-header__nav .wp-block-navigation{justify-content:center;row-gap:8px}
+.cm-managed-header__brand .wp-block-site-title{font-size:clamp(1.3rem,2vw,1.8rem);line-height:1.15}
+.cm-managed-header__nav .wp-block-navigation{justify-content:center;row-gap:6px;column-gap:10px}
 .cm-managed-header__actions{display:flex;justify-content:flex-end}
 .cm-action-cluster,.cm-action-buttons{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .cm-action-cluster > *,.cm-action-buttons > *{min-width:0}
 .cm-action-buttons .wp-block-button{margin:0}
+.cm-managed-header__actions .wp-block-button{max-width:100%}
+.cm-managed-header__cta .wp-block-button__link{max-width:24ch}
 .cm-managed-footer{margin-top:32px;padding:var(--moxie-footer-pad) 0;border-top:1px solid var(--moxie-line)}
 .cm-managed-footer__columns{gap:18px;align-items:flex-start}
 .cm-managed-footer__column > *{margin-block:0 10px}
@@ -1511,6 +1515,7 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-section{margin-block:var(--moxie-section-gap)}
 .cm-panel,.cm-card,.is-style-cm-panel{position:relative;overflow:hidden;padding:var(--moxie-card-pad);border-radius:var(--moxie-radius);border:1px solid var(--moxie-line);background:linear-gradient(180deg,rgba(18,26,43,.96),rgba(10,16,32,.98));box-shadow:var(--moxie-shadow)}
 .cm-panel:before,.cm-card:before,.is-style-cm-panel:before{content:'';position:absolute;inset:-1px auto auto -1px;width:180px;height:180px;background:radial-gradient(circle at top left, rgba(53,214,255,.14), transparent 70%);pointer-events:none}
+.cm-panel > *:last-child,.cm-card > *:last-child{margin-bottom:0}
 .cm-brand-mark{display:inline-flex;align-items:center;gap:14px;margin-bottom:14px}
 .cm-brand-mark img{display:block;width:min(var(--moxie-logo-width),100%);height:auto;filter:drop-shadow(0 0 12px rgba(53,214,255,.18))}
 .cm-brand-mark__fallback{display:inline-flex;align-items:center;gap:12px;min-height:40px;padding:10px 16px;border-radius:999px;border:1px solid rgba(53,214,255,.24);background:rgba(53,214,255,.06);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--moxie-cyan)}
@@ -1520,10 +1525,10 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-status--compute{color:var(--moxie-magenta);border-color:rgba(255,79,163,.28);background:rgba(255,79,163,.08);box-shadow:var(--moxie-glow-magenta)}
 .cm-status--alert{color:var(--moxie-signal-red);border-color:rgba(230,72,72,.32);background:rgba(230,72,72,.08)}
 .cm-chip-list{display:flex;flex-wrap:wrap;gap:10px}
-.cm-button,.wp-element-button,.wp-block-button__link{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:calc(12px * var(--moxie-button-scale)) calc(18px * var(--moxie-button-scale));border-radius:14px;border:1px solid rgba(53,214,255,.24);background:linear-gradient(180deg,rgba(53,214,255,.18),rgba(31,184,178,.16));color:var(--moxie-cream)!important;text-decoration:none;font-weight:700;box-shadow:var(--moxie-glow-cyan);text-align:center;white-space:normal;word-break:break-word}
+.cm-button,.wp-element-button,.wp-block-button__link{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:calc(11px * var(--moxie-button-scale)) calc(16px * var(--moxie-button-scale));border-radius:14px;border:1px solid rgba(53,214,255,.24);background:linear-gradient(180deg,rgba(53,214,255,.18),rgba(31,184,178,.16));color:var(--moxie-cream)!important;text-decoration:none;font-weight:700;box-shadow:var(--moxie-glow-cyan);text-align:center;white-space:normal;word-break:break-word;max-width:100%}
 .cm-button--secondary{background:rgba(246,179,92,.08)!important;color:var(--moxie-amber)!important;border-color:rgba(246,179,92,.28)!important;box-shadow:var(--moxie-glow-amber)}
 .cm-button--subtle{background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.10)!important;box-shadow:none}
-.cm-sign-title{position:relative;display:inline-block;max-width:100%;padding-bottom:6px}
+.cm-sign-title{position:relative;display:inline-block;max-width:min(24ch,100%);padding-bottom:6px;text-wrap:pretty}
 .cm-sign-title:after{content:'';position:absolute;left:0;bottom:0;width:82px;height:3px;border-radius:999px;background:linear-gradient(90deg,var(--moxie-cyan),var(--moxie-teal));box-shadow:var(--moxie-glow-cyan)}
 .cm-subtle{color:var(--moxie-muted);line-height:1.65}
 .cm-note{margin-top:16px;padding:14px 16px;border-radius:16px;border:1px solid rgba(246,179,92,.24);background:rgba(246,179,92,.08);color:var(--moxie-cream)}
@@ -1539,9 +1544,10 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-layout--full-width-content-band{width:var(--moxie-band-wrap);margin-inline:auto}
 .cm-layout--full-width-content-band > *{max-width:var(--moxie-content-max)}
 .cm-copy-prose p,.cm-copy-prose li{max-width:var(--moxie-content-max)}
+.cm-copy-prose > p,.cm-copy-prose > ul,.cm-copy-prose > ol{margin-block:0 12px}
 .cm-hero{min-height:{$s['hero_min_height']}px;align-items:stretch;padding-block:var(--moxie-section-gap)}
 .cm-placeholder{min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:28px;border:1px dashed rgba(53,214,255,.28);border-radius:18px;background:rgba(53,214,255,.04)}
-.cm-placeholder-title{font-size:clamp(34px,4.8vw,50px)}
+.cm-placeholder-title{font-size:clamp(2rem,5vw,2.75rem)}
 .cm-kv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .cm-kv{padding:14px;border:1px solid rgba(53,214,255,.12);border-radius:16px;background:rgba(5,7,13,.26)}
 .cm-kv__label{font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--moxie-cyan);margin-bottom:6px}
@@ -1555,8 +1561,8 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-card-link{text-decoration:none;color:inherit}
 .cm-media-frame{position:relative;overflow:hidden;border-radius:calc(var(--moxie-radius) - 6px);border:1px solid rgba(53,214,255,.14);background:linear-gradient(180deg,rgba(10,16,32,.96),rgba(18,26,43,.98))}
 .cm-media-frame--hero-wide{aspect-ratio:16/10;min-height:340px}
-.cm-media-frame--split-standard{aspect-ratio:4/3;min-height:280px}
-.cm-media-frame--split-tall{aspect-ratio:3/4;min-height:320px}
+.cm-media-frame--split-standard{aspect-ratio:4/3;min-height:240px}
+.cm-media-frame--split-tall{aspect-ratio:3/4;min-height:280px}
 .cm-media-frame--square-card{aspect-ratio:1/1;min-height:220px}
 .cm-media-frame--portrait-focus{aspect-ratio:3/4;min-height:380px}
 .cm-media-frame--logo-signage{aspect-ratio:5/3;min-height:140px}
@@ -1617,8 +1623,8 @@ body.cm-surface-flat .cm-panel,body.cm-surface-flat .cm-card{background:rgba(14,
 body.cm-layout-single_column .cm-grid-2{grid-template-columns:1fr}
 body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 @media (max-width:{$archive_breakpoint}px){.cm-filter-bar{grid-template-columns:1fr 1fr 1fr}.cm-grid-4,.cm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-archive-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:{$tablet_breakpoint}px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--stacked-on-tablet,.cm-layout--media-portrait-focus{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-query-summary .cm-chip-list{width:100%}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}.cm-managed-header__shell{grid-template-columns:1fr;gap:14px}.cm-managed-header__region--left,.cm-managed-header__region--center,.cm-managed-header__region--right{justify-self:stretch}.cm-managed-header__nav .wp-block-navigation{justify-content:flex-start}.cm-managed-header__actions{justify-content:flex-start}.cm-managed-footer__columns{display:grid;grid-template-columns:1fr}}
-@media (max-width:640px){body.cm-moxie-site h1{font-size:calc(44px * var(--moxie-mobile-heading-scale));line-height:1}body.cm-moxie-site h2{font-size:calc(40px * var(--moxie-mobile-heading-scale));line-height:1.02}body.cm-moxie-site h3{font-size:calc(34px * var(--moxie-mobile-heading-scale));line-height:1.04}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:220px}.cm-panel,.cm-card{overflow-wrap:anywhere}.cm-chip,.cm-status,.cm-badge,.cm-button{width:100%}.cm-action-cluster,.cm-action-buttons,.cm-filter-actions{width:100%}}
+@media (max-width:{$tablet_breakpoint}px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--balanced-two-column,.cm-layout--stacked-on-tablet,.cm-layout--media-left-split,.cm-layout--media-right-split,.cm-layout--media-portrait-focus{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-query-summary .cm-chip-list{width:100%}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}.cm-managed-header__shell{grid-template-columns:1fr;gap:12px}.cm-managed-header__region--left,.cm-managed-header__region--center,.cm-managed-header__region--right{justify-self:stretch}.cm-managed-header__nav .wp-block-navigation{justify-content:flex-start}.cm-managed-header__actions{justify-content:flex-start}.cm-managed-footer__columns{display:grid;grid-template-columns:1fr}}
+@media (max-width:640px){body.cm-moxie-site h1{font-size:calc(2.2rem * var(--moxie-mobile-heading-scale));line-height:1.06}body.cm-moxie-site h2{font-size:calc(1.95rem * var(--moxie-mobile-heading-scale));line-height:1.08}body.cm-moxie-site h3{font-size:calc(1.6rem * var(--moxie-mobile-heading-scale));line-height:1.1}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:220px}.cm-panel,.cm-card{overflow-wrap:anywhere}.cm-chip,.cm-status,.cm-badge,.cm-button{width:100%}.cm-action-cluster,.cm-action-buttons,.cm-filter-actions{width:100%}}
 @media (max-width:640px){body.cm-mobile-balanced .cm-panel,body.cm-mobile-balanced .cm-card{padding:calc(var(--moxie-card-pad) - 4px)}}
 ";
 	}
@@ -2541,7 +2547,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			'how_it_works_credits' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Compute Credits</p><!-- /wp:paragraph --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Pay for the task, not the platform. Use compute when local setup is not worth it, then return to your normal workflow.</p><!-- /wp:paragraph --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>Heavier lift. Same judgment.</li><li>Run it off-site when you just need it done.</li><li>Every product page states what still needs a human eye.</li></ul><!-- /wp:list --></div><!-- /wp:group -->',
 			'how_it_works_cta' => '<!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section"><!-- wp:paragraph --><p class="cm-eyebrow">Choose your model</p><!-- /wp:paragraph --><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Own the leverage. Pick the tool that matches the task.</h2><!-- /wp:heading --><!-- wp:buttons {"className":"cm-action-cluster cm-action-buttons cm-action-buttons--composed"} --><div class="wp-block-buttons cm-action-cluster cm-action-buttons cm-action-buttons--composed"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{edge_tool_archive_url}}">Browse the Counter</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
 			'who_its_for_intro' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Who It’s For</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">For the person everyone asks for help.</h1><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Cafe Moxie is built for people whose jobs happen on computers and whose skill has been shaped by doing the work repeatedly in the real world.</p><!-- /wp:paragraph --></div><!-- /wp:group -->',
-			'who_its_for_traits' => '<!-- wp:group {"className":"cm-grid-2 cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-grid-2 cm-section"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Roles we build for</h2><!-- /wp:heading --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>Operations staff and coordinators</li><li>Executive and administrative assistants</li><li>Analysts, researchers, editors, and producers</li><li>Office managers, project support staff, and case managers</li><li>Digital freelancers and high-competence non-engineer power users</li></ul><!-- /wp:list --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Shared traits</h2><!-- /wp:heading --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>Comfortable with desktop and web workflows</li><li>Handles repetitive digital tasks constantly</li><li>Knows what the output should look like before the tool runs</li><li>Skeptical of hype and responsive to what actually works</li><li>Takes quiet pride in being able to fix the thing</li></ul><!-- /wp:list --></div><!-- /wp:group --></div><!-- /wp:group -->',
+			'who_its_for_traits' => '<!-- wp:group {"className":"cm-layout cm-layout--single-column cm-section","layout":{"type":"default"}} --><div class="wp-block-group cm-layout cm-layout--single-column cm-section"><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Roles we build for</h2><!-- /wp:heading --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>Operations staff and coordinators</li><li>Executive and administrative assistants</li><li>Analysts, researchers, editors, and producers</li><li>Office managers, project support staff, and case managers</li><li>Digital freelancers and high-competence non-engineer power users</li></ul><!-- /wp:list --></div><!-- /wp:group --><!-- wp:group {"className":"cm-panel cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-copy-prose"><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Shared traits</h2><!-- /wp:heading --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>Comfortable with desktop and web workflows</li><li>Handles repetitive digital tasks constantly</li><li>Knows what the output should look like before the tool runs</li><li>Skeptical of hype and responsive to what actually works</li><li>Takes quiet pride in being able to fix the thing</li></ul><!-- /wp:list --></div><!-- /wp:group --></div><!-- /wp:group -->',
 			'who_its_for_emotional_truth' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:heading {"level":2,"className":"cm-sign-title"} --><h2 class="wp-block-heading cm-sign-title">Better tools, not software theater.</h2><!-- /wp:heading --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">These workers do not want to disrupt work. They want to get through the work with less friction, less dependency, and more dignity.</p><!-- /wp:paragraph --><!-- wp:paragraph {"className":"cm-subtle"} --><p class="cm-subtle">Pull up a chair. The tools are ready.</p><!-- /wp:paragraph --></div><!-- /wp:group -->',
 			'who_its_for_cta' => '<!-- wp:group {"className":"cm-panel cm-section","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section"><!-- wp:paragraph --><p class="cm-eyebrow">Find your edge</p><!-- /wp:paragraph --><!-- wp:buttons {"className":"cm-action-cluster cm-action-buttons cm-action-buttons--composed"} --><div class="wp-block-buttons cm-action-cluster cm-action-buttons cm-action-buttons--composed"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{edge_tool_archive_url}}">Browse the Counter</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group -->',
 			'trust_faq_promises' => '<!-- wp:group {"className":"cm-panel cm-section cm-copy-prose","layout":{"type":"constrained"}} --><div class="wp-block-group cm-panel cm-section cm-copy-prose"><!-- wp:paragraph --><p class="cm-eyebrow">Trust + FAQ</p><!-- /wp:paragraph --><!-- wp:heading {"level":1,"className":"cm-sign-title"} --><h1 class="wp-block-heading cm-sign-title">What we won’t do.</h1><!-- /wp:heading --><!-- wp:list {"className":"cm-trust-list"} --><ul class="cm-trust-list"><li>We won’t gate basic functionality behind a subscription.</li><li>We won’t pretend AI replaces your judgment.</li><li>We won’t harvest your documents to train models.</li><li>If a tool is not right for your task, we will say so.</li><li>Every product page states what still needs a human eye.</li></ul><!-- /wp:list --></div><!-- /wp:group -->',
@@ -2564,21 +2570,21 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$about_story_image = self::resolve_url( $s['about_story_image'] ?? '' );
 		$home_story_meta = self::resolve_media_metadata( $home_story_image );
 		$about_story_meta = self::resolve_media_metadata( $about_story_image );
-		$home_story_layout_fallback = 'portrait' === $home_story_meta['orientation'] ? 'stacked_on_tablet' : 'media_right_split';
-		$about_intro_layout_fallback = 'portrait' === $about_story_meta['orientation'] ? 'stacked_on_tablet' : 'media_right_split';
+		$home_story_layout_fallback = 'single_column';
+		$about_intro_layout_fallback = 'single_column';
 		return array(
 			'brand_mark' => self::render_brand_mark(),
 			'brand_name' => esc_html( $brand['name'] ?? '' ),
-			'home_hero_layout' => esc_attr( self::section_layout_classes( 'home_hero_layout', 'balanced_two_column', 'cm-hero' ) ),
+			'home_hero_layout' => esc_attr( self::section_layout_classes( 'home_hero_layout', 'single_column', 'cm-hero' ) ),
 			'home_story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', $home_story_layout_fallback ) ),
-			'home_trust_layout' => esc_attr( self::section_layout_classes( 'home_trust_layout', 'balanced_two_column' ) ),
-			'home_featured_layout' => esc_attr( self::section_layout_classes( 'home_featured_layout', 'stacked_on_tablet' ) ),
+			'home_trust_layout' => esc_attr( self::section_layout_classes( 'home_trust_layout', 'single_column' ) ),
+			'home_featured_layout' => esc_attr( self::section_layout_classes( 'home_featured_layout', 'single_column' ) ),
 			'about_intro_layout' => esc_attr( self::section_layout_classes( 'about_intro_layout', $about_intro_layout_fallback ) ),
-			'about_calibrate_layout' => esc_attr( self::section_layout_classes( 'about_calibrate_layout', 'balanced_two_column' ) ),
+			'about_calibrate_layout' => esc_attr( self::section_layout_classes( 'about_calibrate_layout', 'single_column' ) ),
 			'home_hero_media' => self::render_composed_media_frame( $home_hero_image, $brand['name'] ?? '', 'hero-wide', 'Add hero image', 'Cafe signage-worthy hero frame' ),
 			'home_story_media' => self::render_composed_media_frame( $home_story_image, $brand['name'] ?? '', 'split-standard', 'Add story image', 'Story image frame' ),
 			'about_story_media' => self::render_composed_media_frame( $about_story_image, $brand['name'] ?? '', 'split-tall', 'Add about image', 'About image frame' ),
-			'story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', 'media_right_split' ) ),
+			'story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', 'single_column' ) ),
 			'primary_cta_url' => esc_url( self::resolve_url( $s['home_primary_url'] ?? '' ) ),
 			'primary_cta_label' => esc_html( $s['home_primary_cta'] ?? '' ),
 			'home_primary_cta_url' => esc_url( self::resolve_url( $s['home_primary_url'] ?? '' ) ),
@@ -3165,7 +3171,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$site_name = get_bloginfo( 'name' );
 		$brand_name = ! empty( $s['site_kicker'] ) ? $s['site_kicker'] : $site_name;
 		$logo_url = self::resolve_url( $s['display_logo_image'] ?? '' );
-		$cta_label = ! empty( $s['header_cta_label'] ) ? $s['header_cta_label'] : 'Browse Tools';
+		$cta_label_raw = ! empty( $s['header_cta_label'] ) ? $s['header_cta_label'] : 'Browse Tools';
+		$cta_label = wp_html_excerpt( $cta_label_raw, 34, '…' );
 		$cta_url = self::resolve_url( $s['header_cta_url'] ?? '/edge-tools/' );
 		$nav_ref = self::resolve_navigation_post_id( $s['header_nav_source'] ?? 'primary_navigation' );
 		$brand_markup = '<!-- wp:site-title {"level":0} /-->';
@@ -3197,8 +3204,11 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			self::cm_log_event( 'warning', 'Managed header generated without navigation reference.', array( 'status' => 'failure', 'nav_source' => $s['header_nav_source'] ?? 'primary_navigation' ) );
 		}
 		$header_class = 'counter' === ( $s['header_footer_preset'] ?? '' ) ? 'cm-managed-header is-counter' : 'cm-managed-header is-utility';
+		if ( ! $nav_ref ) {
+			$header_class .= ' cm-managed-header--no-nav';
+		}
 		self::cm_log_action( 'render_managed_header_markup', 'success', array( 'preset' => $s['header_footer_preset'] ?? 'counter', 'brand_treatment' => $s['header_brand_treatment'] ?? '' ) );
-		return '<!-- cm-site-kit:managed-header --><!-- wp:group {"tagName":"header","className":"' . esc_attr( $header_class ) . '","layout":{"type":"constrained"}} --><header class="wp-block-group ' . esc_attr( $header_class ) . '"><!-- wp:group {"className":"cm-managed-header__shell","layout":{"type":"default"}} --><div class="wp-block-group cm-managed-header__shell"><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--left cm-managed-header__brand","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--left cm-managed-header__brand">' . $brand_markup . '</div><!-- /wp:group --><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--center cm-managed-header__nav","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--center cm-managed-header__nav">' . $nav_markup . '</div><!-- /wp:group --><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--right cm-managed-header__actions cm-action-cluster","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--right cm-managed-header__actions cm-action-cluster"><!-- wp:buttons {"className":"cm-action-buttons"} --><div class="wp-block-buttons cm-action-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $cta_url ) . '">' . esc_html( $cta_label ) . '</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --></div><!-- /wp:group --></header><!-- /wp:group -->';
+		return '<!-- cm-site-kit:managed-header --><!-- wp:group {"tagName":"header","className":"' . esc_attr( $header_class ) . '","layout":{"type":"constrained"}} --><header class="wp-block-group ' . esc_attr( $header_class ) . '"><!-- wp:group {"className":"cm-managed-header__shell","layout":{"type":"default"}} --><div class="wp-block-group cm-managed-header__shell"><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--left cm-managed-header__brand","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--left cm-managed-header__brand">' . $brand_markup . '</div><!-- /wp:group --><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--center cm-managed-header__nav","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--center cm-managed-header__nav">' . $nav_markup . '</div><!-- /wp:group --><!-- wp:group {"className":"cm-managed-header__region cm-managed-header__region--right cm-managed-header__actions cm-action-cluster","layout":{"type":"constrained"}} --><div class="wp-block-group cm-managed-header__region cm-managed-header__region--right cm-managed-header__actions cm-action-cluster"><!-- wp:buttons {"className":"cm-action-buttons"} --><div class="wp-block-buttons cm-action-buttons"><!-- wp:button {"className":"cm-managed-header__cta"} --><div class="wp-block-button cm-managed-header__cta"><a class="wp-block-button__link wp-element-button" href="' . esc_url( $cta_url ) . '">' . esc_html( $cta_label ) . '</a></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:group --></div><!-- /wp:group --></header><!-- /wp:group -->';
 	}
 
 	private static function generated_footer_markup() {
