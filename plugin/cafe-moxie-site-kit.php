@@ -1086,6 +1086,9 @@ body.cm-moxie-site .wp-block-navigation a:hover{color:var(--moxie-cyan)}
 .cm-media-frame--hero-wide{aspect-ratio:16/10;min-height:340px}
 .cm-media-frame--split-standard{aspect-ratio:4/3;min-height:280px}
 .cm-media-frame--split-tall{aspect-ratio:3/4;min-height:320px}
+.cm-media-frame--square-card{aspect-ratio:1/1;min-height:220px}
+.cm-media-frame--portrait-focus{aspect-ratio:3/4;min-height:380px}
+.cm-media-frame--logo-signage{aspect-ratio:5/3;min-height:140px}
 .cm-media-frame--placeholder{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:28px}
 .cm-media-frame--portrait{min-height:360px}
 .cm-media-frame--ratio:before{content:'';display:block;padding-top:var(--moxie-card-ratio)}
@@ -1143,7 +1146,7 @@ body.cm-surface-flat .cm-panel,body.cm-surface-flat .cm-card{background:rgba(14,
 body.cm-layout-single_column .cm-grid-2{grid-template-columns:1fr}
 body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 @media (max-width:{$archive_breakpoint}px){.cm-filter-bar{grid-template-columns:1fr 1fr 1fr}.cm-grid-4,.cm-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.cm-archive-tools{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:{$tablet_breakpoint}px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--stacked-on-tablet{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-query-summary .cm-chip-list{width:100%}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}.cm-managed-header__shell{grid-template-columns:1fr;gap:14px}.cm-managed-header__region--left,.cm-managed-header__region--center,.cm-managed-header__region--right{justify-self:stretch}.cm-managed-header__nav .wp-block-navigation{justify-content:flex-start}.cm-managed-header__actions{justify-content:flex-start}.cm-managed-footer__columns{display:grid;grid-template-columns:1fr}}
+@media (max-width:{$tablet_breakpoint}px){.cm-grid-2,.cm-grid-3,.cm-stat-band,.cm-meta-grid,.cm-layout--stacked-on-tablet,.cm-layout--media-portrait-focus{grid-template-columns:1fr}.cm-before-after{grid-template-columns:1fr}.cm-filter-bar{grid-template-columns:1fr 1fr}.cm-query-summary{flex-direction:column;align-items:flex-start}.cm-query-summary .cm-chip-list{width:100%}.cm-archive-tools{grid-template-columns:repeat(var(--moxie-tablet-cols),minmax(0,1fr))}.cm-managed-header__shell{grid-template-columns:1fr;gap:14px}.cm-managed-header__region--left,.cm-managed-header__region--center,.cm-managed-header__region--right{justify-self:stretch}.cm-managed-header__nav .wp-block-navigation{justify-content:flex-start}.cm-managed-header__actions{justify-content:flex-start}.cm-managed-footer__columns{display:grid;grid-template-columns:1fr}}
 @media (max-width:640px){body.cm-moxie-site h1{font-size:calc(44px * var(--moxie-mobile-heading-scale));line-height:1}body.cm-moxie-site h2{font-size:calc(40px * var(--moxie-mobile-heading-scale));line-height:1.02}body.cm-moxie-site h3{font-size:calc(34px * var(--moxie-mobile-heading-scale));line-height:1.04}.cm-grid-4,.cm-gallery,.cm-kv-grid,.cm-archive-tools,.cm-filter-bar{grid-template-columns:1fr}.cm-meta-row{grid-template-columns:1fr;gap:6px}.cm-video-wrap iframe{min-height:220px}.cm-panel,.cm-card{overflow-wrap:anywhere}.cm-chip,.cm-status,.cm-badge,.cm-button{width:100%}.cm-action-cluster,.cm-action-buttons,.cm-filter-actions{width:100%}}
 @media (max-width:640px){body.cm-mobile-balanced .cm-panel,body.cm-mobile-balanced .cm-card{padding:calc(var(--moxie-card-pad) - 4px)}}
 ";
@@ -2086,14 +2089,18 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$home_hero_image = self::resolve_url( $s['home_hero_image'] ?? '' );
 		$home_story_image = self::resolve_url( $s['home_story_image'] ?? '' );
 		$about_story_image = self::resolve_url( $s['about_story_image'] ?? '' );
+		$home_story_meta = self::resolve_media_metadata( $home_story_image );
+		$about_story_meta = self::resolve_media_metadata( $about_story_image );
+		$home_story_layout_fallback = 'portrait' === $home_story_meta['orientation'] ? 'stacked_on_tablet' : 'media_right_split';
+		$about_intro_layout_fallback = 'portrait' === $about_story_meta['orientation'] ? 'stacked_on_tablet' : 'media_right_split';
 		return array(
 			'brand_mark' => self::render_brand_mark(),
 			'brand_name' => esc_html( $brand['name'] ?? '' ),
 			'home_hero_layout' => esc_attr( self::section_layout_classes( 'home_hero_layout', 'balanced_two_column', 'cm-hero' ) ),
-			'home_story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', 'media_right_split' ) ),
+			'home_story_layout' => esc_attr( self::section_layout_classes( 'home_story_layout', $home_story_layout_fallback ) ),
 			'home_trust_layout' => esc_attr( self::section_layout_classes( 'home_trust_layout', 'balanced_two_column' ) ),
 			'home_featured_layout' => esc_attr( self::section_layout_classes( 'home_featured_layout', 'stacked_on_tablet' ) ),
-			'about_intro_layout' => esc_attr( self::section_layout_classes( 'about_intro_layout', 'media_right_split' ) ),
+			'about_intro_layout' => esc_attr( self::section_layout_classes( 'about_intro_layout', $about_intro_layout_fallback ) ),
 			'about_calibrate_layout' => esc_attr( self::section_layout_classes( 'about_calibrate_layout', 'balanced_two_column' ) ),
 			'home_hero_media' => self::render_composed_media_frame( $home_hero_image, $brand['name'] ?? '', 'hero-wide', 'Add hero image', 'Cafe signage-worthy hero frame' ),
 			'home_story_media' => self::render_composed_media_frame( $home_story_image, $brand['name'] ?? '', 'split-standard', 'Add story image', 'Story image frame' ),
@@ -2113,29 +2120,109 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 	}
 
 	private static function render_composed_media_frame( $url, $brand_name, $frame_mode = 'split-standard', $badge = 'Add image', $fallback_title = 'Image slot' ) {
-		$url = self::resolve_url( $url );
-		$orientation = 'unknown';
-		if ( $url ) {
+		$html = self::render_media_frame(
+			$url,
+			array(
+				'frame_mode' => $frame_mode,
+				'alt' => ( $brand_name ? $brand_name . ' image' : 'Cafe Moxie image' ),
+				'placeholder_badge' => $badge,
+				'placeholder_title' => $fallback_title,
+				'weak_media_fallback' => true,
+			)
+		);
+		return '<!-- wp:html -->' . $html . '<!-- /wp:html -->';
+	}
+
+	public static function resolve_media_metadata( $source, $size = 'large' ) {
+		$resolved = array(
+			'attachment_id' => 0,
+			'url' => '',
+			'width' => 0,
+			'height' => 0,
+			'aspect_ratio' => 0,
+			'orientation' => 'unknown',
+			'is_tiny' => false,
+		);
+
+		if ( empty( $source ) ) {
+			return $resolved;
+		}
+
+		$attachment_id = 0;
+		if ( is_numeric( $source ) ) {
+			$attachment_id = intval( $source );
+		} elseif ( is_array( $source ) ) {
+			$attachment_id = intval( $source['ID'] ?? $source['id'] ?? 0 );
+		}
+
+		$url = self::image_url( $source, $size );
+		if ( $url && ! $attachment_id ) {
 			$attachment_id = attachment_url_to_postid( $url );
-			if ( $attachment_id ) {
-				$meta = wp_get_attachment_metadata( $attachment_id );
-				$width = intval( $meta['width'] ?? 0 );
-				$height = intval( $meta['height'] ?? 0 );
-				if ( $width > 0 && $height > 0 ) {
-					if ( $width > $height ) {
-						$orientation = 'landscape';
-					} elseif ( $height > $width ) {
-						$orientation = 'portrait';
-					} else {
-						$orientation = 'square';
-					}
-				}
+		}
+
+		$resolved['attachment_id'] = $attachment_id > 0 ? $attachment_id : 0;
+		$resolved['url'] = $url ? esc_url_raw( $url ) : '';
+
+		if ( $resolved['attachment_id'] ) {
+			$meta = wp_get_attachment_metadata( $resolved['attachment_id'] );
+			$resolved['width'] = intval( $meta['width'] ?? 0 );
+			$resolved['height'] = intval( $meta['height'] ?? 0 );
+		}
+
+		if ( $resolved['width'] > 0 && $resolved['height'] > 0 ) {
+			$resolved['aspect_ratio'] = round( $resolved['width'] / $resolved['height'], 4 );
+			if ( $resolved['width'] > $resolved['height'] ) {
+				$resolved['orientation'] = 'landscape';
+			} elseif ( $resolved['height'] > $resolved['width'] ) {
+				$resolved['orientation'] = 'portrait';
+			} else {
+				$resolved['orientation'] = 'square';
+			}
+			$resolved['is_tiny'] = ( $resolved['width'] * $resolved['height'] ) < 300000 || min( $resolved['width'], $resolved['height'] ) < 480;
+		}
+
+		return $resolved;
+	}
+
+	public static function render_media_frame( $source, $args = array() ) {
+		$defaults = array(
+			'frame_mode' => 'split-standard',
+			'alt' => '',
+			'placeholder_badge' => 'Add image',
+			'placeholder_title' => 'Cafe signage frame',
+			'placeholder_detail' => 'Add a photo, screenshot, or signage-ready image.',
+			'weak_media_fallback' => false,
+			'extra_class' => '',
+		);
+		$args = wp_parse_args( $args, $defaults );
+		$meta = self::resolve_media_metadata( $source );
+		$frame_mode = sanitize_html_class( (string) $args['frame_mode'] );
+		$orientation = sanitize_html_class( (string) $meta['orientation'] );
+		$mode_by_orientation = array(
+			'portrait' => 'portrait-focus',
+			'square' => 'square-card',
+			'landscape' => $frame_mode,
+			'unknown' => $frame_mode,
+		);
+		if ( isset( $mode_by_orientation[ $orientation ] ) && in_array( $frame_mode, array( 'split-standard', 'split-tall' ), true ) ) {
+			$frame_mode = $mode_by_orientation[ $orientation ];
+		}
+		$extra_classes = array();
+		foreach ( preg_split( '/\s+/', (string) $args['extra_class'] ) as $extra_class ) {
+			$extra_class = sanitize_html_class( $extra_class );
+			if ( $extra_class ) {
+				$extra_classes[] = $extra_class;
 			}
 		}
-		if ( ! $url ) {
-			return '<!-- wp:html --><div class="cm-media-frame cm-media-frame--placeholder cm-media-frame--' . esc_attr( $frame_mode ) . ' cm-media-frame--unknown"><span class="cm-badge cm-status--warm">' . esc_html( $badge ) . '</span><h2 class="cm-sign-title cm-placeholder-title">' . esc_html( $fallback_title ) . '</h2></div><!-- /wp:html -->';
+		$classes = trim( 'cm-media-frame cm-media-frame--' . $frame_mode . ' cm-media-frame--' . $orientation . ' ' . implode( ' ', $extra_classes ) );
+		$has_weak_media = ! empty( $args['weak_media_fallback'] ) && ! empty( $meta['is_tiny'] );
+
+		if ( empty( $meta['url'] ) || $has_weak_media ) {
+			$detail = $has_weak_media ? 'Image is too small for this layout. Add a higher resolution media asset.' : (string) $args['placeholder_detail'];
+			return '<div class="' . esc_attr( $classes ) . ' cm-media-frame--placeholder"><span class="cm-badge cm-status--warm">' . esc_html( $args['placeholder_badge'] ) . '</span><h2 class="cm-sign-title cm-placeholder-title">' . esc_html( $args['placeholder_title'] ) . '</h2><p class="cm-subtle">' . esc_html( $detail ) . '</p></div>';
 		}
-		return '<!-- wp:html --><figure class="cm-media-frame cm-media-frame--' . esc_attr( $frame_mode ) . ' cm-media-frame--' . esc_attr( $orientation ) . '"><img class="cm-media-image" src="' . esc_url( $url ) . '" alt="' . esc_attr( $brand_name ) . ' image"/></figure><!-- /wp:html -->';
+
+		return '<figure class="' . esc_attr( $classes ) . '"><img class="cm-media-image" src="' . esc_url( $meta['url'] ) . '" alt="' . esc_attr( (string) $args['alt'] ) . '" loading="lazy" decoding="async"/></figure>';
 	}
 
 	private static function replace_markup_tokens( $markup, $context ) {
@@ -2531,9 +2618,27 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$nav_ref = self::resolve_navigation_post_id( $s['header_nav_source'] ?? 'primary_navigation' );
 		$brand_markup = '<!-- wp:site-title {"level":0} /-->';
 		if ( 'logo_only' === ( $s['header_brand_treatment'] ?? '' ) && ! empty( $logo_url ) ) {
-			$brand_markup = '<!-- wp:image {"sizeSlug":"full","linkDestination":"none"} --><figure class="wp-block-image size-full"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $brand_name ) . '"/></figure><!-- /wp:image -->';
+			$brand_markup = '<!-- wp:html -->' . self::render_media_frame(
+				$logo_url,
+				array(
+					'frame_mode' => 'logo-signage',
+					'alt' => $brand_name . ' brand mark',
+					'placeholder_badge' => 'Add logo',
+					'placeholder_title' => 'Cafe signage mark',
+					'extra_class' => 'cm-managed-header__brand-logo',
+				)
+			) . '<!-- /wp:html -->';
 		} elseif ( 'logo_and_name' === ( $s['header_brand_treatment'] ?? '' ) && ! empty( $logo_url ) ) {
-			$brand_markup = '<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"left"}} --><div class="wp-block-group"><!-- wp:image {"sizeSlug":"thumbnail","linkDestination":"none"} --><figure class="wp-block-image size-thumbnail"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $brand_name ) . '"/></figure><!-- /wp:image --><!-- wp:site-title {"level":0} /--></div><!-- /wp:group -->';
+			$brand_markup = '<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"left"}} --><div class="wp-block-group"><!-- wp:html -->' . self::render_media_frame(
+				$logo_url,
+				array(
+					'frame_mode' => 'logo-signage',
+					'alt' => $brand_name . ' brand mark',
+					'placeholder_badge' => 'Add logo',
+					'placeholder_title' => 'Cafe signage mark',
+					'extra_class' => 'cm-managed-header__brand-logo',
+				)
+			) . '<!-- /wp:html --><!-- wp:site-title {"level":0} /--></div><!-- /wp:group -->';
 		}
 		$nav_markup = $nav_ref ? '<!-- wp:navigation {"ref":' . intval( $nav_ref ) . ',"overlayMenu":"mobile","className":"cm-managed-header__nav-items"} /-->' : '';
 		$header_class = 'counter' === ( $s['header_footer_preset'] ?? '' ) ? 'cm-managed-header is-counter' : 'cm-managed-header is-utility';
@@ -2819,7 +2924,16 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$image = self::resolve_url( $s['display_logo_image'] );
 		$brand = self::brand_profile();
 		if ( $image ) {
-			return '<div class="cm-brand-mark cm-sign-flicker"><img src="' . esc_url( $image ) . '" alt="' . esc_attr( $brand['name'] ) . '"></div>';
+			return '<div class="cm-brand-mark cm-sign-flicker">' . self::render_media_frame(
+				$image,
+				array(
+					'frame_mode' => 'logo-signage',
+					'alt' => ( $brand['name'] ?? 'Brand' ) . ' logo',
+					'placeholder_badge' => 'Add logo',
+					'placeholder_title' => 'Cafe signage mark',
+					'extra_class' => 'cm-brand-mark__media',
+				)
+			) . '</div>';
 		}
 		return '<div class="cm-brand-mark"><span class="cm-brand-mark__fallback">' . esc_html( $s['site_kicker'] ) . '</span></div>';
 	}
@@ -3078,9 +3192,29 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 
 		$image_markup = '';
 		if ( $d['hero_image'] ) {
-			$image_markup = '<div class="cm-media-frame cm-media-frame--ratio"><img src="' . esc_url( $d['hero_image'] ) . '" alt="' . esc_attr( $d['title'] ) . '"></div>';
+			$image_markup = self::render_media_frame(
+				$d['hero_image'],
+				array(
+					'frame_mode' => 'square-card',
+					'alt' => $d['title'],
+					'placeholder_badge' => 'Add hero image',
+					'placeholder_title' => 'Tool image slot',
+					'weak_media_fallback' => true,
+					'extra_class' => 'cm-media-frame--ratio',
+				)
+			);
 		} else {
-			$image_markup = '<div class="cm-media-frame cm-media-frame--ratio"><div class="cm-media-frame__placeholder">Add a featured image or SCF hero image to elevate the card.</div></div>';
+			$image_markup = self::render_media_frame(
+				'',
+				array(
+					'frame_mode' => 'square-card',
+					'alt' => $d['title'],
+					'placeholder_badge' => 'Add hero image',
+					'placeholder_title' => 'Tool image slot',
+					'placeholder_detail' => 'Add a featured image or SCF hero image to elevate the card.',
+					'extra_class' => 'cm-media-frame--ratio',
+				)
+			);
 		}
 
 		$html  = '<article class="cm-card cm-tool-card">';
