@@ -35,6 +35,7 @@ final class Cafe_Moxie_Site_Kit {
 		add_action( 'admin_post_cafe_moxie_assign_front_page', array( __CLASS__, 'assign_front_page' ) );
 		add_action( 'admin_post_cafe_moxie_apply_preset', array( __CLASS__, 'apply_brand_preset_action' ) );
 		add_action( 'admin_post_cafe_moxie_polished_setup', array( __CLASS__, 'run_polished_setup' ) );
+		add_action( 'admin_post_cafe_moxie_bootstrap_shell', array( __CLASS__, 'bootstrap_site_shell' ) );
 		add_action( 'admin_post_cafe_moxie_clear_logs', array( __CLASS__, 'clear_logs_action' ) );
 		add_action( 'admin_post_cafe_moxie_export_logs', array( __CLASS__, 'export_logs_action' ) );
 		add_filter( 'render_block_data', array( __CLASS__, 'filter_template_part_blocks' ), 10, 2 );
@@ -1018,6 +1019,9 @@ final class Cafe_Moxie_Site_Kit {
 		$template_part_state = self::template_part_generation_state();
 		$nav_locations = get_nav_menu_locations();
 		$primary_menu_id = (int) ( $nav_locations['primary'] ?? 0 );
+		$footer_menu_id = (int) ( $nav_locations['footer'] ?? 0 );
+		$primary_nav_ref = self::resolve_navigation_post_id( 'primary_navigation' );
+		$footer_nav_ref = self::resolve_navigation_post_id( 'footer_navigation' );
 		$has_logo = has_custom_logo() || ! empty( $s['display_logo_image'] );
 		$header_part = self::find_template_part( 'cm-site-kit-header' );
 		$footer_part = self::find_template_part( 'cm-site-kit-footer' );
@@ -1062,25 +1066,38 @@ final class Cafe_Moxie_Site_Kit {
 				),
 			),
 			array(
-				'label' => 'Template part ownership',
-				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && 0 === $template_part_state['missing'] ) ? 'Ready' : 'Needs attention',
-				'detail' => sprintf(
-					'%1$d/%2$d plugin-managed template parts, %3$d unmanaged/user-edited, %4$d missing. Managed routing is %5$s.',
-					$template_part_state['managed_generated'],
-					$template_part_state['total'],
-					$template_part_state['unmanaged_existing'],
-					$template_part_state['missing'],
-					! empty( $s['enable_managed_header_footer'] ) ? 'enabled' : 'disabled'
+				'label' => 'Header template part',
+				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && $header_part ) ? 'Ready' : 'Needs attention',
+				'detail' => $header_part ? ( self::is_marked_generated_page( $header_part->ID, 'template_part' ) ? 'Plugin-managed header template part is present.' : 'Header template part exists but is user-managed.' ) : 'Managed header template part is missing.',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit&tab=header_footer' ) ) . '">Open Header + Footer tab</a>',
 				),
+			),
+			array(
+				'label' => 'Footer template part',
+				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && $footer_part ) ? 'Ready' : 'Needs attention',
+				'detail' => $footer_part ? ( self::is_marked_generated_page( $footer_part->ID, 'template_part' ) ? 'Plugin-managed footer template part is present.' : 'Footer template part exists but is user-managed.' ) : 'Managed footer template part is missing.',
 				'actions' => array(
 					'<a class="button-link" href="' . esc_url( admin_url( 'admin.php?page=cafe-moxie-site-kit&tab=header_footer' ) ) . '">Open Header + Footer tab</a>',
 					'<a class="button-link" href="' . esc_url( admin_url( 'site-editor.php?path=%2Fwp_template_part%2Fall' ) ) . '">Open Site Editor template parts</a>',
 				),
 			),
 			array(
-				'label' => 'Navigation readiness',
-				'status' => $primary_menu_id > 0 ? 'Ready' : 'Needs attention',
-				'detail' => $primary_menu_id > 0 ? 'Primary navigation location has an assigned menu.' : 'Primary navigation location is not assigned yet.',
+				'label' => 'Primary navigation',
+				'status' => $primary_nav_ref > 0 ? 'Ready' : 'Needs attention',
+				'detail' => $primary_nav_ref > 0
+					? ( $primary_menu_id > 0 ? 'Primary navigation is available via theme menu mapping.' : 'Primary navigation is available via plugin-managed fallback navigation.' )
+					: 'No primary navigation source is currently available.',
+				'actions' => array(
+					'<a class="button-link" href="' . esc_url( admin_url( 'nav-menus.php' ) ) . '">Open Navigation menus</a>',
+				),
+			),
+			array(
+				'label' => 'Footer navigation',
+				'status' => $footer_nav_ref > 0 ? 'Ready' : 'Needs attention',
+				'detail' => $footer_nav_ref > 0
+					? ( $footer_menu_id > 0 ? 'Footer navigation is available via theme menu mapping.' : 'Footer navigation is available via plugin-managed fallback navigation.' )
+					: 'No footer navigation source is currently available.',
 				'actions' => array(
 					'<a class="button-link" href="' . esc_url( admin_url( 'nav-menus.php' ) ) . '">Open Navigation menus</a>',
 				),
@@ -1102,6 +1119,19 @@ final class Cafe_Moxie_Site_Kit {
 					'<a class="button-link" href="' . esc_url( admin_url( 'edit.php?post_type=edge_tool' ) ) . '">Open Edge Tools</a>',
 				),
 			),
+			array(
+				'label' => 'Shell ownership summary',
+				'status' => ( ! empty( $s['enable_managed_header_footer'] ) && 0 === $template_part_state['missing'] ) ? 'Ready' : 'Needs attention',
+				'detail' => sprintf(
+					'%1$d/%2$d plugin-managed template parts, %3$d unmanaged/user-edited, %4$d missing. Managed routing is %5$s.',
+					$template_part_state['managed_generated'],
+					$template_part_state['total'],
+					$template_part_state['unmanaged_existing'],
+					$template_part_state['missing'],
+					! empty( $s['enable_managed_header_footer'] ) ? 'enabled' : 'disabled'
+				),
+				'actions' => array(),
+			),
 		);
 		return $rows;
 	}
@@ -1111,11 +1141,13 @@ final class Cafe_Moxie_Site_Kit {
 		$preset_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_apply_preset&preset=cafe_moxie' ), 'cafe_moxie_apply_preset' );
 		$starter_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_create_starter_pages' ), 'cafe_moxie_create_starter_pages' );
 		$template_part_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_generate_template_parts' ), 'cafe_moxie_generate_template_parts' );
+		$shell_bootstrap_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_bootstrap_shell' ), 'cafe_moxie_bootstrap_shell' );
 		$assign_home_url = $home_page ? wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_assign_front_page&page_id=' . intval( $home_page->ID ) ), 'cafe_moxie_assign_front_page' ) : '';
 		echo '<div class="cm-admin-panel-card">';
-		echo '<h2>Quick actions (first-run + refresh)</h2>';
-		echo '<p class="description"><strong>Recommended for Cafe Moxie:</strong> run these in order on a clean install to reach a polished shell without jumping between multiple admin screens.</p>';
+		echo '<h2>Quick actions (site shell bootstrap)</h2>';
+		echo '<p class="description"><strong>Recommended for Cafe Moxie:</strong> run shell bootstrap on clean installs to provision starter pages, navigation, managed header/footer, and front-page assignment in one deterministic flow.</p>';
 		echo '<div class="cm-admin-action-cluster">';
+		echo '<a class="button button-primary" href="' . esc_url( $shell_bootstrap_url ) . '">Stand Up Cafe Moxie Site Shell</a>';
 		echo '<a class="button button-secondary" href="' . esc_url( $preset_url ) . '">Apply Cafe Moxie polished defaults</a>';
 		echo '<a class="button button-secondary" href="' . esc_url( $starter_url ) . '">Generate / Refresh Cafe Moxie Starter Set</a>';
 		echo '<a class="button button-secondary" href="' . esc_url( $template_part_url ) . '">Generate / Refresh Managed Header + Footer</a>';
@@ -1247,7 +1279,9 @@ final class Cafe_Moxie_Site_Kit {
 		<h2>Generation + Assignment Actions</h2>
 		<p>These actions create or refresh content. They are separate from normal settings save actions.</p>
 		<div class="cm-admin-action-cluster">
-			<a class="button button-primary" href="<?php echo esc_url( $polished_setup_url ); ?>">Run One-Click Polished Setup</a>
+			<?php $shell_bootstrap_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_bootstrap_shell' ), 'cafe_moxie_bootstrap_shell' ); ?>
+			<a class="button button-primary" href="<?php echo esc_url( $shell_bootstrap_url ); ?>">Stand Up Cafe Moxie Site Shell</a>
+			<a class="button button-secondary" href="<?php echo esc_url( $polished_setup_url ); ?>">Run Legacy One-Click Setup</a>
 			<a class="button button-secondary" href="<?php echo esc_url( $preset_url ); ?>">Apply Cafe Moxie polished defaults</a>
 			<a class="button button-secondary" href="<?php echo esc_url( $url ); ?>">Generate / Refresh Cafe Moxie Starter Set</a>
 			<?php $template_part_url = wp_nonce_url( admin_url( 'admin-post.php?action=cafe_moxie_generate_template_parts' ), 'cafe_moxie_generate_template_parts' ); ?>
@@ -3094,21 +3128,79 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You are not allowed to run setup.', 'cafe-moxie-site-kit' ) );
 		}
+		$report = self::run_shell_bootstrap_flow();
+		$msg = sprintf(
+			'Site shell bootstrap complete: %1$d pages created, %2$d pages updated, %3$d template parts created, %4$d navigation items provisioned.',
+			(int) $report['starter_counts']['created'],
+			(int) $report['starter_counts']['updated'],
+			(int) $report['template_part_counts']['created'],
+			(int) $report['navigation_counts']['created'] + (int) $report['navigation_counts']['updated']
+		);
+		wp_safe_redirect( add_query_arg( array( 'page' => 'cafe-moxie-site-kit', 'cm_setup_notice' => $msg ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
+	public static function bootstrap_site_shell() {
+		check_admin_referer( 'cafe_moxie_bootstrap_shell' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You are not allowed to run setup.', 'cafe-moxie-site-kit' ) );
+		}
+		$report = self::run_shell_bootstrap_flow();
+		$redirect = add_query_arg(
+			array(
+				'page' => 'cafe-moxie-site-kit',
+				'cm_setup_notice' => 'Cafe Moxie shell bootstrap finished.',
+				'shell_ran' => 1,
+				'shell_errors' => (int) $report['errors'],
+			),
+			admin_url( 'admin.php' )
+		);
+		wp_safe_redirect( $redirect );
+		exit;
+	}
+
+	private static function run_shell_bootstrap_flow() {
 		$updated = self::apply_brand_preset_to_settings( self::settings(), 'cafe_moxie', true );
 		update_option( self::OPTION, $updated );
-		self::cm_log_action( 'polished_setup', 'success', array( 'major' => true, 'phase' => 'preset_applied' ) );
-		$counts = self::generate_starter_pages( true );
-		self::generate_template_parts_internal();
+		self::cm_log_action( 'shell_bootstrap', 'success', array( 'major' => true, 'phase' => 'preset_applied' ) );
+
+		$starter_counts = self::generate_starter_pages( true );
+		$navigation_counts = self::provision_managed_navigation();
+		$template_part_counts = self::generate_template_parts_internal();
+
+		$front_page_status = 'missing_home_page';
 		$home_page = get_page_by_path( 'home', OBJECT, 'page' );
 		if ( $home_page ) {
 			update_option( 'show_on_front', 'page' );
 			update_option( 'page_on_front', (int) $home_page->ID );
-			self::cm_log_action( 'polished_setup', 'success', array( 'major' => true, 'phase' => 'front_page_assigned', 'page_id' => (int) $home_page->ID ) );
+			$front_page_status = 'assigned';
+			self::cm_log_action( 'shell_bootstrap', 'success', array( 'major' => true, 'phase' => 'front_page_assigned', 'page_id' => (int) $home_page->ID ) );
+		} else {
+			self::cm_log_event( 'warning', 'Shell bootstrap could not assign front page because Home page is missing.', array( 'status' => 'failure' ) );
 		}
-		self::cm_log_action( 'polished_setup', $counts['errors'] > 0 ? 'failure' : 'success', array( 'major' => true, 'starter_counts' => $counts ) );
-		$msg = sprintf( 'Polished setup complete: %1$d created, %2$d updated starter pages.', $counts['created'], $counts['updated'] );
-		wp_safe_redirect( add_query_arg( array( 'page' => 'cafe-moxie-site-kit', 'cm_setup_notice' => $msg ), admin_url( 'admin.php' ) ) );
-		exit;
+
+		$error_count = (int) $starter_counts['errors'] + (int) $navigation_counts['errors'] + (int) $template_part_counts['errors'];
+		if ( 'assigned' !== $front_page_status ) {
+			$error_count++;
+		}
+		self::cm_log_action(
+			'shell_bootstrap_complete',
+			$error_count > 0 ? 'failure' : 'success',
+			array(
+				'major' => true,
+				'starter_counts' => $starter_counts,
+				'navigation_counts' => $navigation_counts,
+				'template_part_counts' => $template_part_counts,
+				'front_page_status' => $front_page_status,
+			)
+		);
+		return array(
+			'starter_counts' => $starter_counts,
+			'navigation_counts' => $navigation_counts,
+			'template_part_counts' => $template_part_counts,
+			'front_page_status' => $front_page_status,
+			'errors' => $error_count,
+		);
 	}
 
 	public static function filter_template_part_blocks( $parsed_block, $source_block ) {
@@ -3144,6 +3236,84 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		return ! empty( $posts[0] ) ? $posts[0] : null;
 	}
 
+	private static function find_navigation_post( $slug ) {
+		$posts = get_posts(
+			array(
+				'post_type' => 'wp_navigation',
+				'name' => sanitize_title( $slug ),
+				'post_status' => array( 'publish', 'draft', 'auto-draft' ),
+				'numberposts' => 1,
+			)
+		);
+		return ! empty( $posts[0] ) ? $posts[0] : null;
+	}
+
+	private static function default_shell_nav_items() {
+		return array(
+			array( 'slug' => 'home', 'label' => 'Home' ),
+			array( 'slug' => 'about', 'label' => 'About Cafe Moxie' ),
+			array( 'slug' => 'browse-the-counter', 'label' => 'Browse the Counter' ),
+			array( 'slug' => 'how-it-works', 'label' => 'How It Works' ),
+			array( 'slug' => 'who-its-for', 'label' => 'Who It’s For' ),
+			array( 'slug' => 'trust-faq', 'label' => 'Trust + FAQ' ),
+		);
+	}
+
+	private static function default_navigation_block_markup() {
+		$links = array();
+		foreach ( self::default_shell_nav_items() as $item ) {
+			$slug = sanitize_title( $item['slug'] ?? '' );
+			$label = sanitize_text_field( $item['label'] ?? '' );
+			$url = home_url( '/' );
+			if ( $slug && 'home' !== $slug ) {
+				$page = get_page_by_path( $slug, OBJECT, 'page' );
+				$url = $page ? get_permalink( $page ) : home_url( '/' . $slug . '/' );
+			}
+			$links[] = '<!-- wp:navigation-link {"label":"' . esc_attr( $label ) . '","url":"' . esc_url( $url ) . '"} /-->';
+		}
+		return '<!-- wp:navigation {"overlayMenu":"mobile","className":"cm-managed-header__nav-items"} -->' . implode( '', $links ) . '<!-- /wp:navigation -->';
+	}
+
+	private static function upsert_navigation_post( $slug, $title, $content ) {
+		$existing = self::find_navigation_post( $slug );
+		if ( $existing ) {
+			if ( ! self::is_marked_generated_page( $existing->ID, 'navigation' ) ) {
+				return array( 'status' => 'skipped_unmanaged', 'id' => (int) $existing->ID );
+			}
+			$updated = wp_update_post(
+				array(
+					'ID' => $existing->ID,
+					'post_title' => $title,
+					'post_content' => $content,
+					'post_status' => 'publish',
+				),
+				true
+			);
+			if ( is_wp_error( $updated ) ) {
+				self::cm_log_error( 'Navigation update failed.', array( 'navigation_slug' => $slug, 'error' => $updated ) );
+				return array( 'status' => 'errors', 'id' => 0 );
+			}
+			self::set_generated_markers( $existing->ID, 'navigation', $content );
+			return array( 'status' => 'updated', 'id' => (int) $existing->ID );
+		}
+		$post_id = wp_insert_post(
+			array(
+				'post_type' => 'wp_navigation',
+				'post_name' => sanitize_title( $slug ),
+				'post_title' => $title,
+				'post_content' => $content,
+				'post_status' => 'publish',
+			),
+			true
+		);
+		if ( is_wp_error( $post_id ) || ! $post_id ) {
+			self::cm_log_error( 'Navigation insert failed.', array( 'navigation_slug' => $slug, 'error' => $post_id ) );
+			return array( 'status' => 'errors', 'id' => 0 );
+		}
+		self::set_generated_markers( $post_id, 'navigation', $content );
+		return array( 'status' => 'created', 'id' => (int) $post_id );
+	}
+
 	private static function resolve_navigation_post_id( $source ) {
 		if ( 'no_navigation' === $source ) {
 			return 0;
@@ -3151,19 +3321,54 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 		$location = 'primary_navigation' === $source ? 'primary' : 'footer';
 		$locations = get_nav_menu_locations();
 		$menu_id = isset( $locations[ $location ] ) ? intval( $locations[ $location ] ) : 0;
-		if ( ! $menu_id ) {
-			return 0;
+		if ( $menu_id ) {
+			$nav = get_posts(
+				array(
+					'post_type' => 'wp_navigation',
+					'post_status' => array( 'publish', 'draft' ),
+					'meta_key' => 'wp_navigation_menu_id',
+					'meta_value' => $menu_id,
+					'numberposts' => 1,
+				)
+			);
+			if ( ! empty( $nav[0] ) ) {
+				return intval( $nav[0]->ID );
+			}
 		}
-		$nav = get_posts(
-			array(
-				'post_type' => 'wp_navigation',
-				'post_status' => array( 'publish', 'draft' ),
-				'meta_key' => 'wp_navigation_menu_id',
-				'meta_value' => $menu_id,
-				'numberposts' => 1,
-			)
+		$fallback_slug = ( 'primary_navigation' === $source ) ? 'cm-site-kit-primary-nav' : 'cm-site-kit-footer-nav';
+		$fallback = self::find_navigation_post( $fallback_slug );
+		return $fallback ? (int) $fallback->ID : 0;
+	}
+
+	private static function provision_managed_navigation() {
+		$counts = array(
+			'created' => 0,
+			'updated' => 0,
+			'skipped_unmanaged' => 0,
+			'errors' => 0,
+			'primary_nav_id' => 0,
+			'footer_nav_id' => 0,
 		);
-		return ! empty( $nav[0] ) ? intval( $nav[0]->ID ) : 0;
+		$content = self::default_navigation_block_markup();
+		$results = array(
+			'primary_nav_id' => self::upsert_navigation_post( 'cm-site-kit-primary-nav', 'Site Kit Primary Navigation', $content ),
+			'footer_nav_id' => self::upsert_navigation_post( 'cm-site-kit-footer-nav', 'Site Kit Footer Navigation', $content ),
+		);
+		foreach ( $results as $ref_key => $result ) {
+			$status = $result['status'] ?? 'errors';
+			$counts[ $ref_key ] = (int) ( $result['id'] ?? 0 );
+			if ( isset( $counts[ $status ] ) ) {
+				$counts[ $status ]++;
+			} else {
+				$counts['errors']++;
+			}
+		}
+		self::cm_log_action(
+			'navigation_provisioning_complete',
+			$counts['errors'] > 0 ? 'failure' : 'success',
+			array( 'major' => true, 'counts' => $counts )
+		);
+		return $counts;
 	}
 
 	private static function generated_header_markup() {
@@ -3199,9 +3404,16 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 				)
 			) . '<!-- /wp:html --><!-- wp:site-title {"level":0} /--></div><!-- /wp:group -->';
 		}
-		$nav_markup = $nav_ref ? '<!-- wp:navigation {"ref":' . intval( $nav_ref ) . ',"overlayMenu":"mobile","className":"cm-managed-header__nav-items"} /-->' : '';
-		if ( ! $nav_ref ) {
-			self::cm_log_event( 'warning', 'Managed header generated without navigation reference.', array( 'status' => 'failure', 'nav_source' => $s['header_nav_source'] ?? 'primary_navigation' ) );
+		$nav_markup = '';
+		if ( $nav_ref ) {
+			$nav_markup = '<!-- wp:navigation {"ref":' . intval( $nav_ref ) . ',"overlayMenu":"mobile","className":"cm-managed-header__nav-items"} /-->';
+		} elseif ( 'no_navigation' !== ( $s['header_nav_source'] ?? 'primary_navigation' ) ) {
+			$nav_markup = self::default_navigation_block_markup();
+			self::cm_log_event(
+				'warning',
+				'Managed header navigation using plugin fallback links.',
+				array( 'status' => 'failure', 'nav_source' => $s['header_nav_source'] ?? 'primary_navigation', 'fallback' => 'inline_navigation_links' )
+			);
 		}
 		$header_class = 'counter' === ( $s['header_footer_preset'] ?? '' ) ? 'cm-managed-header is-counter' : 'cm-managed-header is-utility';
 		if ( ! $nav_ref ) {
@@ -3213,6 +3425,8 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 
 	private static function generated_footer_markup() {
 		$s = self::settings();
+		$footer_nav_ref = self::resolve_navigation_post_id( 'footer_navigation' );
+		$footer_nav_markup = $footer_nav_ref ? '<!-- wp:navigation {"ref":' . intval( $footer_nav_ref ) . ',"overlayMenu":"never","className":"cm-managed-footer__nav-items"} /-->' : '';
 		$meta = '';
 		if ( 'custom' === ( $s['footer_meta_behavior'] ?? '' ) && ! empty( $s['footer_legal_text'] ) ) {
 			$meta = $s['footer_legal_text'];
@@ -3220,7 +3434,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			$meta = sprintf( '© %1$s %2$s', gmdate( 'Y' ), get_bloginfo( 'name' ) );
 		}
 		self::cm_log_action( 'render_managed_footer_markup', 'success', array( 'meta_behavior' => $s['footer_meta_behavior'] ?? '' ) );
-		return '<!-- cm-site-kit:managed-footer --><!-- wp:group {"tagName":"footer","className":"cm-managed-footer","layout":{"type":"constrained"}} --><footer class="wp-block-group cm-managed-footer"><!-- wp:columns {"className":"cm-managed-footer__columns"} --><div class="wp-block-columns cm-managed-footer__columns"><!-- wp:column {"className":"cm-managed-footer__column"} --><div class="wp-block-column cm-managed-footer__column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_copy'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_primary'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column {"className":"cm-managed-footer__column"} --><div class="wp-block-column cm-managed-footer__column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_secondary'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_utility_copy'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --></div><!-- /wp:columns -->' . ( $meta ? '<!-- wp:paragraph {"className":"cm-managed-footer__meta"} --><p class="cm-managed-footer__meta">' . esc_html( $meta ) . '</p><!-- /wp:paragraph -->' : '' ) . '</footer><!-- /wp:group -->';
+		return '<!-- cm-site-kit:managed-footer --><!-- wp:group {"tagName":"footer","className":"cm-managed-footer","layout":{"type":"constrained"}} --><footer class="wp-block-group cm-managed-footer"><!-- wp:columns {"className":"cm-managed-footer__columns"} --><div class="wp-block-columns cm-managed-footer__columns"><!-- wp:column {"className":"cm-managed-footer__column"} --><div class="wp-block-column cm-managed-footer__column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_copy'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_primary'] ) . '</p><!-- /wp:paragraph --></div><!-- /wp:column --><!-- wp:column {"className":"cm-managed-footer__column"} --><div class="wp-block-column cm-managed-footer__column"><!-- wp:paragraph --><p>' . esc_html( $s['footer_content_secondary'] ) . '</p><!-- /wp:paragraph --><!-- wp:paragraph --><p>' . esc_html( $s['footer_utility_copy'] ) . '</p><!-- /wp:paragraph -->' . $footer_nav_markup . '</div><!-- /wp:column --></div><!-- /wp:columns -->' . ( $meta ? '<!-- wp:paragraph {"className":"cm-managed-footer__meta"} --><p class="cm-managed-footer__meta">' . esc_html( $meta ) . '</p><!-- /wp:paragraph -->' : '' ) . '</footer><!-- /wp:group -->';
 	}
 
 	private static function upsert_template_part( $slug, $title, $content, $area ) {

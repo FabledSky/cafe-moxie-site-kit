@@ -63,6 +63,8 @@ The public template intentionally excludes the Internal Ops Metadata group from 
 - configure brand treatment, navigation source, and header CTA
 - configure footer content areas, utility copy, and legal/meta behavior
 - generate or refresh managed `wp_template_part` header/footer assets with marker-safe updates
+- provision plugin-managed fallback `wp_navigation` assets for primary/footer shell links
+- use a single shell bootstrap action to apply preset + starter pages + navigation + template parts + front-page assignment in one pass
 - apply a deterministic **Cafe Moxie polished defaults** preset action to restore the intended shell after experiments
 
 ### Brand preset defaults layer
@@ -73,7 +75,8 @@ The public template intentionally excludes the Internal Ops Metadata group from 
 
 ### Presentation setup state panel (Overview + Setup)
 - the plugin overview now includes a **Presentation setup state** table designed as the day-to-day setup console
-- it reports readiness for front page assignment, starter page presence, managed header/footer generation, navigation assignment, logo/media state, and Edge Tool archive readiness
+- it reports explicit shell diagnostics for header template part, footer template part, primary navigation, footer navigation, logo/media state, front page assignment, starter page pack state, and storefront readiness
+- navigation diagnostics identify whether shell nav is coming from theme menu mapping or plugin-managed fallback navigation
 - includes a guarded write-through action to assign the Home page as the static front page using WordPress core options (`show_on_front`, `page_on_front`)
 - links directly to relevant core screens (Reading settings, Pages, Navigation, Site Editor template parts, Customizer logo control) so canonical values stay in core
 
