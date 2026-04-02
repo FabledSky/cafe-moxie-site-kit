@@ -162,3 +162,26 @@ Before marking content-module architecture as polished, verify:
 3. **Starter-page parity:** generated starter pages keep composed section structure and CTA/action cluster spacing after refresh.
 4. **Managed shell parity:** generated header/footer continue to work after preset re-apply and polished setup flow.
 5. **Responsive parity:** viewport checks at 1440, 1280, 1024, 782, 640, and 390 show no overlap in nav/button/action clusters.
+
+## Clean-install QA checklist (Task 26.6)
+
+Use this checklist before marking the setup-console experience as polished:
+
+1. **Plugin activation state**
+   - Activate only Twenty Twenty-Five + Cafe Moxie Site Kit (plus required SCF import).
+   - Open **Site System Kit → Overview + Setup** and verify the quick-actions + setup-state panels render without PHP notices.
+2. **Preset application**
+   - Click **Apply Cafe Moxie polished defaults**.
+   - Confirm a success notice appears and key defaults (brand preset, CTA defaults, shell settings) persist after refresh.
+3. **Page generation**
+   - Click **Generate / Refresh Cafe Moxie Starter Set**.
+   - Confirm six canonical starter pages exist and setup-state reporting distinguishes managed generated pages vs unmanaged/user-edited pages vs missing pages.
+4. **Header/footer generation**
+   - Click **Generate / Refresh Managed Header + Footer**.
+   - Confirm `cm-site-kit-header` and `cm-site-kit-footer` template parts exist and ownership reporting distinguishes managed vs unmanaged entries.
+5. **Front-page assignment**
+   - Click **Assign Home as Front Page**.
+   - Confirm `show_on_front=page` and `page_on_front` points to Home.
+6. **Desktop/tablet/mobile visual checks**
+   - At minimum check 1440, 1024, and 390 widths.
+   - Validate managed header/footer, starter pages, and Edge Tool archive/single pages remain visually stable.
