@@ -156,6 +156,8 @@ It is the **single operational contract** for development.
     * [Definition of done / Constraints / Files to modify / etc.](https://github.com/FabledSky/cafe-moxie-site-kit/blob/main/agents.md#definition-of-done--constraints--files-to-modify--etc-26)
   * [Task 28](#task-28)
   * [Task 29](#task-29)
+  * [Task 30](#task-30)
+  * [Task 31](#task-31)
 <!-- END AUTO TOC -->
 ---
 ## Overview & Background
@@ -2203,6 +2205,202 @@ This task is to fix the default presentation quality layer.
   * possibly `plugin/includes/style-system.php`
   * `docs/IMPLEMENTATION-GUIDE.md`
   * `agents.md`
+ 
+### Review
+Here’s the practical rundown after reviewing the current repo as it stands through Task 29:
+
+The plugin is no longer missing architecture. It has a real settings registry, composed page system, starter-page generator, managed template parts, presets, logs, and a much better baseline than the early versions. The problem now is not “missing framework.” The problem is that the **out-of-box experience is still not truly plugin-owned**.
+
+What still feels incomplete in practical terms:
+
+* The plugin still does **not fully own the site shell**. Header/footer behavior still depends too much on theme/menu/template-part state.
+* “Polished setup” gets partway there, but it still does **not fully provision a finished Cafe Moxie front-end** without extra theme/admin cleanup.
+* The visual system is stronger, but the **default presentation still feels too narrow, too conservative, and too dependent on fallbacks/placeholders**.
+* The page generator is now broader, but the **starter experience still does not feel like a complete branded site pack** with shell, nav, assets, and final calibrated defaults all working together.
+
+So the next critical work should stop being abstract cleanup and focus on the two most practical missing layers:
+
+1. **true plugin-first shell ownership**
+2. **true polished out-of-box content/media/layout baseline**
+
+---
+
+### Task 30
+
+Goals
+
+Make the plugin the true owner of the default site shell so a fresh install no longer depends on manual theme settings work for header/footer/navigation/logo/site presentation readiness.
+
+Right now, the plugin can generate parts of the shell, but the out-of-box experience still feels partially theme-managed. This task is to close that gap and make the plugin-first shell actually reliable.
+
+#### Implementation Steps
+
+1. Refactor the managed header/footer system so it no longer depends on manual theme-level setup to feel complete. The plugin should provision and manage the default shell state itself wherever WordPress allows.
+
+2. Introduce a plugin-owned shell bootstrap flow that can provision all core shell dependencies required for a finished Cafe Moxie presentation, including at minimum:
+
+   * managed header template part
+   * managed footer template part
+   * primary navigation content
+   * footer navigation content (if used)
+   * front-page assignment
+   * default shell settings/preset state
+
+3. Stop relying on theme menu-location state as the primary dependency for managed navigation output if that dependency makes the shell fragile. Replace or supplement it with a plugin-managed fallback path that can still render a working navigation shell when theme menu assignment is missing or incomplete.
+
+4. Add a plugin-managed navigation provisioning routine that creates and/or syncs a default Cafe Moxie navigation structure, including at minimum links for:
+
+   * Home
+   * About Cafe Moxie
+   * Browse the Counter
+   * How It Works
+   * Who It’s For
+   * Trust + FAQ
+
+5. Ensure the polished setup flow becomes a true shell bootstrap flow, not just a partial preset/page generator. After running setup on a clean install, the plugin should be able to leave the site in a state where:
+
+   * header renders
+   * footer renders
+   * nav renders
+   * front page is assigned
+   * starter pages exist
+   * shell looks intentionally configured
+
+6. Add explicit shell-readiness diagnostics to the plugin UI so the user can see whether the following are ready, broken, or using fallback behavior:
+
+   * header template part
+   * footer template part
+   * primary navigation
+   * footer navigation
+   * logo/brand asset state
+   * front page assignment
+   * starter page pack state
+
+7. Improve header/footer generation so repeated generation/setup runs are deterministic and safe:
+
+   * create if missing
+   * update if plugin-managed
+   * avoid silently replacing unmanaged user-edited shell content
+   * clearly log what was created, updated, skipped, or missing
+
+8. Ensure the Logs tab records shell-bootstrap failures and fallback behavior in a way that makes shell issues easy to diagnose.
+
+9. Update the plugin Overview/Setup experience so the main quick action becomes a true “stand up the site shell” action, not just a collection of loosely related generation tools.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a clean install no longer requires the user to visit theme settings just to get a working Cafe Moxie header/footer/navigation shell.
+
+* The plugin must become the preferred shell-control layer for the site.
+
+* Do not hard-disable theme functionality, but do eliminate theme-setup dependence for the default plugin-managed experience.
+
+* Do not introduce a page builder, site builder, or heavy admin framework.
+
+* Keep behavior deterministic, revision-safe, and WordPress-native.
+
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/site-shell.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+### Task 31
+
+Goals
+
+Ship a truly polished Cafe Moxie out-of-box baseline by bundling a complete starter presentation layer: wider calibrated defaults, calmer typography, non-placeholder starter content treatment, and plugin-owned fallback media/assets so the generated site looks finished immediately.
+
+Right now, the system is structurally capable, but too much of the first-run experience still feels narrow, placeholder-heavy, or visually provisional. This task is to make the default generated site feel complete and presentable without manual intervention.
+
+#### Implementation Steps
+
+1. Calibrate the Cafe Moxie default visual baseline for a wider, more composed presentation. Update polished preset defaults so the default generated site no longer feels overly narrow or compressed.
+
+2. Revisit and tune the specific default values that most affect first impression, including at minimum:
+
+   * section max width
+   * content width
+   * content band width
+   * outer gutter
+   * panel padding
+   * grid gap
+   * heading scale
+   * hero min height
+   * button scale
+   * mobile heading scale
+   * page density
+   * archive/default card column behavior
+
+3. Replace visually weak starter-page fallback states with plugin-owned branded fallback presentation. Do not let the default generated pages feel unfinished because the user has not yet uploaded assets.
+
+4. Add a Cafe Moxie starter asset/fallback layer for generated pages and managed shell surfaces, including appropriate plugin-owned fallback treatments for:
+
+   * hero/signage media
+   * story/about media
+   * header brand mark area
+   * empty visual panels
+   * category/CTA surfaces
+
+5. Make the default generated pages read as intentionally designed even when real images are not present. Placeholder states should feel branded, calm, and acceptable in production, not like temporary editor scaffolding.
+
+6. Audit all generated page copy/layout pairings and remove any remaining sections that feel generic, under-filled, or structurally awkward in the default Cafe Moxie preset.
+
+7. Ensure the six-page Cafe Moxie starter pack works as one coherent site set, not just six individually generated pages. At minimum verify consistency across:
+
+   * shell language
+   * CTA language
+   * page width behavior
+   * section spacing rhythm
+   * card treatment
+   * fallback media treatment
+   * archive hand-off language
+
+8. Add stronger default constraints so user-facing visual controls start from a polished range rather than a technically valid but unattractive range.
+
+9. Add a dedicated “Cafe Moxie polished baseline” QA pass to the plugin workflow and treat the following as failures on a clean install:
+
+   * starter pages still look placeholder-like
+   * pages feel too narrow by default
+   * shell and pages do not visually feel like one system
+   * missing images make the site feel broken
+   * default generated content feels incomplete or generic
+
+10. Ensure polished setup applies this full baseline automatically so a clean install yields a finished-looking branded starter site, not just a technically generated one.
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when a clean install using the Cafe Moxie preset produces a site that feels intentionally designed and presentable even before the user customizes images or text.
+
+* The default site should feel wider, calmer, more complete, and less placeholder-driven.
+
+* Do not introduce fake testimonials, fake client logos, fake product metrics, or unsupported claims.
+
+* Do not solve the issue by simply shrinking everything or hiding missing media.
+
+* Prefer elegant fallback design and calibrated defaults over brittle complexity.
+
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * `plugin/patterns/*.php`
+  * `plugin/templates/*.php`
+  * possibly add `plugin/assets/*`
+  * `cade-moxie-brand-guide.md`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+These are the two tasks I’d do next because they attack the actual remaining pain:
+
+* **Task 30** fixes “why do I still need theme settings and why doesn’t the shell just work?”
+* **Task 31** fixes “why does the generated site still feel narrow / unfinished / placeholder-ish?”
+
+That is the clearest path from “30 tasks in and still fiddling” to “activate plugin, run setup, and the site actually looks done.”
 
 ---
 End of file.
