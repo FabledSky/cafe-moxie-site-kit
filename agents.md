@@ -1912,5 +1912,168 @@ Automatically maintain the `agents.md` Table of Contents so it stays in sync whe
   * optionally `.github/workflows/*`
  
  ---
+Here is **Task 28**, written in the exact same structure and style as your `agents.md`, optimized for Codex execution and aligned with your system philosophy:
+
+---
+
+### Task 28
+
+Goals
+
+Implement a comprehensive, WordPress-native logging system with an admin “Logs” tab so plugin behavior, actions, errors, and failures can be easily diagnosed and shared for debugging.
+
+The logging system should make it possible to paste logs into Codex/ChatGPT and receive actionable fixes.
+
+#### Implementation Steps
+
+1. Introduce a centralized logging utility within the plugin, for example:
+
+   * `cm_log_event( $type, $message, $context = [] )`
+   * `cm_log_error( $message, $context = [] )`
+   * `cm_log_action( $action, $status, $context = [] )`
+
+   Where:
+
+   * `$type` includes: `info`, `warning`, `error`, `action`
+   * `$status` includes: `success`, `failure`
+   * `$context` is a structured array (never raw objects)
+
+2. Store logs in a lightweight, WordPress-native way. Acceptable approaches:
+
+   * custom database table (preferred for scalability), OR
+   * bounded option-based storage (ring buffer style)
+
+   Requirements:
+
+   * logs must be capped (avoid unbounded growth)
+   * logs must be queryable by type/time
+   * logs must not degrade site performance
+
+3. Add a new top-level tab in the plugin admin UI:
+
+   * `Logs`
+
+   This tab should include:
+
+   * log level selector (Basic vs Advanced)
+   * log viewer (recent entries)
+   * filters:
+
+     * type (error/warning/info/action)
+     * success/failure
+     * time range
+   * clear logs action (with confirmation)
+   * export logs (copyable or downloadable)
+
+4. Implement logging levels:
+
+   * **Basic logging**
+
+     * critical errors
+     * failed actions
+     * major system events (page generation, header/footer generation)
+
+   * **Advanced logging (default)**
+
+     * all actions triggered through plugin UI
+     * generation flows (pages, templates, presets)
+     * SCF normalization issues or unexpected values
+     * template rendering warnings (missing data, fallbacks triggered)
+     * media handling decisions (fallbacks, orientation handling)
+     * preset application events
+     * admin actions (save settings, generate pages, etc.)
+
+5. Instrument key plugin systems so they log meaningful events, including:
+
+   * starter page generation
+   * header/footer generation
+   * settings save/update
+   * preset application/reset
+   * template composition rendering
+   * content module rendering (Edge Tool and future modules)
+   * SCF normalization edge cases
+   * media fallback behavior
+   * any caught PHP warnings/errors within plugin scope
+
+6. Add structured context to logs wherever possible, such as:
+
+   * post ID
+   * page slug
+   * template key
+   * module key
+   * setting key
+   * action name
+
+   Context must be:
+
+   * JSON-serializable
+   * sanitized
+   * size-limited
+
+7. Ensure logging is safe and non-disruptive:
+
+   * logging must never cause fatal errors
+   * logging must fail silently if storage fails
+   * avoid logging sensitive data (no secrets, no raw user input without sanitization)
+
+8. Add a copy/export format optimized for AI debugging, such as:
+
+   * clean, structured text block
+   * grouped by timestamp
+   * includes type + status + message + context
+
+   Example format:
+
+   ```
+   [2026-04-01 14:32:10] ERROR | action: generate_pages | status: failure
+   Message: Missing section definition for template "home"
+   Context: { "template": "home", "section": "hero" }
+   ```
+
+9. Integrate the logging system into the admin Overview/Setup experience:
+
+   * show recent critical errors
+   * surface “last failure” summaries
+   * link directly to full Logs tab
+
+10. Document logging usage in `agents.md` and/or `docs/IMPLEMENTATION-GUIDE.md` so future agents:
+
+* know how to log events
+* know what must be logged
+* do not introduce silent failures
+
+#### Definition of done / Constraints / Files to modify / etc.
+
+* Done when plugin actions and failures can be diagnosed entirely from the Logs tab without needing server-level access.
+
+* Default logging level must be **Advanced**.
+
+* Logging must be lightweight and not introduce noticeable performance overhead.
+
+* Do not introduce external logging services or dependencies.
+
+* Do not log sensitive/private data.
+
+* Keep everything WordPress-native and maintainable.
+
+* Files likely to modify:
+
+  * `plugin/cafe-moxie-site-kit.php`
+  * possibly add `plugin/includes/logger.php`
+  * possibly add `plugin/includes/admin-logs.php`
+  * `docs/IMPLEMENTATION-GUIDE.md`
+  * `agents.md`
+
+---
+
+This one is **very high leverage** — once implemented, you’ll be able to:
+
+> copy logs → paste into ChatGPT → get precise fixes
+
+If you want, I can also:
+
+* generate the **exact Codex prompt for Task 28**
+* or design the **log schema + DB table structure** before implementation (recommended for performance)
+---
 
 End of file.
