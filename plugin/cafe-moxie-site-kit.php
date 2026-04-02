@@ -2107,7 +2107,7 @@ body.cm-layout-showcase_split .cm-grid-2{grid-template-columns:1fr 1fr}
 			'home_secondary_cta_label' => esc_html( $s['home_secondary_cta'] ?? '' ),
 			'about_primary_cta_url' => esc_url( self::resolve_url( $s['about_primary_url'] ?? '' ) ),
 			'about_primary_cta_label' => esc_html( $s['about_primary_cta'] ?? '' ),
-			'edge_tool_archive_url' => esc_url( self::module_archive_url( 'edge_tool' ) ),
+			'edge_tool_archive_url' => esc_url( self::module_archive_link( 'edge_tool' ) ),
 			'featured_tools_count' => esc_attr( (string) (int) ( $s['featured_tools_count'] ?? 3 ) ),
 		);
 	}
