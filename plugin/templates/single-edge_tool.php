@@ -63,7 +63,7 @@ while ( have_posts() ) :
 	<main class="cm-single-page">
 		<div class="cm-wrap">
 			<?php if ( in_array( 'hero', $section_order, true ) ) : ?>
-			<section class="cm-grid-2 cm-section">
+			<section class="cm-layout cm-layout--single-column cm-section">
 				<div class="cm-panel">
 					<div class="cm-chip-list cm-chip-list--tight">
 						<span class="cm-badge"><?php echo esc_html( $content_label ); ?></span>
@@ -171,7 +171,7 @@ while ( have_posts() ) :
 				<?php endif; ?>
 
 				<?php if ( in_array( 'compatibility', $section_order, true ) ) : ?>
-				<div class="cm-grid-2">
+				<div class="cm-layout cm-layout--single-column">
 					<div class="cm-panel">
 						<h2 class="cm-sign-title">Platform + compatibility</h2>
 						<?php echo Cafe_Moxie_Site_Kit::render_list( $platform_items ); ?>
