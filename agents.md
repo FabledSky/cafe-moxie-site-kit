@@ -62,6 +62,7 @@ Here is a clean **GitHub-compatible Table of Contents** for your `agents.md`. Yo
   * [Task 24](#task-24)
   * [Task 25](#task-25)
   * [Task 26](#task-26)
+  * [Task 27](#task-27)
 
 ---
 
