@@ -88,9 +88,31 @@ while ( have_posts() ) :
 				</div>
 				<div class="cm-panel">
 					<?php if ( $data['hero_image'] ) : ?>
-						<div class="cm-media-frame"><img src="<?php echo esc_url( $data['hero_image'] ); ?>" alt="<?php echo esc_attr( $data['title'] ); ?>" class="cm-media-image"></div>
+						<?php
+						echo Cafe_Moxie_Site_Kit::render_media_frame(
+							$data['hero_image'],
+							array(
+								'frame_mode' => 'hero-wide',
+								'alt' => $data['title'],
+								'placeholder_badge' => 'Add hero image',
+								'placeholder_title' => 'Tool media slot',
+								'weak_media_fallback' => true,
+							)
+						);
+						?>
 					<?php else : ?>
-						<div class="cm-placeholder"><span class="cm-badge cm-status--warm">Add hero image</span><h2 class="cm-sign-title cm-placeholder-title">Tool media slot</h2><p class="cm-subtle">Use the SCF hero image field or a featured image for a stronger product page.</p></div>
+						<?php
+						echo Cafe_Moxie_Site_Kit::render_media_frame(
+							'',
+							array(
+								'frame_mode' => 'hero-wide',
+								'alt' => $data['title'],
+								'placeholder_badge' => 'Add hero image',
+								'placeholder_title' => 'Tool media slot',
+								'placeholder_detail' => 'Use the SCF hero image field or a featured image for a stronger product page.',
+							)
+						);
+						?>
 					<?php endif; ?>
 					<div class="cm-kv-grid cm-kv-grid--spaced">
 						<div class="cm-kv"><div class="cm-kv__label">Price</div><div class="cm-kv__value"><?php echo esc_html( $data['price_display'] ? $data['price_display'] : 'See details' ); ?></div></div>
@@ -180,7 +202,20 @@ while ( have_posts() ) :
 					<?php if ( $data['demo_video'] ) : ?><div class="cm-video-wrap"><?php echo wp_oembed_get( esc_url( $data['demo_video'] ) ); ?></div><?php endif; ?>
 					<?php if ( ! empty( $data['gallery'] ) ) : ?>
 						<div class="cm-gallery cm-gallery--spaced">
-							<?php foreach ( $data['gallery'] as $url ) : ?><figure class="cm-media-frame"><img src="<?php echo esc_url( $url ); ?>" alt="<?php echo esc_attr( $data['title'] ); ?> gallery image"></figure><?php endforeach; ?>
+							<?php foreach ( $data['gallery'] as $url ) : ?>
+								<?php
+								echo Cafe_Moxie_Site_Kit::render_media_frame(
+									$url,
+									array(
+										'frame_mode' => 'square-card',
+										'alt' => $data['title'] . ' gallery image',
+										'placeholder_badge' => 'Gallery image',
+										'placeholder_title' => 'Gallery media slot',
+										'weak_media_fallback' => true,
+									)
+								);
+								?>
+							<?php endforeach; ?>
 						</div>
 					<?php endif; ?>
 					<?php if ( ! empty( $data['before_after'] ) ) : ?>
@@ -192,8 +227,30 @@ while ( have_posts() ) :
 							?>
 								<div>
 									<div class="cm-before-after">
-										<div class="cm-media-frame"><?php if ( $before ) : ?><img src="<?php echo esc_url( $before ); ?>" alt="Before example"><?php else : ?><div class="cm-media-frame__placeholder">Before asset</div><?php endif; ?></div>
-										<div class="cm-media-frame"><?php if ( $after ) : ?><img src="<?php echo esc_url( $after ); ?>" alt="After example"><?php else : ?><div class="cm-media-frame__placeholder">After asset</div><?php endif; ?></div>
+										<?php
+										echo Cafe_Moxie_Site_Kit::render_media_frame(
+											$before,
+											array(
+												'frame_mode' => 'split-standard',
+												'alt' => 'Before example',
+												'placeholder_badge' => 'Before',
+												'placeholder_title' => 'Before asset',
+												'weak_media_fallback' => true,
+											)
+										);
+										?>
+										<?php
+										echo Cafe_Moxie_Site_Kit::render_media_frame(
+											$after,
+											array(
+												'frame_mode' => 'split-standard',
+												'alt' => 'After example',
+												'placeholder_badge' => 'After',
+												'placeholder_title' => 'After asset',
+												'weak_media_fallback' => true,
+											)
+										);
+										?>
 									</div>
 									<?php if ( $caption ) : ?><p class="cm-subtle cm-subtle--caption"><?php echo esc_html( $caption ); ?></p><?php endif; ?>
 								</div>
